@@ -20,6 +20,10 @@ namespace EquipmentManager
             Scribe_Values.Look(ref LoadoutId, nameof(LoadoutId));
             Scribe_Values.Look(ref Automatic, nameof(Automatic));
             Scribe_Collections.Look(ref ManagedWeapons, nameof(ManagedWeapons), LookMode.Value);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && ManagedWeapons == null)
+            {
+                ManagedWeapons = new HashSet<ThingDefStuffDefPair>();
+            }
         }
     }
 }

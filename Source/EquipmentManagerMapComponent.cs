@@ -299,6 +299,15 @@ namespace EquipmentManager
                          pc.ShouldUpdateEquipment && (pc.AssignedLoadout?.DropUnassignedWeapons ?? false)))
             {
                 var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn.Pawn);
+                if (pawnLoadout != null)
+                {
+                    pawnLoadout.ManagedWeapons ??= new HashSet<ThingDefStuffDefPair>();
+                    pawnLoadout.ManagedWeapons.Clear();
+                    foreach (var weapon in pawn.AssignedWeapons.Keys)
+                    {
+                        _ = pawnLoadout.ManagedWeapons.Add(weapon.toThingDefStuffDefPair());
+                    }
+                }
                 var managedWeapons = pawnLoadout?.ManagedWeapons ?? new HashSet<ThingDefStuffDefPair>();
 
                 // Удаляем только то, что мод назначил сам в прошлом цикле
@@ -414,8 +423,11 @@ namespace EquipmentManager
                          .ThenByDescending(loadout => loadout.Priority))
             {
                 var availablePawns = _pawnCache.Where(pc => pc.IsAvailable(loadout)).ToList();
+                if (availablePawns.Count == 0) { continue; }
+
                 var prioritySum = availablePawns.Sum(pawn => pawn.AvailableLoadouts.Keys.Sum(l => l.Priority));
                 var avgPriority = prioritySum / availablePawns.Count;
+                if (avgPriority <= 0f) { continue; }
                 var priorityShare = loadout.Priority / avgPriority;
                 var targetCount = (int) Math.Ceiling(availablePawns.Count * priorityShare);
                 var assignedPawnsCount = availablePawns.Count(pc => pc.AssignedLoadout == loadout);
