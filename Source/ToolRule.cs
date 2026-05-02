@@ -110,8 +110,12 @@ namespace EquipmentManager
             var relevantStats = EquipmentManager.GetWorkTypeRules()
                 .Where(wtr => workTypeDefs.Any(wtd => wtd.defName == wtr.WorkTypeDefName))
                 .SelectMany(rule => rule.RequiredStats).ToHashSet();
+
+            var workStats = StatHelper.WorkTypeStatDefs.ToHashSet();
+
             return GloballyAvailableItems.Where(def => (def.statBases ?? new List<StatModifier>())
-                .Union(def.equippedStatOffsets ?? new List<StatModifier>()).Any(sm => relevantStats.Contains(sm.stat)));
+                .Union(def.equippedStatOffsets ?? new List<StatModifier>())
+                .Any(sm => relevantStats.Contains(sm.stat) || workStats.Contains(sm.stat)));
         }
 
         public IEnumerable<ThingDef> GetGloballyAvailableItemsSorted(IReadOnlyCollection<WorkTypeDef> workTypeDefs,

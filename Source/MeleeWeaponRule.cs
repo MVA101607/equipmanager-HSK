@@ -71,12 +71,16 @@ namespace EquipmentManager
                     EquipMode = WeaponEquipMode.BestOne,
                     Rottable = false,
                     StatWeights = new List<StatWeight>(DefaultStatWeights
-                        .Where(sw => !new[] {"MeleeWeapon_AverageDPS"}.Contains(sw.StatDefName)).Union(new[]
+                        .Where(sw => !new[]
                         {
-                            new StatWeight(
-                                CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp),
-                                false) {Weight = 2.0f},
-                            new StatWeight("MeleeWeapon_AverageDPS", false) {Weight = 0.5f}
+                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp),
+                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt)
+                        }.Contains(sw.StatDefName)).Union(new[]
+                        {
+                            new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp), false)
+                                {Weight = 2.0f},
+                            new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt), false)
+                                {Weight = 0.25f}
                         })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist)
                 },
@@ -86,12 +90,16 @@ namespace EquipmentManager
                     EquipMode = WeaponEquipMode.BestOne,
                     Rottable = false,
                     StatWeights = new List<StatWeight>(DefaultStatWeights
-                        .Where(sw => !new[] {"MeleeWeapon_AverageDPS"}.Contains(sw.StatDefName)).Union(new[]
+                        .Where(sw => !new[]
                         {
-                            new StatWeight(
-                                CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt),
-                                false) {Weight = 2.0f},
-                            new StatWeight("MeleeWeapon_AverageDPS", false) {Weight = 0.5f}
+                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp),
+                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt)
+                        }.Contains(sw.StatDefName)).Union(new[]
+                        {
+                            new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt), false)
+                                {Weight = 2.0f},
+                            new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp), false)
+                                {Weight = 0.25f}
                         })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist)
                 }
@@ -100,11 +108,18 @@ namespace EquipmentManager
         public new static IEnumerable<StatWeight> DefaultStatWeights =>
             new[]
             {
-                new StatWeight("MeleeWeapon_AverageDPS", false) {Weight = 2.0f},
-                new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.ArmorPenetration), false)
-                {
-                    Weight = 0.5f
-                }
+        new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp), false)
+        {
+            Weight = 1.0f
+        },
+        new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt), false)
+        {
+            Weight = 1.0f
+        },
+        new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.ArmorPenetration), false)
+        {
+            Weight = 0.5f
+        }
             }.Union(ItemRule.DefaultStatWeights);
 
         public bool? Rottable

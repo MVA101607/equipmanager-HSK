@@ -136,14 +136,22 @@ namespace EquipmentManager
                 .ThenByDescending(thing => carriedWeapons.Contains(thing))
                 .ThenBy(thing => thing.GetHashCode())
                 .FirstOrDefault();
-            if (bestWeapon == null) { return; }
-            pawn.AssignedWeapons.Add(bestWeapon, "primary");
-            if (CEExtendedLoadoutHelper.IsAvailable())
-            {
-                _ = CEExtendedLoadoutHelper.SetPrimaryWeaponInPersonalLoadout(pawn.Pawn, bestWeapon.def);
-            }
-            else
-            {
+                if (bestWeapon == null) { return; }
+                pawn.AssignedWeapons.Add(bestWeapon, "primary");
+                if (CEExtendedLoadoutHelper.IsAvailable())
+                {
+                    var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn.Pawn);
+                    if (pawnLoadout != null)
+                    {
+                        pawnLoadout.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+                        _ = CEExtendedLoadoutHelper.SetPrimaryWeaponInPersonalLoadout(
+                            pawn.Pawn,
+                            bestWeapon.def,
+                            pawnLoadout.ManagedPersonalLoadoutSlots);
+                    }
+                }
+                else
+                {
                 if (carriedWeapons.Contains(bestWeapon))
                 {
                     var defPair = bestWeapon.toThingDefStuffDefPair();
@@ -198,7 +206,15 @@ namespace EquipmentManager
             pawn.AssignedWeapons.Add(bestWeapon, "primary");
             if (CEExtendedLoadoutHelper.IsAvailable())
             {
-                _ = CEExtendedLoadoutHelper.SetPrimaryWeaponInPersonalLoadout(pawn.Pawn, bestWeapon.def);
+                var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn.Pawn);
+                if (pawnLoadout != null)
+                {
+                    pawnLoadout.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+                    _ = CEExtendedLoadoutHelper.SetPrimaryWeaponInPersonalLoadout(
+                        pawn.Pawn,
+                        bestWeapon.def,
+                        pawnLoadout.ManagedPersonalLoadoutSlots);
+                }
             }
             else
             {
@@ -376,6 +392,14 @@ namespace EquipmentManager
             {
                 var magSize = weaponCache.MagSize;
                 targetAmmoCount = magSize > 0 ? magSize * 5 : rule.AmmoCount;
+            }
+            var preferredAmmoDef = ammoDefs.OrderByDescending(def => def.BaseMarketValue).FirstOrDefault();
+            if (preferredAmmoDef == null) { return; }
+
+            if (CEExtendedLoadoutHelper.IsAvailable())
+            {
+                _ = CEExtendedLoadoutHelper.SetAmmoInPersonalLoadout(pawn.Pawn, preferredAmmoDef, targetAmmoCount);
+                return;
             }
             if (currentAmmo < targetAmmoCount)
             {

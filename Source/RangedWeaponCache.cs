@@ -84,7 +84,18 @@ namespace EquipmentManager
                 return _isAmmo;
             }
         }
+        public Def AmmoSet
+        {
+            get
+            {
+                Initialize();
+                if (_isAmmo) { return null; }
+                if (_ammoUserPropsMethod == null) { return null; }
 
+                var ammoUserProps = _ammoUserPropsMethod();
+                return ammoUserProps == null ?  null : CombatExtendedHelper.AmmoSetDelegate(ammoUserProps);
+            }
+        }
         private float MaxRange { get; set; }
         private float MinRange { get; set; }
         private float SightsEfficiency { get; set; }

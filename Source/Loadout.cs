@@ -21,7 +21,7 @@ namespace EquipmentManager
         {
             new Loadout(1)
             {
-                Label = Strings.Default.Assault,
+                Label = "Assault",
                 Priority = 5,
                 PrimaryRuleType = PrimaryWeaponType.RangedWeapon,
                 PrimaryRangedWeaponRuleId = 0,
@@ -34,7 +34,7 @@ namespace EquipmentManager
             },
             new Loadout(2)
             {
-                Label = Strings.Default.Sniper,
+                Label = "Sniper",
                 Priority = 3,
                 PrimaryRuleType = PrimaryWeaponType.RangedWeapon,
                 PrimaryRangedWeaponRuleId = 3,
@@ -49,7 +49,7 @@ namespace EquipmentManager
             },
             new Loadout(3)
             {
-                Label = Strings.Default.Support,
+                Label = "Support",
                 Priority = 2,
                 PrimaryRuleType = PrimaryWeaponType.RangedWeapon,
                 PrimaryRangedWeaponRuleId = 2,
@@ -64,7 +64,7 @@ namespace EquipmentManager
             },
             new Loadout(4)
             {
-                Label = Strings.Default.Slasher,
+                Label = "Slasher",
                 Priority = 5,
                 PrimaryRuleType = PrimaryWeaponType.MeleeWeapon,
                 PrimaryMeleeWeaponRuleId = 1,
@@ -75,7 +75,7 @@ namespace EquipmentManager
             },
             new Loadout(5)
             {
-                Label = Strings.Default.Crusher,
+                Label = "Crusher",
                 Priority = 5,
                 PrimaryRuleType = PrimaryWeaponType.MeleeWeapon,
                 PrimaryMeleeWeaponRuleId = 2,
@@ -86,7 +86,7 @@ namespace EquipmentManager
             },
             new Loadout(6)
             {
-                Label = Strings.Default.Pacifist,
+                Label = "Pacifist",
                 Priority = 5,
                 PrimaryRuleType = PrimaryWeaponType.None,
                 ToolRuleId = 0,
@@ -97,18 +97,18 @@ namespace EquipmentManager
 
         private int _id;
         private bool _initialized;
-        private List<int> _meleeSidearmRules = new List<int>();
-        private List<PassionLimit> _passionLimits = new List<PassionLimit>();
-        private List<PawnCapacityLimit> _pawnCapacityLimits = new List<PawnCapacityLimit>();
-        private List<PawnCapacityWeight> _pawnCapacityWeights = new List<PawnCapacityWeight>();
-        private Dictionary<string, bool> _pawnTraits = new Dictionary<string, bool>();
-        private Dictionary<string, bool> _pawnWorkCapacities = new Dictionary<string, bool>();
+        private List<int> _meleeSidearmRules = new();
+        private List<PassionLimit> _passionLimits = new();
+        private List<PawnCapacityLimit> _pawnCapacityLimits = new();
+        private List<PawnCapacityWeight> _pawnCapacityWeights = new();
+        private Dictionary<string, bool> _pawnTraits = new();
+        private Dictionary<string, bool> _pawnWorkCapacities = new();
         private PrimaryWeaponType _primaryRuleType = PrimaryWeaponType.None;
-        private List<int> _rangedSidearmRules = new List<int>();
-        private List<SkillLimit> _skillLimits = new List<SkillLimit>();
-        private List<SkillWeight> _skillWeights = new List<SkillWeight>();
-        private List<StatLimit> _statLimits = new List<StatLimit>();
-        private List<StatWeight> _statWeights = new List<StatWeight>();
+        private List<int> _rangedSidearmRules = new();
+        private List<SkillLimit> _skillLimits = new();
+        private List<SkillWeight> _skillWeights = new();
+        private List<StatLimit> _statLimits = new();
+        private List<StatWeight> _statWeights = new();
         public bool DropUnassignedWeapons = true;
         public string Label;
         public int? PrimaryMeleeWeaponRuleId;
@@ -343,17 +343,17 @@ namespace EquipmentManager
         {
             if (_initialized) { return; }
             _initialized = true;
-            if (_meleeSidearmRules == null) { _meleeSidearmRules = new List<int>(); }
-            if (_rangedSidearmRules == null) { _rangedSidearmRules = new List<int>(); }
-            if (_pawnTraits == null) { _pawnTraits = new Dictionary<string, bool>(); }
-            if (_pawnWorkCapacities == null) { _pawnWorkCapacities = new Dictionary<string, bool>(); }
-            if (_passionLimits == null) { _passionLimits = new List<PassionLimit>(); }
-            if (_pawnCapacityLimits == null) { _pawnCapacityLimits = new List<PawnCapacityLimit>(); }
-            if (_pawnCapacityWeights == null) { _pawnCapacityWeights = new List<PawnCapacityWeight>(); }
-            if (_skillLimits == null) { _skillLimits = new List<SkillLimit>(); }
-            if (_skillWeights == null) { _skillWeights = new List<SkillWeight>(); }
-            if (_statLimits == null) { _statLimits = new List<StatLimit>(); }
-            if (_statWeights == null) { _statWeights = new List<StatWeight>(); }
+            _meleeSidearmRules ??= new List<int>();
+            _rangedSidearmRules ??= new List<int>();
+            _pawnTraits ??= new Dictionary<string, bool>();
+            _pawnWorkCapacities ??= new Dictionary<string, bool>();
+            _passionLimits ??= new List<PassionLimit>();
+            _pawnCapacityLimits ??= new List<PawnCapacityLimit>();
+            _pawnCapacityWeights ??= new List<PawnCapacityWeight>();
+            _skillLimits ??= new List<SkillLimit>();
+            _skillWeights ??= new List<SkillWeight>();
+            _statLimits ??= new List<StatLimit>();
+            _statWeights ??= new List<StatWeight>();
         }
 
         public bool IsAvailable(Pawn pawn)

@@ -14,15 +14,25 @@ namespace EquipmentManager
         // Только они удаляются при обновлении — игрок может добавлять своё.
         public HashSet<ThingDefStuffDefPair> ManagedWeapons = new();
 
+        // Слоты PersonalLoadout, которыми управляет Equipment Manager.
+        // Игрок может добавлять свои слоты — их мод не трогает.
+        // Формат ключей:
+        //   thingdef:Gun_AK74
+        //   genericdef:GenericAmmo_762x39
+        public HashSet<string> ManagedPersonalLoadoutSlots = new();
+
         public void ExposeData()
         {
             Scribe_References.Look(ref Pawn, nameof(Pawn));
             Scribe_Values.Look(ref LoadoutId, nameof(LoadoutId));
             Scribe_Values.Look(ref Automatic, nameof(Automatic));
             Scribe_Collections.Look(ref ManagedWeapons, nameof(ManagedWeapons), LookMode.Value);
-            if (Scribe.mode == LoadSaveMode.PostLoadInit && ManagedWeapons == null)
+            Scribe_Collections.Look(ref ManagedPersonalLoadoutSlots, nameof(ManagedPersonalLoadoutSlots), LookMode.Value);
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
-                ManagedWeapons = new HashSet<ThingDefStuffDefPair>();
+                ManagedWeapons ??= new HashSet<ThingDefStuffDefPair>();
+                ManagedPersonalLoadoutSlots ??= new HashSet<string>();
             }
         }
     }

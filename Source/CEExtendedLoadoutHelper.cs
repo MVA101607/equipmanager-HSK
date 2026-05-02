@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Reflection;
-using HarmonyLib;
-using CombatExtended;
+﻿using CombatExtended;
 using CombatExtended.ExtendedLoadout;
+using HarmonyLib;
+using JetBrains.Annotations;
 using LudeonTK;
 using RimWorld;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
+using System.Reflection;
 using Verse;
 #pragma warning disable IDE0019
 namespace EquipmentManager
@@ -103,15 +104,15 @@ namespace EquipmentManager
 
         public static bool SetPrimaryWeaponInPersonalLoadout(
             [NotNull] Pawn pawn,
-            [NotNull] ThingDef weaponDef)
+            [NotNull] ThingDef weaponDef,
+            [NotNull] HashSet<string> managedSlotKeys)
         {
             if (!IsAvailable()) { return false; }
             try
             {
-                // Получить Loadout_Multi пешки (создаётся автоматически, если не было)
                 if (LoadoutMulti_Manager.GetLoadout(pawn, false) is not Loadout_Multi multiLoadout)
                 {
-                    Log.Error("[ExtendedLoadout Test] Failed to get Loadout_Multi for pawn.");
+                    Log.Error("[EM] Failed to get Loadout_Multi for pawn.");
                     return false;
                 }
 
@@ -119,47 +120,62 @@ namespace EquipmentManager
 
                 if (personalLoadout == null)
                 {
-                    Log.Error("[ExtendedLoadout Test] PersonalLoadout is null.");
+                    Log.Error("[EM] PersonalLoadout is null.");
                     return false;
                 }
-                // Удалить все weapon-слоты из PersonalLoadout перед записью нового
+
+                managedSlotKeys ??= new HashSet<string>();
+
                 var slotsObj = _slotsOnLoadout.GetValue(personalLoadout, null);
-                var slots = slotsObj is IList list ? list : null;
+                var slots = slotsObj as IList;
                 if (slots != null)
                 {
                     for (var i = slots.Count - 1; i >= 0; i--)
                     {
-                        var wslot = slots[i];
-                        if (wslot == null) { continue; }
-                        var def = _slotThingDef.GetValue(wslot) is ThingDef td ? td : null;
-                        if (def != null && def.IsWeapon) { slots.RemoveAt(i); }
+                        var slotObj = slots[i];
+                        if (slotObj == null) { continue; }
+
+                        var defObj = _slotThingDef.GetValue(slotObj);
+                        if (defObj is not Def def) { continue; }
+
+                        string key;
+#pragma warning disable IDE0045 // Преобразовать в условное выражение
+                        if (def is ThingDef thingDef)
+                        {
+                            key = $"thingdef:{thingDef.defName}";
+                        }
+                        else
+                        {
+                            key = $"genericdef:{def.defName}";
+                        }
+#pragma warning restore IDE0045 // Преобразовать в условное выражение
+
+                        if (managedSlotKeys.Contains(key))
+                        {
+                            slots.RemoveAt(i);
+                        }
                     }
                 }
 
-                // Добавить слот с оружием (count = 1)
-                //    AddSlot сам объединит с существующим слотом, если такой уже есть
                 var slot = new LoadoutSlot(weaponDef, 1);
                 personalLoadout.AddSlot(slot);
 
-                // Обновить объединённый кэш Slots в Loadout_Multi
+                managedSlotKeys.Clear();
+                _ = managedSlotKeys.Add($"thingdef:{weaponDef.defName}");
+
                 multiLoadout.NotifyLoadoutChanged();
 
-                //  Если открыт диалог управления loadout'ами — перерисовать
-                //    Dialog_ManageLoadouts сам перерисовывается каждый тик,
-                //    но если нужно принудительно уведомить все Loadout_Multi:
                 foreach (var lm in LoadoutMulti_Manager.LoadoutsMulti)
                 {
                     lm.NotifyLoadoutChanged();
                 }
 
-                // 7. Вывести сообщение 
-                //Log.Message("[EM] PersonalLoadout updated: " +
-                //    pawn.Name.ToStringShort + " -> " + weaponDef.LabelCap);
                 Messages.Message(
-                            "EquipmentManager.WeaponEquipped".Translate(
-                                pawn.Name.ToStringShort, weaponDef.LabelCap),
-                            MessageTypeDefOf.SilentInput,   // без звука, не прерывает игру
-                            historical: false);
+                    "EquipmentManager.WeaponEquipped".Translate(
+                        pawn.Name.ToStringShort, weaponDef.LabelCap),
+                    MessageTypeDefOf.SilentInput,
+                    historical: false);
+
                 return true;
             }
             catch (Exception ex)
@@ -167,6 +183,66 @@ namespace EquipmentManager
                 Log.ErrorOnce("[EM] SetPrimaryWeaponInPersonalLoadout failed for " +
                     pawn.LabelShortCap + ": " + ex.Message,
                     pawn.thingIDNumber ^ weaponDef.shortHash);
+                return false;
+            }
+        }
+
+
+        public static bool SetAmmoInPersonalLoadout(
+            [NotNull] Pawn pawn,
+            [NotNull] ThingDef ammoDef,
+            int count)
+        {
+            if (!IsAvailable()) { return false; }
+            if (count <= 0) { return false; }
+
+            try
+            {
+                if (LoadoutMulti_Manager.GetLoadout(pawn, false) is not Loadout_Multi multiLoadout)
+                {
+                    Log.Error("[EM] Failed to get Loadout_Multi for pawn while setting ammo.");
+                    return false;
+                }
+
+                var personalLoadout = multiLoadout.PersonalLoadout;
+                if (personalLoadout == null)
+                {
+                    Log.Error("[EM] PersonalLoadout is null while setting ammo.");
+                    return false;
+                }
+
+                var slotsObj = _slotsOnLoadout.GetValue(personalLoadout, null);
+                var slots = slotsObj as IList;
+                if (slots != null)
+                {
+                    for (var i = slots.Count - 1; i >= 0; i--)
+                    {
+                        var slotObj = slots[i];
+                        if (slotObj == null) { continue; }
+                        var def = _slotThingDef.GetValue(slotObj) as ThingDef;
+                        if (def == ammoDef)
+                        {
+                            slots.RemoveAt(i);
+                        }
+                    }
+                }
+
+                var slot = new LoadoutSlot(ammoDef, count);
+                personalLoadout.AddSlot(slot);
+
+                multiLoadout.NotifyLoadoutChanged();
+                foreach (var lm in LoadoutMulti_Manager.LoadoutsMulti)
+                {
+                    lm.NotifyLoadoutChanged();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[EM] SetAmmoInPersonalLoadout failed for " +
+                    pawn.LabelShortCap + ": " + ex.Message,
+                    pawn.thingIDNumber ^ ammoDef.shortHash ^ count);
                 return false;
             }
         }
