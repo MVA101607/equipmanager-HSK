@@ -12,6 +12,7 @@ namespace EquipmentManager
     {
         private static HashSet<ThingDef> _allRelevantThings;
         private int _ammoCount;
+        private float _retentionBonus = 1.25f;
         private bool? _explosive;
         private bool? _manualCast;
         public WeaponEquipMode EquipMode = WeaponEquipMode.BestOne;
@@ -23,13 +24,14 @@ namespace EquipmentManager
         public RangedWeaponRule(int id, string label, bool isProtected, List<StatWeight> statWeights,
             List<StatLimit> statLimits, HashSet<string> whitelistedItemsDefNames,
             HashSet<string> blacklistedItemsDefNames, WeaponEquipMode equipMode, bool? explosive, bool? manualCast,
-            int ammoCount) : base(id, label, isProtected, statWeights, statLimits, whitelistedItemsDefNames,
+            int ammoCount, float retentionBonus = 1.25f) : base(id, label, isProtected, statWeights, statLimits, whitelistedItemsDefNames,
             blacklistedItemsDefNames)
         {
             EquipMode = equipMode;
             _explosive = explosive;
             _manualCast = manualCast;
             _ammoCount = ammoCount;
+            _retentionBonus = retentionBonus;
         }
 
         public static HashSet<ThingDef> AllRelevantThings
@@ -49,6 +51,18 @@ namespace EquipmentManager
         {
             get => CombatExtendedHelper.EnableAmmoSystem ? _ammoCount : 0;
             set => _ammoCount = CombatExtendedHelper.EnableAmmoSystem ? value : 0;
+        }
+
+        /// <summary>
+        /// Множитель ценности оружия уже находящегося у пешки.
+        /// Складское оружие должно превысить (score текущего × RetentionBonus),
+        /// чтобы пешка пошла его менять.
+        /// 1.0 = менять при любом преимуществе, 1.25 = только при +25%.
+        /// </summary>
+        public float RetentionBonus
+        {
+            get => _retentionBonus;
+            set => _retentionBonus = Math.Max(1f, value);
         }
 
         public static IEnumerable<string> DefaultBlacklist =>
@@ -185,6 +199,7 @@ namespace EquipmentManager
             Scribe_Values.Look(ref _explosive, nameof(Explosive));
             Scribe_Values.Look(ref _manualCast, nameof(ManualCast));
             Scribe_Values.Look(ref _ammoCount, nameof(AmmoCount));
+            Scribe_Values.Look(ref _retentionBonus, nameof(RetentionBonus), 1.25f);
         }
 
         public IEnumerable<Thing> GetCurrentlyAvailableItems(Map map, RimworldTime time)

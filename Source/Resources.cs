@@ -235,6 +235,12 @@ namespace EquipmentManager
                     internal static readonly string RottableTooltip =
                         $"EquipmentManager.WeaponRules.MeleeWeapons.{nameof(RottableTooltip)}".Translate();
 
+                    internal static readonly string RetentionBonus =
+                        $"EquipmentManager.WeaponRules.MeleeWeapons.{nameof(RetentionBonus)}".Translate();
+
+                    internal static readonly string RetentionBonusTooltip =
+                        $"EquipmentManager.WeaponRules.MeleeWeapons.{nameof(RetentionBonusTooltip)}".Translate();
+
                     internal static readonly string Title =
                         $"EquipmentManager.WeaponRules.MeleeWeapons.{nameof(Title)}".Translate();
 
@@ -264,6 +270,12 @@ namespace EquipmentManager
 
                     internal static readonly string AmmoCountTooltip =
                         $"EquipmentManager.WeaponRules.RangedWeapons.{nameof(AmmoCountTooltip)}".Translate();
+
+                    internal static readonly string RetentionBonus =
+                        $"EquipmentManager.WeaponRules.RangedWeapons.{nameof(RetentionBonus)}".Translate();
+
+                    internal static readonly string RetentionBonusTooltip =
+                        $"EquipmentManager.WeaponRules.RangedWeapons.{nameof(RetentionBonusTooltip)}".Translate();
 
                     internal static readonly string Explosive =
                         $"EquipmentManager.WeaponRules.RangedWeapons.{nameof(Explosive)}".Translate();

@@ -15,13 +15,13 @@ namespace EquipmentManager
     internal class EquipmentManagerMapComponent : MapComponent
     {
         private static EquipmentManagerGameComponent _equipmentManager;
-        private readonly RimworldTime _updateTime = new RimworldTime(-1, -1, -1);
-        private HashSet<Pawn> _allPawns = new HashSet<Pawn>();
-        private HashSet<PawnCache> _pawnCache = new HashSet<PawnCache>();
+        private readonly RimworldTime _updateTime = new(-1, -1, -1);
+        private HashSet<Pawn> _allPawns = new();
+        private HashSet<PawnCache> _pawnCache = new();
         public EquipmentManagerMapComponent(Map map) : base(map) { }
 
         private static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ?? (_equipmentManager = Current.Game.GetComponent<EquipmentManagerGameComponent>());
+            _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         private void AssignAllTools(PawnCache pawn, ToolRule rule)
         {
@@ -113,6 +113,8 @@ namespace EquipmentManager
             if (pawn.AssignedLoadout.PrimaryMeleeWeaponRuleId == null) { return; }
             var rule = EquipmentManager.GetMeleeWeaponRule((int) pawn.AssignedLoadout.PrimaryMeleeWeaponRuleId);
             if (rule == null) { return; }
+            Log.Message("[EM] AssignPrimaryMeleeWeapon for " + pawn.Pawn.LabelShortCap +
+                        " | CEHelper available = " + CEExtendedLoadoutHelper.IsAvailable());
             var availableWeapons = rule.GetCurrentlyAvailableItems(map, _updateTime).ToList();
             var carriedWeapons = pawn.Pawn.GetCarriedWeapons(true, true)
                 .Where(weapon => rule.IsAvailable(weapon, _updateTime)).ToList();
@@ -123,25 +125,40 @@ namespace EquipmentManager
                 !EquipmentUtility.CanEquip(thing, pawn.Pawn) ||
                 (pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap != null &&
                     !pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap[thing.Position]));
-            var bestWeapon = availableWeapons.OrderByDescending(thing => rule.GetThingScore(thing, _updateTime))
+            var bestWeapon = availableWeapons
+                .OrderByDescending(thing =>
+                {
+                    var score = rule.GetThingScore(thing, _updateTime);
+                    if (carriedWeapons.Contains(thing)) { score *= rule.RetentionBonus; }
+                    return score;
+                })
                 .ThenByDescending(thing => sidearmMemory.RememberedWeapons.Contains(thing.toThingDefStuffDefPair()))
-                .ThenByDescending(thing => carriedWeapons.Contains(thing)).ThenBy(thing => thing.GetHashCode())
+                .ThenByDescending(thing => carriedWeapons.Contains(thing))
+                .ThenBy(thing => thing.GetHashCode())
                 .FirstOrDefault();
             if (bestWeapon == null) { return; }
             pawn.AssignedWeapons.Add(bestWeapon, "primary");
-            if (carriedWeapons.Contains(bestWeapon))
+            if (CEExtendedLoadoutHelper.IsAvailable())
             {
-                var defPair = bestWeapon.toThingDefStuffDefPair();
-                if (sidearmMemory.RememberedWeapons.Contains(defPair))
-                {
-                    sidearmMemory.SetMeleeWeaponTypeAsPreferred(defPair);
-                }
-                else { sidearmMemory.InformOfAddedPrimary(bestWeapon); }
+                _ = CEExtendedLoadoutHelper.SetPrimaryWeaponInPersonalLoadout(pawn.Pawn, bestWeapon.def);
             }
             else
             {
-                _ = pawn.Pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Equip, (LocalTargetInfo) bestWeapon),
-                    requestQueueing: ShouldRequestQueueing(pawn));
+                if (carriedWeapons.Contains(bestWeapon))
+                {
+                    var defPair = bestWeapon.toThingDefStuffDefPair();
+                    if (sidearmMemory.RememberedWeapons.Contains(defPair))
+                    {
+                        sidearmMemory.SetMeleeWeaponTypeAsPreferred(defPair, false);
+                    }
+                    else { sidearmMemory.InformOfAddedPrimary(bestWeapon); }
+                }
+                else
+                {
+                    _ = pawn.Pawn.jobs.TryTakeOrderedJob(
+                        JobMaker.MakeJob(JobDefOf.Equip, (LocalTargetInfo) bestWeapon),
+                        requestQueueing: ShouldRequestQueueing(pawn));
+                }
             }
         }
 
@@ -152,6 +169,8 @@ namespace EquipmentManager
             if (pawn.AssignedLoadout.PrimaryRangedWeaponRuleId == null) { return; }
             var rule = EquipmentManager.GetRangedWeaponRule((int) pawn.AssignedLoadout.PrimaryRangedWeaponRuleId);
             if (rule == null) { return; }
+            Log.Message("[EM] AssignPrimaryRangedWeapon for " + pawn.Pawn.LabelShortCap +
+                        " | CEHelper available = " + CEExtendedLoadoutHelper.IsAvailable());
             var availableWeapons = rule.GetCurrentlyAvailableItems(map, _updateTime).ToList();
             var carriedWeapons = pawn.Pawn.GetCarriedWeapons(true, true)
                 .Where(weapon => rule.IsAvailable(weapon, _updateTime)).ToList();
@@ -162,27 +181,42 @@ namespace EquipmentManager
                 !EquipmentUtility.CanEquip(thing, pawn.Pawn) ||
                 (pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap != null &&
                     !pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap[thing.Position]));
-            var weaponScores =
-                availableWeapons.ToDictionary(thing => thing, thing => rule.GetThingScore(thing, _updateTime));
-            var bestWeapon = availableWeapons.OrderByDescending(thing => weaponScores[thing])
+            var weaponScores = availableWeapons.ToDictionary(thing => thing,
+                thing =>
+                {
+                    var score = rule.GetThingScore(thing, _updateTime);
+                    if (carriedWeapons.Contains(thing)) { score *= rule.RetentionBonus; }
+                    return score;
+                });
+            var bestWeapon = availableWeapons
+                .OrderByDescending(thing => weaponScores[thing])
                 .ThenByDescending(thing => sidearmMemory.RememberedWeapons.Contains(thing.toThingDefStuffDefPair()))
-                .ThenByDescending(thing => carriedWeapons.Contains(thing)).ThenBy(thing => thing.GetHashCode())
+                .ThenByDescending(thing => carriedWeapons.Contains(thing))
+                .ThenBy(thing => thing.GetHashCode())
                 .FirstOrDefault();
             if (bestWeapon == null) { return; }
             pawn.AssignedWeapons.Add(bestWeapon, "primary");
-            if (carriedWeapons.Contains(bestWeapon))
+            if (CEExtendedLoadoutHelper.IsAvailable())
             {
-                var defPair = bestWeapon.toThingDefStuffDefPair();
-                if (sidearmMemory.RememberedWeapons.Contains(defPair))
-                {
-                    sidearmMemory.SetRangedWeaponTypeAsDefault(defPair);
-                }
-                else { sidearmMemory.InformOfAddedPrimary(bestWeapon); }
+                _ = CEExtendedLoadoutHelper.SetPrimaryWeaponInPersonalLoadout(pawn.Pawn, bestWeapon.def);
             }
             else
             {
-                _ = pawn.Pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Equip, (LocalTargetInfo) bestWeapon),
-                    requestQueueing: ShouldRequestQueueing(pawn));
+                if (carriedWeapons.Contains(bestWeapon))
+                {
+                    var defPair = bestWeapon.toThingDefStuffDefPair();
+                    if (sidearmMemory.RememberedWeapons.Contains(defPair))
+                    {
+                        sidearmMemory.SetRangedWeaponTypeAsDefault(defPair, false);
+                    }
+                    else { sidearmMemory.InformOfAddedPrimary(bestWeapon); }
+                }
+                else
+                {
+                    _ = pawn.Pawn.jobs.TryTakeOrderedJob(
+                        JobMaker.MakeJob(JobDefOf.Equip, (LocalTargetInfo) bestWeapon),
+                        requestQueueing: ShouldRequestQueueing(pawn));
+                }
             }
             UpdateAmmo(pawn, bestWeapon, rule);
         }
@@ -273,7 +307,7 @@ namespace EquipmentManager
                 }
                 foreach (var weapon in unassignedWeapons)
                 {
-                    WeaponAssingment.DropSidearm(pawn.Pawn, weapon, true, true);
+                    WeaponAssingment.dropSidearm(pawn.Pawn, weapon, true);
                 }
                 var sidearmMemory = CompSidearmMemory.GetMemoryCompForPawn(pawn.Pawn);
                 foreach (var weapon in sidearmMemory.RememberedWeapons.Where(weapon =>
@@ -461,12 +495,12 @@ namespace EquipmentManager
 
         private void UpdatePawnCache()
         {
-            if (_allPawns == null) { _allPawns = new HashSet<Pawn>(); }
+            _allPawns ??= new();
             _allPawns.Clear();
             _allPawns.AddRange(map.mapPawns.FreeColonistsSpawned.Where(pawn =>
                 pawn.Faction == Faction.OfPlayer && !pawn.HasExtraHomeFaction() && !pawn.HasExtraMiniFaction() &&
                 pawn.GuestStatus == null));
-            if (_pawnCache == null) { _pawnCache = new HashSet<PawnCache>(); }
+            _pawnCache ??= new(); 
             foreach (var pawn in _pawnCache.Where(pc => !_allPawns.Contains(pc.Pawn)).ToList())
             {
                 _ = _pawnCache.Remove(pawn);
@@ -609,6 +643,21 @@ namespace EquipmentManager
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+
+
+        public void ForceUpdate()
+        {
+            _updateTime.Year = -1;
+            _updateTime.Day = -1;
+            _updateTime.Hour = -1;
+            UpdatePawnCache();
+            UpdateLoadouts();
+            UpdatePrimaryWeapons();
+            UpdateRangedSidearms();
+            UpdateMeleeSidearms();
+            UpdateTools();
+            RemoveUnassignedWeapons();
         }
     }
 }

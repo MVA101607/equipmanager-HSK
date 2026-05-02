@@ -16,6 +16,7 @@ namespace EquipmentManager
         public static UsableWithShieldsDelegate UsableWithShieldsMethod;
         private bool? _rottable;
         private bool? _usableWithShields;
+        private float _retentionBonus = 1.25f;
         public WeaponEquipMode EquipMode = WeaponEquipMode.BestOne;
         public MeleeWeaponRule(int id, bool isProtected) : base(id, isProtected) { }
 
@@ -25,12 +26,13 @@ namespace EquipmentManager
         public MeleeWeaponRule(int id, string label, bool isProtected, List<StatWeight> statWeights,
             List<StatLimit> statLimits, HashSet<string> whitelistedItemsDefNames,
             HashSet<string> blacklistedItemsDefNames, WeaponEquipMode equipMode, bool? usableWithShields,
-            bool? rottable) : base(id, label, isProtected, statWeights, statLimits, whitelistedItemsDefNames,
+            bool? rottable, float retentionBonus = 1.25f) : base(id, label, isProtected, statWeights, statLimits, whitelistedItemsDefNames,
             blacklistedItemsDefNames)
         {
             EquipMode = equipMode;
             _usableWithShields = usableWithShields;
             _rottable = rottable;
+            _retentionBonus = retentionBonus;
         }
 
         public static HashSet<ThingDef> AllRelevantThings
@@ -117,12 +119,19 @@ namespace EquipmentManager
             set => _usableWithShields = value;
         }
 
+        public float RetentionBonus
+        {
+            get => _retentionBonus;
+            set => _retentionBonus = Math.Max(1f, value);
+        }
+
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look(ref EquipMode, nameof(EquipMode));
             Scribe_Values.Look(ref _usableWithShields, nameof(UsableWithShields));
             Scribe_Values.Look(ref _rottable, nameof(Rottable));
+            Scribe_Values.Look(ref _retentionBonus, nameof(RetentionBonus), 1.25f);
         }
 
         public IEnumerable<Thing> GetCurrentlyAvailableItems(Map map, RimworldTime time)

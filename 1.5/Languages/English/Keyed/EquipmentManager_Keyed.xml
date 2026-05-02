@@ -84,6 +84,10 @@
 	<EquipmentManager.WeaponRules.RangedWeapons.Title>Ranged weapons</EquipmentManager.WeaponRules.RangedWeapons.Title>
 	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>Ammo count</EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>
 	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>Target count of ammo to put in inventory alongside every weapon equipped by this rule</EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>
+	<EquipmentManager.WeaponRules.RangedWeapons.RetentionBonus>Retention bonus</EquipmentManager.WeaponRules.RangedWeapons.RetentionBonus>
+	<EquipmentManager.WeaponRules.RangedWeapons.RetentionBonusTooltip>Score multiplier for ranged weapons already carried by the pawn. A weapon on the map must exceed (current score × bonus) to trigger a switch. 1.00 = always switch to better weapon, 1.25 = only switch if 25% better (recommended for HSK)</EquipmentManager.WeaponRules.RangedWeapons.RetentionBonusTooltip>
+	<EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonus>Retention bonus</EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonus>
+	<EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonusTooltip>Score multiplier for melee weapons already carried by the pawn. A weapon on the map must exceed (current score × bonus) to trigger a switch. 1.00 = always switch to better weapon, 1.25 = only switch if 25% better (recommended for HSK)</EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonusTooltip>
 	<EquipmentManager.WeaponRules.RangedWeapons.Explosive>Explosive</EquipmentManager.WeaponRules.RangedWeapons.Explosive>
 	<EquipmentManager.WeaponRules.RangedWeapons.ExplosiveTooltip>Ranged weapons with explosive projectiles (e.g. rocket launchers, grenade launchers, mortars)</EquipmentManager.WeaponRules.RangedWeapons.ExplosiveTooltip>
 	<EquipmentManager.WeaponRules.RangedWeapons.ManualCast>Manual cast</EquipmentManager.WeaponRules.RangedWeapons.ManualCast>

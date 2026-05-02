@@ -1,12 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <ModMetaData>
-	<name>Equipment Manager</name>
-	<author>LordKuper</author>
+	<name>Equip Manager HSK</name>
+	<author>LordKuper, MVA101607</author>
 	<packageId>LordKuper.EquipmentManager</packageId>
 	<supportedVersions>
-		<li>1.3</li>
-		<li>1.4</li>
 		<li>1.5</li>
 	</supportedVersions>
 	<modDependencies>
@@ -20,6 +18,16 @@
 			<displayName>Simple sidearms</displayName>
 			<steamWorkshopUrl>steam://url/CommunityFilePage/927155256</steamWorkshopUrl>
 		</li>
+		<li>
+			<packageId>pirateby.ce.extendedloadout</packageId>
+			<displayName>Combat Extended - Extended Loadout</displayName>
+			<url>https://github.com/TheLoneTec/RW-CombatExtended_ExtendedLoadout</url>
+		</li>
+		<li>
+			<packageId>CETeam.CombatExtended</packageId>
+			<displayName>Combat Extended</displayName>
+			<Url>https://github.com/CombatExtended-Continued/CombatExtended</Url>
+		</li>
 	</modDependencies>
 	<loadAfter>
 		<li>brrainz.harmony</li>
@@ -27,5 +35,5 @@
 		<li>OskarPotocki.VanillaFactionsExpanded.Core</li>
 		<li>CETeam.CombatExtended</li>
 	</loadAfter>
-	<description>Automatic equipment management mod</description>
+	<description>Automaticly adds best equipment to loadout</description>
 </ModMetaData>

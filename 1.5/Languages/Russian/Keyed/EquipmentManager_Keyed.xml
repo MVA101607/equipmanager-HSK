@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+	<EquipmentManager.Add>Добавить</EquipmentManager.Add>
+	<EquipmentManager.Loadouts.ManageLoadouts>Управление снаряжением</EquipmentManager.Loadouts.ManageLoadouts>
+	<EquipmentManager.Loadouts.SelectLoadout>Выбрать снаряжение</EquipmentManager.Loadouts.SelectLoadout>
+	<EquipmentManager.Loadouts.NoLoadoutSelected>Снаряжение не выбрано.</EquipmentManager.Loadouts.NoLoadoutSelected>
+	<EquipmentManager.Loadouts.LoadoutLabel>Название снаряжения:</EquipmentManager.Loadouts.LoadoutLabel>
+	<EquipmentManager.Loadouts.LoadoutSettings>Параметры снаряжения</EquipmentManager.Loadouts.LoadoutSettings>
+	<EquipmentManager.Loadouts.AddLoadout>Добавить снаряжение</EquipmentManager.Loadouts.AddLoadout>
+	<EquipmentManager.Loadouts.CopyLoadout>Копировать снаряжение</EquipmentManager.Loadouts.CopyLoadout>
+	<EquipmentManager.Loadouts.DeleteLoadout>Удалить снаряжение</EquipmentManager.Loadouts.DeleteLoadout>
+	<EquipmentManager.Loadouts.ManageWeaponRules>Управление правилами</EquipmentManager.Loadouts.ManageWeaponRules>
+	<EquipmentManager.Loadouts.ImportLoadouts>Импорт снаряжения</EquipmentManager.Loadouts.ImportLoadouts>
+	<EquipmentManager.Loadouts.Log>Журнал</EquipmentManager.Loadouts.Log>
+	<EquipmentManager.Loadouts.SavedGamesListHeader>Сохранённые игры</EquipmentManager.Loadouts.SavedGamesListHeader>
+	<EquipmentManager.Loadouts.LoadoutListHeader>Снаряжение</EquipmentManager.Loadouts.LoadoutListHeader>
+	<EquipmentManager.Loadouts.ImportData>Импорт</EquipmentManager.Loadouts.ImportData>
+	<EquipmentManager.Loadouts.CancelDataImport>Отмена</EquipmentManager.Loadouts.CancelDataImport>
+	<EquipmentManager.Loadouts.AutoSelect>Авто-выбор</EquipmentManager.Loadouts.AutoSelect>
+	<EquipmentManager.Loadouts.PriorityLabel>Приоритет:</EquipmentManager.Loadouts.PriorityLabel>
+	<EquipmentManager.Loadouts.PriorityTooltip>Приоритет снаряжения для авто-назначения. Чем выше значение, тем больше колонистов, соответствующих настройкам, получат это снаряжение. Приоритет «0» отключает автоматическое назначение снаряжения.</EquipmentManager.Loadouts.PriorityTooltip>
+	<EquipmentManager.Loadouts.DropUnassignedWeapons>Выбрасывать неназначенное оружие</EquipmentManager.Loadouts.DropUnassignedWeapons>
+	<EquipmentManager.Loadouts.DropUnassignedWeaponsTooltip>Пешки будут выбрасывать и забывать всё оружие, не назначенное менеджером снаряжения</EquipmentManager.Loadouts.DropUnassignedWeaponsTooltip>
+	<EquipmentManager.Loadouts.Rules>Правила</EquipmentManager.Loadouts.Rules>
+	<EquipmentManager.Loadouts.AvailablePawns>Доступные пешки</EquipmentManager.Loadouts.AvailablePawns>
+	<EquipmentManager.Loadouts.PawnTraits>Черты пешки</EquipmentManager.Loadouts.PawnTraits>
+	<EquipmentManager.Loadouts.PawnPassions>Страсти пешки</EquipmentManager.Loadouts.PawnPassions>
+	<EquipmentManager.Loadouts.PawnCapacityLimits>Ограничения возможностей пешки</EquipmentManager.Loadouts.PawnCapacityLimits>
+	<EquipmentManager.Loadouts.PawnCapacityWeights>Веса возможностей пешки</EquipmentManager.Loadouts.PawnCapacityWeights>
+	<EquipmentManager.Loadouts.PawnWorkCapacities>Рабочие возможности пешки</EquipmentManager.Loadouts.PawnWorkCapacities>
+	<EquipmentManager.Loadouts.PawnSkillWeights>Веса навыков пешки</EquipmentManager.Loadouts.PawnSkillWeights>
+	<EquipmentManager.Loadouts.PawnSkillLimits>Ограничения навыков пешки</EquipmentManager.Loadouts.PawnSkillLimits>
+	<EquipmentManager.Loadouts.PawnStatWeights>Веса характеристик пешки</EquipmentManager.Loadouts.PawnStatWeights>
+	<EquipmentManager.Loadouts.PawnStatLimits>Ограничения характеристик пешки</EquipmentManager.Loadouts.PawnStatLimits>
+	<EquipmentManager.Loadouts.PrimaryWeaponLabel>Основное оружие:</EquipmentManager.Loadouts.PrimaryWeaponLabel>
+	<EquipmentManager.Loadouts.PrimaryWeaponTypes.None>Нет</EquipmentManager.Loadouts.PrimaryWeaponTypes.None>
+	<EquipmentManager.Loadouts.PrimaryWeaponTypes.RangedWeapon>Дальнобойное оружие</EquipmentManager.Loadouts.PrimaryWeaponTypes.RangedWeapon>
+	<EquipmentManager.Loadouts.PrimaryWeaponTypes.MeleeWeapon>Оружие ближнего боя</EquipmentManager.Loadouts.PrimaryWeaponTypes.MeleeWeapon>
+	<EquipmentManager.Loadouts.RangedSidearmRulesLabel>Правила запасного дальнобойного:</EquipmentManager.Loadouts.RangedSidearmRulesLabel>
+	<EquipmentManager.Loadouts.MeleeSidearmRulesLabel>Правила запасного ближнего боя:</EquipmentManager.Loadouts.MeleeSidearmRulesLabel>
+	<EquipmentManager.Loadouts.ToolsLabel>Инструменты:</EquipmentManager.Loadouts.ToolsLabel>
+	<EquipmentManager.Loadouts.Default.NoLoadout>Без снаряжения</EquipmentManager.Loadouts.Default.NoLoadout>
+	<EquipmentManager.Loadouts.Default.Sniper>Снайпер</EquipmentManager.Loadouts.Default.Sniper>
+	<EquipmentManager.Loadouts.Default.Assault>Штурмовик</EquipmentManager.Loadouts.Default.Assault>
+	<EquipmentManager.Loadouts.Default.Support>Поддержка</EquipmentManager.Loadouts.Default.Support>
+	<EquipmentManager.Loadouts.Default.Crusher>Дробильщик</EquipmentManager.Loadouts.Default.Crusher>
+	<EquipmentManager.Loadouts.Default.Slasher>Рубака</EquipmentManager.Loadouts.Default.Slasher>
+	<EquipmentManager.Loadouts.Default.Pacifist>Пацифист</EquipmentManager.Loadouts.Default.Pacifist>
+	<EquipmentManager.WeaponRules.AddRule>Добавить правило</EquipmentManager.WeaponRules.AddRule>
+	<EquipmentManager.WeaponRules.CopyRule>Копировать правило</EquipmentManager.WeaponRules.CopyRule>
+	<EquipmentManager.WeaponRules.DeleteRule>Удалить правило</EquipmentManager.WeaponRules.DeleteRule>
+	<EquipmentManager.WeaponRules.SelectRule>Выбрать правило</EquipmentManager.WeaponRules.SelectRule>
+	<EquipmentManager.WeaponRules.RuleLabel>Название правила:</EquipmentManager.WeaponRules.RuleLabel>
+	<EquipmentManager.WeaponRules.NoRuleSelected>Правило не выбрано.</EquipmentManager.WeaponRules.NoRuleSelected>
+	<EquipmentManager.WeaponRules.RuleSettings>Параметры правила</EquipmentManager.WeaponRules.RuleSettings>
+	<EquipmentManager.WeaponRules.ItemProperties>Свойства предмета</EquipmentManager.WeaponRules.ItemProperties>
+	<EquipmentManager.WeaponRules.StatWeights>Веса характеристик</EquipmentManager.WeaponRules.StatWeights>
+	<EquipmentManager.WeaponRules.StatLimits>Ограничения характеристик</EquipmentManager.WeaponRules.StatLimits>
+	<EquipmentManager.WeaponRules.Refresh>Обновить</EquipmentManager.WeaponRules.Refresh>
+	<EquipmentManager.WeaponRules.GloballyAvailableItems>Доступные предметы (глобально)</EquipmentManager.WeaponRules.GloballyAvailableItems>
+	<EquipmentManager.WeaponRules.GloballyAvailableItemsTooltip>Все предметы в игре, соответствующие настройкам правила\n\nЛКМ — просмотр информации о предмете\nПКМ — добавить предмет в чёрный список</EquipmentManager.WeaponRules.GloballyAvailableItemsTooltip>
+	<EquipmentManager.WeaponRules.CurrentlyAvailableItems>Доступные предметы (на карте)</EquipmentManager.WeaponRules.CurrentlyAvailableItems>
+	<EquipmentManager.WeaponRules.CurrentlyAvailableItemsTooltip>Все предметы на текущей карте, соответствующие настройкам правила\n\nЛКМ — просмотр информации о предмете\nПКМ — добавить предмет в чёрный список</EquipmentManager.WeaponRules.CurrentlyAvailableItemsTooltip>
+	<EquipmentManager.WeaponRules.WhitelistedItems>Белый список</EquipmentManager.WeaponRules.WhitelistedItems>
+	<EquipmentManager.WeaponRules.WhitelistedItemsTooltip>Предметы, доступные для экипировки вне зависимости от настроек\n\nЛКМ — просмотр информации о предмете\nПКМ — убрать предмет из списка</EquipmentManager.WeaponRules.WhitelistedItemsTooltip>
+	<EquipmentManager.WeaponRules.BlacklistedItems>Чёрный список</EquipmentManager.WeaponRules.BlacklistedItems>
+	<EquipmentManager.WeaponRules.BlacklistedItemsTooltip>Предметы, недоступные для экипировки вне зависимости от настроек\n\nЛКМ — просмотр информации о предмете\nПКМ — убрать предмет из списка</EquipmentManager.WeaponRules.BlacklistedItemsTooltip>
+	<EquipmentManager.WeaponRules.RuleEquipModeLabel>Режим экипировки:</EquipmentManager.WeaponRules.RuleEquipModeLabel>
+	<EquipmentManager.WeaponRules.WeaponEquipModes.BestOne>Лучший из доступных</EquipmentManager.WeaponRules.WeaponEquipModes.BestOne>
+	<EquipmentManager.WeaponRules.WeaponEquipModes.AllAvailable>Все доступные</EquipmentManager.WeaponRules.WeaponEquipModes.AllAvailable>
+	<EquipmentManager.WeaponRules.ToolEquipModes.OneForEveryWorkType>По одному на каждый тип работы</EquipmentManager.WeaponRules.ToolEquipModes.OneForEveryWorkType>
+	<EquipmentManager.WeaponRules.ToolEquipModes.OneForEveryAssignedWorkType>По одному на каждый назначенный тип работы</EquipmentManager.WeaponRules.ToolEquipModes.OneForEveryAssignedWorkType>
+	<EquipmentManager.WeaponRules.ToolEquipModes.BestOne>Лучший из доступных</EquipmentManager.WeaponRules.ToolEquipModes.BestOne>
+	<EquipmentManager.WeaponRules.ToolEquipModes.AllAvailable>Все доступные</EquipmentManager.WeaponRules.ToolEquipModes.AllAvailable>
+	<EquipmentManager.WeaponRules.MeleeWeapons.Title>Оружие ближнего боя</EquipmentManager.WeaponRules.MeleeWeapons.Title>
+	<EquipmentManager.WeaponRules.MeleeWeapons.UsableWithShields>Совместимо со щитами</EquipmentManager.WeaponRules.MeleeWeapons.UsableWithShields>
+	<EquipmentManager.WeaponRules.MeleeWeapons.UsableWithShieldsTooltip>Оружие ближнего боя, совместимое со щитами (требует Vanilla Expanded Framework)</EquipmentManager.WeaponRules.MeleeWeapons.UsableWithShieldsTooltip>
+	<EquipmentManager.WeaponRules.MeleeWeapons.Rottable>Гниющее</EquipmentManager.WeaponRules.MeleeWeapons.Rottable>
+	<EquipmentManager.WeaponRules.MeleeWeapons.RottableTooltip>Оружие ближнего боя, способное гнить (например, рыба)</EquipmentManager.WeaponRules.MeleeWeapons.RottableTooltip>
+	<EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonus>Порог замены</EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonus>
+	<EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonusTooltip>Множитель оценки для уже несомого оружия. При значении x1.2 пешка сменит оружие только если новое лучше текущего на 20% и более.</EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonusTooltip>
+	<EquipmentManager.WeaponRules.MeleeWeapons.Default.HighestDps>Наибольший DPS</EquipmentManager.WeaponRules.MeleeWeapons.Default.HighestDps>
+	<EquipmentManager.WeaponRules.MeleeWeapons.Default.Sharpest>Наибольшее острое пробитие</EquipmentManager.WeaponRules.MeleeWeapons.Default.Sharpest>
+	<EquipmentManager.WeaponRules.MeleeWeapons.Default.Bluntest>Наибольшее тупое пробитие</EquipmentManager.WeaponRules.MeleeWeapons.Default.Bluntest>
+	<EquipmentManager.WeaponRules.RangedWeapons.Title>Дальнобойное оружие</EquipmentManager.WeaponRules.RangedWeapons.Title>
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>Запас патронов</EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>Минимальный запас патронов, который пешка должна иметь при себе</EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>
+	<EquipmentManager.WeaponRules.RangedWeapons.RetentionBonus>Порог замены</EquipmentManager.WeaponRules.RangedWeapons.RetentionBonus>
+	<EquipmentManager.WeaponRules.RangedWeapons.RetentionBonusTooltip>Множитель оценки для уже несомого оружия. При значении x1.2 пешка сменит оружие только если новое лучше текущего на 20% и более.</EquipmentManager.WeaponRules.RangedWeapons.RetentionBonusTooltip>
+	<EquipmentManager.WeaponRules.RangedWeapons.Default.HighestDps>Наибольший DPS</EquipmentManager.WeaponRules.RangedWeapons.Default.HighestDps>
+	<EquipmentManager.WeaponRules.RangedWeapons.Default.HighestDpsa>Наибольший DPSA</EquipmentManager.WeaponRules.RangedWeapons.Default.HighestDpsa>
+	<EquipmentManager.WeaponRules.RangedWeapons.Default.Sniper>Снайпер</EquipmentManager.WeaponRules.RangedWeapons.Default.Sniper>
+	<EquipmentManager.WeaponRules.Tools.Title>Инструменты</EquipmentManager.WeaponRules.Tools.Title>
+	<EquipmentManager.WeaponRules.Tools.Default.HighestWorkSpeed>Наибольшая скорость работы</EquipmentManager.WeaponRules.Tools.Default.HighestWorkSpeed>
+	<EquipmentManager.Stats.EM_MeleeWeapons_Dps.Label>DPS (ближний)</EquipmentManager.Stats.EM_MeleeWeapons_Dps.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_Dps.Description>Урон в секунду для оружия ближнего боя</EquipmentManager.Stats.EM_MeleeWeapons_Dps.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationSharp.Label>Пробитие брони (острое)</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationSharp.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationSharp.Description>Среднее острое пробитие брони оружия ближнего боя</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationSharp.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationBlunt.Label>Пробитие брони (тупое)</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationBlunt.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationBlunt.Description>Среднее тупое пробитие брони оружия ближнего боя</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationBlunt.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>Уровень технологий оружия ближнего боя</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Dps.Label>DPS (дальний)</EquipmentManager.Stats.EM_RangedWeapons_Dps.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Dps.Description>Урон в секунду для дальнобойного оружия</EquipmentManager.Stats.EM_RangedWeapons_Dps.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Label>DPSA (средний)</EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Description>Средний урон в секунду с поправкой на точность оружия</EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>DPSA (вплотную)</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>Урон в секунду на ближней дистанции с поправкой на точность</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>DPSA (короткая)</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>Урон в секунду на короткой дистанции с поправкой на точность</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>DPSA (средняя)</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>Урон в секунду на средней дистанции с поправкой на точность</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>DPSA (длинная)</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>Урон в секунду на длинной дистанции с поправкой на точность</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Damage.Label>Урон</EquipmentManager.Stats.EM_RangedWeapons_Damage.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Damage.Description>Количество урона, наносимого оружием за один выстрел</EquipmentManager.Stats.EM_RangedWeapons_Damage.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Range.Label>Дальность</EquipmentManager.Stats.EM_RangedWeapons_Range.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Range.Description>Максимальная дальность стрельбы оружия</EquipmentManager.Stats.EM_RangedWeapons_Range.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Warmup.Label>Время прицеливания</EquipmentManager.Stats.EM_RangedWeapons_Warmup.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Warmup.Description>Время между началом прицеливания и выстрелом</EquipmentManager.Stats.EM_RangedWeapons_Warmup.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Label>Очередь</EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Description>Количество выстрелов в одной очереди</EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Label>Тиков между выстрелами</EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Description>Количество игровых тиков между выстрелами в очереди</EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Label>Среднее пробитие брони</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Description>Среднее количество брони, которое оружие игнорирует при каждом попадании</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Label>Останавливающее действие</EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Description>Попадания из этого оружия оглушают цели, замедляя их движение на несколько секунд</EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Description>Уровень технологий оружия</EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Description>
+	<EquipmentManager.Stats.EM_Tools_WorkType.Label>Характеристики по типу работы</EquipmentManager.Stats.EM_Tools_WorkType.Label>
+	<EquipmentManager.Stats.EM_Tools_WorkType.Description>Характеристики предмета, влияющие на производительность согласно правилам типа работы</EquipmentManager.Stats.EM_Tools_WorkType.Description>
+	<EquipmentManager.Stats.EM_Tools_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_Tools_TechLevel.Label>
+	<EquipmentManager.Stats.EM_Tools_TechLevel.Description>Уровень технологий инструмента</EquipmentManager.Stats.EM_Tools_TechLevel.Description>
+</LanguageData>

@@ -96,11 +96,11 @@ namespace EquipmentManager.Windows
 
         private void DoTab_MeleeWeapons(Rect rect)
         {
-            const int ruleSettingsCount = 0;
+            const int ruleSettingsCount = 1;
             const int itemPropertiesCount = 2;
             GetWeaponRuleTabRects(rect, ruleSettingsCount, itemPropertiesCount, out var buttonRowRect,
-                out var labelRect, out var equipModeRect, out _, out var itemPropertiesRect, out var availableItemsRect,
-                out var exclusiveItemsRect, out var statsRect);
+                out var labelRect, out var equipModeRect, out var ruleSettingsRect, out var itemPropertiesRect,
+                out var availableItemsRect, out var exclusiveItemsRect, out var statsRect);
             DoButtonRow_MeleeWeapons(buttonRowRect);
             UiHelpers.DoGapLineHorizontal(new Rect(rect.x, buttonRowRect.yMax, rect.width, UiHelpers.ElementGap));
             if (SelectedMeleeWeaponRule == null) { LabelInput.DoLabelWithoutInput(labelRect, Strings.NoRuleSelected); }
@@ -112,6 +112,10 @@ namespace EquipmentManager.Windows
                 DoWeaponRuleEquipMode(equipModeRect, () => SelectedMeleeWeaponRule.EquipMode,
                     mode => SelectedMeleeWeaponRule.EquipMode = mode);
                 UiHelpers.DoGapLineHorizontal(new Rect(rect.x, labelRect.yMax, rect.width, UiHelpers.ElementGap));
+                DoRuleSettings_MeleeWeapons(ruleSettingsRect);
+                UiHelpers.DoGapLineHorizontal(new Rect(rect.x, ruleSettingsRect.yMax, rect.width,
+                    UiHelpers.ElementGap));
+
                 DoItemProperties_MeleeWeapons(itemPropertiesRect);
                 UiHelpers.DoGapLineHorizontal(new Rect(rect.x, itemPropertiesRect.yMax, rect.width,
                     UiHelpers.ElementGap));
@@ -165,6 +169,24 @@ namespace EquipmentManager.Windows
                     }, thing => GetMeleeWeaponTooltip(thing, SelectedMeleeWeaponRule),
                     UpdateAvailableItems_MeleeWeapons);
             }
+        }
+
+        private void DoRuleSettings_MeleeWeapons(Rect rect)
+        {
+            var font = Text.Font;
+            var anchor = Text.Anchor;
+            Text.Font = GameFont.Medium;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            var labelRect = new Rect(rect.x, rect.y, rect.width, Text.LineHeight);
+            Widgets.Label(labelRect, Strings.RuleSettings);
+            Text.Font = font;
+            Text.Anchor = anchor;
+            var retentionRect = LabelInput.DoLabeledRect(
+                new Rect(rect.x, labelRect.yMax + UiHelpers.ElementGap, rect.width, UiHelpers.ListRowHeight),
+                Strings.MeleeWeapons.RetentionBonus, Strings.MeleeWeapons.RetentionBonusTooltip);
+            SelectedMeleeWeaponRule.RetentionBonus = Widgets.HorizontalSlider(retentionRect,
+                SelectedMeleeWeaponRule.RetentionBonus, 1f, 2f, true,
+                $"x{SelectedMeleeWeaponRule.RetentionBonus:F2}", roundTo: 0.05f);
         }
 
         private string GetMeleeWeaponDefTooltip(ThingDef def, ItemRule rule)

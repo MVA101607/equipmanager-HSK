@@ -104,17 +104,27 @@ namespace EquipmentManager.Windows
             Widgets.Label(labelRect, Strings.RuleSettings);
             Text.Font = font;
             Text.Anchor = anchor;
+            var currentY = labelRect.yMax + UiHelpers.ElementGap;
+            var retentionRect = LabelInput.DoLabeledRect(
+                new Rect(rect.x, currentY, rect.width, UiHelpers.ListRowHeight),
+                Strings.RangedWeapons.RetentionBonus, Strings.RangedWeapons.RetentionBonusTooltip);
+            SelectedRangedWeaponRule.RetentionBonus = Widgets.HorizontalSlider(retentionRect,
+                SelectedRangedWeaponRule.RetentionBonus, 1f, 2f, true,
+                $"x{SelectedRangedWeaponRule.RetentionBonus:F2}", roundTo: 0.05f);
+            currentY += UiHelpers.ListRowHeight + UiHelpers.ElementGap;
+            if (!CombatExtendedHelper.EnableAmmoSystem) { return; }
             var ammoCountRect = LabelInput.DoLabeledRect(
-                new Rect(rect.x, labelRect.yMax + UiHelpers.ElementGap, rect.width, UiHelpers.ListRowHeight),
+                new Rect(rect.x, currentY, rect.width, UiHelpers.ListRowHeight),
                 Strings.RangedWeapons.AmmoCount, Strings.RangedWeapons.AmmoCountTooltip);
             SelectedRangedWeaponRule.AmmoCount = (int) Widgets.HorizontalSlider(ammoCountRect,
-                SelectedRangedWeaponRule.AmmoCount, 0f, 1000f, true, $"{SelectedRangedWeaponRule.AmmoCount:N0}",
-                roundTo: 10f);
+                SelectedRangedWeaponRule.AmmoCount, 0f, 1000f, true,
+                $"{SelectedRangedWeaponRule.AmmoCount:N0}", roundTo: 10f);
         }
 
         private void DoTab_RangedWeapons(Rect rect)
         {
-            var ruleSettingsCount = CombatExtendedHelper.EnableAmmoSystem ? 1 : 0;
+            // RetentionBonus — всегда 1 строка; AmmoCount — только с CE
+            var ruleSettingsCount = 1 + (CombatExtendedHelper.EnableAmmoSystem ? 1 : 0);
             const int itemPropertiesCount = 2;
             GetWeaponRuleTabRects(rect, ruleSettingsCount, itemPropertiesCount, out var buttonRowRect,
                 out var labelRect, out var equipModeRect, out var ruleSettingsRect, out var itemPropertiesRect,
