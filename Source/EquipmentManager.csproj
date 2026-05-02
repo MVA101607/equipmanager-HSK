@@ -24,7 +24,7 @@
     <OutputPath>..\1.5\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>5</WarningLevel>
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>

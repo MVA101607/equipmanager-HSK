@@ -298,24 +298,39 @@ namespace EquipmentManager
             foreach (var pawn in _pawnCache.Where(pc =>
                          pc.ShouldUpdateEquipment && (pc.AssignedLoadout?.DropUnassignedWeapons ?? false)))
             {
+                var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn.Pawn);
+                var managedWeapons = pawnLoadout?.ManagedWeapons ?? new HashSet<ThingDefStuffDefPair>();
+
+                // Удаляем только то, что мод назначил сам в прошлом цикле
+                // и что не переназначено в этом цикле
                 var unassignedWeapons = pawn.Pawn.GetCarriedWeapons(true, true)
-                    .Where(weapon => !pawn.AssignedWeapons.ContainsKey(weapon)).ToList();
+                    .Where(weapon =>
+                        !pawn.AssignedWeapons.ContainsKey(weapon) &&
+                        managedWeapons.Contains(weapon.toThingDefStuffDefPair()))
+                    .ToList();
+
                 if (unassignedWeapons.Any())
                 {
                     EquipmentManager.LogMessage(
-                        $"Dropping {string.Join(", ", unassignedWeapons.Select(thing => thing.LabelCapNoCount))} from {pawn.Pawn.LabelShortCap}'s inventory");
+                        $"Dropping {string.Join(", ", unassignedWeapons.Select(t => t.LabelCapNoCount))} from {pawn.Pawn.LabelShortCap}'s inventory");
                 }
                 foreach (var weapon in unassignedWeapons)
                 {
                     WeaponAssingment.dropSidearm(pawn.Pawn, weapon, true);
                 }
+
                 var sidearmMemory = CompSidearmMemory.GetMemoryCompForPawn(pawn.Pawn);
-                foreach (var weapon in sidearmMemory.RememberedWeapons.Where(weapon =>
-                             pawn.AssignedWeapons.Keys.All(thing => thing.toThingDefStuffDefPair() != weapon)).ToList())
+                // Забываем только управляемые оружия, которые больше не назначены
+                foreach (var weapon in sidearmMemory.RememberedWeapons
+                             .Where(weapon =>
+                                 managedWeapons.Contains(weapon) &&
+                                 pawn.AssignedWeapons.Keys.All(t => t.toThingDefStuffDefPair() != weapon))
+                             .ToList())
                 {
                     EquipmentManager.LogMessage($"Forgetting {weapon.thing.LabelCap} for {pawn.Pawn.LabelShortCap}");
                     sidearmMemory.ForgetSidearmMemory(weapon);
                 }
+                // Дедупликация дублей (без изменений)
                 foreach (var rememberedWeapon in sidearmMemory.RememberedWeapons.Distinct().ToList())
                 {
                     while (sidearmMemory.RememberedWeapons.Count(w => w == rememberedWeapon) > 1)
@@ -343,7 +358,16 @@ namespace EquipmentManager
                 .Where(pair => ammoDefs.Contains(pair.Key.def)).Sum(pair => pair.Value);
             EquipmentManager.LogMessage(
                 $"{pawn.Pawn.LabelShortCap}'s ammo count for {weapon.LabelCapNoCount} = {currentAmmo}");
-            var targetAmmoCount = weaponCache.IsAmmo ? 5 : rule.AmmoCount;
+            int targetAmmoCount;
+            if (weaponCache.IsAmmo)
+            {
+                targetAmmoCount = 5;
+            }
+            else
+            {
+                var magSize = weaponCache.MagSize;
+                targetAmmoCount = magSize > 0 ? magSize * 5 : rule.AmmoCount;
+            }
             if (currentAmmo < targetAmmoCount)
             {
                 foreach (var ammoDef in ammoDefs.OrderByDescending(def => def.BaseMarketValue))
@@ -407,9 +431,15 @@ namespace EquipmentManager
             }
             foreach (var pawn in _pawnCache)
             {
-                if (pawn.AutoLoadout && pawn.AssignedLoadout != null)
+                // Сохраняем в PawnLoadout что мод назначил в прошлом цикле
+                var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn.Pawn);
+                if (pawnLoadout != null)
                 {
-                    EquipmentManager.SetPawnLoadout(pawn.Pawn, pawn.AssignedLoadout, true);
+                    pawnLoadout.ManagedWeapons.Clear();
+                    foreach (var weapon in pawn.AssignedWeapons.Keys)
+                    {
+                        _ = pawnLoadout.ManagedWeapons.Add(weapon.toThingDefStuffDefPair());
+                    }
                 }
                 pawn.AssignedWeapons.Clear();
                 pawn.AssignedAmmo.Clear();
@@ -420,7 +450,9 @@ namespace EquipmentManager
 
         private void UpdateMeleeSidearms()
         {
-            foreach (var pawn in _pawnCache.Where(pc => pc.ShouldUpdateEquipment))
+            foreach (var pawn in _pawnCache.Where(pc => pc.ShouldUpdateEquipment)
+                .OrderByDescending(pc => pc.Pawn.GetStatValue(StatDefOf.MeleeHitChance))
+                .ThenBy(pc => pc.Pawn.GetHashCode()))
             {
                 var sidearmMemory = CompSidearmMemory.GetMemoryCompForPawn(pawn.Pawn);
                 foreach (var rule in pawn.AssignedLoadout.MeleeSidearmRules.Select(EquipmentManager.GetMeleeWeaponRule)
@@ -521,7 +553,17 @@ namespace EquipmentManager
 
         private void UpdatePrimaryWeapons()
         {
-            foreach (var pawn in _pawnCache.Where(pc => pc.ShouldUpdateEquipment))
+            // Сначала обрабатываем пешек с высокой точностью стрельбы,
+            // чтобы лучшее оружие досталось тем, кто умеет им пользоваться.
+            var orderedPawns = _pawnCache
+                .Where(pc => pc.ShouldUpdateEquipment)
+                .OrderByDescending(pc =>
+                    pc.AssignedLoadout?.PrimaryRuleType == Loadout.PrimaryWeaponType.RangedWeapon
+                        ? pc.Pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn)
+                        : pc.Pawn.GetStatValue(StatDefOf.MeleeHitChance))
+                .ThenBy(pc => pc.Pawn.GetHashCode());   // стабильная сортировка при равных значениях
+
+            foreach (var pawn in orderedPawns)
             {
                 switch (pawn.AssignedLoadout.PrimaryRuleType)
                 {
@@ -541,7 +583,9 @@ namespace EquipmentManager
 
         private void UpdateRangedSidearms()
         {
-            foreach (var pawn in _pawnCache.Where(pc => pc.ShouldUpdateEquipment))
+            foreach (var pawn in _pawnCache.Where(pc => pc.ShouldUpdateEquipment)
+                    .OrderByDescending(pc => pc.Pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn))
+                    .ThenBy(pc => pc.Pawn.GetHashCode()))
             {
                 foreach (var rule in pawn.AssignedLoadout.RangedSidearmRules
                              .Select(EquipmentManager.GetRangedWeaponRule).Where(rule => rule != null))

@@ -24,6 +24,12 @@ namespace EquipmentManager
         public override void FinalizeInit()
         {
             base.FinalizeInit();
+
+            ToolRule.InvalidateCache();
+            WorkTypeRule.InvalidateCache();
+            RangedWeaponRule.InvalidateCache();
+            MeleeWeaponRule.InvalidateCache();  
+
             foreach (var rule in GetMeleeWeaponRules()) { rule.UpdateGloballyAvailableItems(); }
             foreach (var rule in GetRangedWeaponRules()) { rule.UpdateGloballyAvailableItems(); }
             foreach (var rule in GetToolRules()) { rule.UpdateGloballyAvailableItems(); }

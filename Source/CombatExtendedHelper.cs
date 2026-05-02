@@ -12,6 +12,7 @@ namespace EquipmentManager
         public static AccessTools.FieldRef<Def, object> AmmoTypesDelegate;
         public static AccessTools.FieldRef<ProjectileProperties, float> ArmorPenetrationBluntDelegate;
         public static AccessTools.FieldRef<ProjectileProperties, float> ArmorPenetrationSharpDelegate;
+        public static AccessTools.FieldRef<object, int> MagSizeDelegate;
         public static bool CombatExtended;
         public static Type CompAmmoUserType;
         public static Type ProjectilePropertiesType;
@@ -35,6 +36,8 @@ namespace EquipmentManager
                 AccessTools.FieldRefAccess<object>(AccessTools.TypeByName("CombatExtended.AmmoSetDef"), "ammoTypes");
             AmmoDelegate =
                 AccessTools.FieldRefAccess<ThingDef>(AccessTools.TypeByName("CombatExtended.AmmoLink"), "ammo");
+            MagSizeDelegate = AccessTools.FieldRefAccess<int>(
+            AccessTools.TypeByName("CombatExtended.CompProperties_AmmoUser"), "magazineSize");
         }
 
         private delegate bool EnableAmmoSystemDelegate();

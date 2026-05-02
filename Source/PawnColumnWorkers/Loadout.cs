@@ -16,7 +16,7 @@ namespace EquipmentManager.PawnColumnWorkers
         private static EquipmentManagerGameComponent _equipmentManager;
 
         private static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ?? (_equipmentManager = Current.Game.GetComponent<EquipmentManagerGameComponent>());
+            _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         private static IEnumerable<Widgets.DropdownMenuElement<EquipmentManager.Loadout>> Button_GenerateMenu(Pawn pawn)
         {
@@ -46,8 +46,10 @@ namespace EquipmentManager.PawnColumnWorkers
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
-            var loadoutButtonRect = new Rect(rect.x, rect.y + 2f, Mathf.FloorToInt((float) ((rect.width - 4.0) * 0.7)),
-                rect.height - 4f);
+            var editButtonSize = (rect.height - 4)/2;
+            var loadoutButtonRect = new Rect(rect.x, rect.y + 2,
+                rect.width - editButtonSize - 4, rect.height - 4);
+
             if (pawn.IsQuestLodger())
             {
                 Text.Anchor = TextAnchor.MiddleCenter;
@@ -60,14 +62,20 @@ namespace EquipmentManager.PawnColumnWorkers
                 var loadout = EquipmentManager.GetLoadout(pawnLoadout?.LoadoutId);
                 var label = loadout != null ? loadout.Label : Resources.Strings.Loadouts.Default.NoLoadout;
                 if (pawnLoadout?.Automatic ?? false) { label = $"* {label}"; }
-                Widgets.Dropdown(loadoutButtonRect, pawn, p => EquipmentManager.GetLoadout(pawn), Button_GenerateMenu,
-                    label, dragLabel: label.Truncate(loadoutButtonRect.width), paintable: true);
+                Widgets.Dropdown(loadoutButtonRect, pawn, p => EquipmentManager.GetLoadout(pawn),
+                    Button_GenerateMenu, label,
+                    dragLabel: label.Truncate(loadoutButtonRect.width), paintable: true);
             }
-            var editButtonRect = new Rect(rect.x + loadoutButtonRect.width + 4f, rect.y + 2f,
-                Mathf.FloorToInt((float) ((rect.width - 4.0) * 0.3)), rect.height - 4f);
-            if (!pawn.IsQuestLodger() && Widgets.ButtonText(editButtonRect, "AssignTabEdit".Translate()))
+
+            var editButtonRect = new Rect(rect.xMax - editButtonSize, rect.y + 2f,
+                editButtonSize, editButtonSize);
+            if (!pawn.IsQuestLodger())
             {
-                Find.WindowStack.Add(new ManageLoadoutsDialog(EquipmentManager.GetLoadout(pawn)));
+                TooltipHandler.TipRegion(editButtonRect, "AssignTabEdit".Translate());
+                if (Widgets.ButtonImage(editButtonRect, Resources.Textures.Edit))
+                {
+                    Find.WindowStack.Add(new ManageLoadoutsDialog(EquipmentManager.GetLoadout(pawn)));
+                }
             }
         }
 

@@ -1,8 +1,9 @@
-﻿using System;
-using System.Linq;
-using HarmonyLib;
+﻿using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Verse;
 
 namespace EquipmentManager
@@ -155,11 +156,11 @@ namespace EquipmentManager
             {
                 if (CombatExtendedHelper.CombatExtended && ToolType != null)
                 {
-                    var tools = Thing.def.tools.Where(tool => tool.power > 0f).ToList();
+                    var tools = Thing.def.tools?.Where(tool => tool.power > 0f).ToList()
+                        ?? new List<Tool>();
                     if (!tools.Any())
                     {
-                        Log.Error(
-                            $"Equipment Manager: Could not find any melee tools of '{Thing.LabelCapNoCount}' ({Thing.def?.defName})");
+                        ArmorPenetration = 0f;
                     }
                     else
                     {

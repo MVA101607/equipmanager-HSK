@@ -48,7 +48,7 @@ namespace EquipmentManager
                     Log.Error($"Equipment Manager: Ammo set was not found for {Thing.LabelCapNoCount}");
                     return ammoTypes;
                 }
-                if (!(CombatExtendedHelper.AmmoTypesDelegate(ammoSet) is IEnumerable<object> ammoLinks))
+                if (CombatExtendedHelper.AmmoTypesDelegate(ammoSet) is not IEnumerable<object> ammoLinks)
                 {
                     Log.Error($"Equipment Manager: Could not get ammo links for {Thing.LabelCapNoCount}");
                     return ammoTypes;
@@ -60,7 +60,7 @@ namespace EquipmentManager
         }
 
         private ThingComp AmmoUserComp =>
-            !(Thing is ThingWithComps thingWithComps)
+            (Thing is not ThingWithComps thingWithComps)
                 ? null
                 : thingWithComps.AllComps.FirstOrDefault(
                     comp => comp.GetType() == CombatExtendedHelper.CompAmmoUserType);
@@ -98,37 +98,23 @@ namespace EquipmentManager
             if (Enum.TryParse(CustomRangedWeaponStats.GetStatName(statDef.defName),
                     out CustomRangedWeaponStat rangedWeaponStat))
             {
-                switch (rangedWeaponStat)
+                return rangedWeaponStat switch
                 {
-                    case CustomRangedWeaponStat.Dpsa:
-                        return Dpsa;
-                    case CustomRangedWeaponStat.DpsaClose:
-                        return DpsaClose;
-                    case CustomRangedWeaponStat.DpsaShort:
-                        return DpsaShort;
-                    case CustomRangedWeaponStat.DpsaMedium:
-                        return DpsaMedium;
-                    case CustomRangedWeaponStat.DpsaLong:
-                        return DpsaLong;
-                    case CustomRangedWeaponStat.Range:
-                        return MaxRange;
-                    case CustomRangedWeaponStat.Warmup:
-                        return Warmup;
-                    case CustomRangedWeaponStat.BurstShotCount:
-                        return BurstShotCount;
-                    case CustomRangedWeaponStat.TicksBetweenBurstShots:
-                        return TicksBetweenBurstShots;
-                    case CustomRangedWeaponStat.ArmorPenetration:
-                        return ArmorPenetration;
-                    case CustomRangedWeaponStat.StoppingPower:
-                        return StoppingPower;
-                    case CustomRangedWeaponStat.Damage:
-                        return Damage;
-                    case CustomRangedWeaponStat.TechLevel:
-                        return (float) Thing.def.techLevel;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(statDef));
-                }
+                    CustomRangedWeaponStat.Dpsa => Dpsa,
+                    CustomRangedWeaponStat.DpsaClose => DpsaClose,
+                    CustomRangedWeaponStat.DpsaShort => DpsaShort,
+                    CustomRangedWeaponStat.DpsaMedium => DpsaMedium,
+                    CustomRangedWeaponStat.DpsaLong => DpsaLong,
+                    CustomRangedWeaponStat.Range => MaxRange,
+                    CustomRangedWeaponStat.Warmup => Warmup,
+                    CustomRangedWeaponStat.BurstShotCount => BurstShotCount,
+                    CustomRangedWeaponStat.TicksBetweenBurstShots => TicksBetweenBurstShots,
+                    CustomRangedWeaponStat.ArmorPenetration => ArmorPenetration,
+                    CustomRangedWeaponStat.StoppingPower => StoppingPower,
+                    CustomRangedWeaponStat.Damage => Damage,
+                    CustomRangedWeaponStat.TechLevel => (float) Thing.def.techLevel,
+                    _ => throw new ArgumentOutOfRangeException(nameof(statDef)),
+                };
             }
             Log.Error($"Equipment Manager: Tried to evaluate unknown custom ranged stat ({statDef.defName})");
             return 0f;
@@ -216,6 +202,21 @@ namespace EquipmentManager
                     ArmorPenetration = CombatExtendedHelper.ArmorPenetrationSharpDelegate(projectileProperties) +
                         CombatExtendedHelper.ArmorPenetrationBluntDelegate(projectileProperties);
                 }
+            }
+        }
+
+        public int MagSize
+        {
+            get
+            {
+                Initialize();
+                if (!CombatExtendedHelper.CombatExtended || CombatExtendedHelper.MagSizeDelegate == null)
+                { return 0; }
+                if (_ammoUserPropsMethod == null) { return 0; }
+                 var props = _ammoUserPropsMethod();
+                if (props == null) { return 0; }
+                 try { return CombatExtendedHelper.MagSizeDelegate(props); }
+                catch { return 0; }
             }
         }
 

@@ -133,4 +133,5 @@
 	<EquipmentManager.Stats.EM_Tools_WorkType.Description>Характеристики предмета, влияющие на производительность согласно правилам типа работы</EquipmentManager.Stats.EM_Tools_WorkType.Description>
 	<EquipmentManager.Stats.EM_Tools_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_Tools_TechLevel.Label>
 	<EquipmentManager.Stats.EM_Tools_TechLevel.Description>Уровень технологий инструмента</EquipmentManager.Stats.EM_Tools_TechLevel.Description>
+	<EquipmentManager.WeaponEquipped>{0} берёт {1}</EquipmentManager.WeaponEquipped>
 </LanguageData>

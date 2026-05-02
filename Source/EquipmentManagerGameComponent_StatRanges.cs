@@ -30,7 +30,10 @@ namespace EquipmentManager
                 }
                 else
                 {
-                    foreach (var rule in GetMeleeWeaponRules()) { rule.UpdateStatRanges(weapon, time); }
+                    if (weapon.def.tools != null && weapon.def.tools.Count > 0)
+                    {
+                        foreach (var rule in GetMeleeWeaponRules()) { rule.UpdateStatRanges(weapon, time); }
+                    }
                 }
                 foreach (var rule in GetToolRules())
                 {

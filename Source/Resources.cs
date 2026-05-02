@@ -341,6 +341,7 @@ namespace EquipmentManager
         [StaticConstructorOnStartup]
         internal static class Textures
         {
+            internal static readonly Texture2D Edit = ContentFinder<Texture2D>.Get("equipment-manager-edit");
             internal static readonly Texture2D Delete = ContentFinder<Texture2D>.Get("equipment-manager-delete");
             internal static readonly Texture2D PassionMajor = ContentFinder<Texture2D>.Get("UI/Icons/PassionMajor");
             internal static readonly Texture2D PassionMinor = ContentFinder<Texture2D>.Get("UI/Icons/PassionMinor");

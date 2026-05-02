@@ -140,4 +140,5 @@
 	<EquipmentManager.Stats.EM_Tools_WorkType.Description>Item stats that affect performance according to work type rules</EquipmentManager.Stats.EM_Tools_WorkType.Description>
 	<EquipmentManager.Stats.EM_Tools_TechLevel.Label>Tech level</EquipmentManager.Stats.EM_Tools_TechLevel.Label>
 	<EquipmentManager.Stats.EM_Tools_TechLevel.Description>Tool's tech level</EquipmentManager.Stats.EM_Tools_TechLevel.Description>
+	<EquipmentManager.WeaponEquipped>{0} equips {1}</EquipmentManager.WeaponEquipped>
 </LanguageData>

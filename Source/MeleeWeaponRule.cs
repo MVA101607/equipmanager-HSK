@@ -233,5 +233,10 @@ namespace EquipmentManager
                 .Union(StatLimits.Where(sl => sl.StatDef != null).Select(sl => sl.StatDef));
             foreach (var stat in stats) { EquipmentManager.UpdateStatRange(stat, cache.GetStatValueDeviation(stat)); }
         }
+
+        public static void InvalidateCache()
+        {
+            _allRelevantThings = null;
+        }
     }
 }

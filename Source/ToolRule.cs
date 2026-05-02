@@ -35,10 +35,12 @@ namespace EquipmentManager
                 {
                     var relevantStats = EquipmentManager.GetWorkTypeRules().SelectMany(rule => rule.RequiredStats)
                         .ToHashSet();
+                    var workStats = StatHelper.WorkTypeStatDefs.ToHashSet();
                     _allRelevantThings = new HashSet<ThingDef>(DefDatabase<ThingDef>.AllDefs.Where(def =>
-                        def.IsWeapon && !def.destroyOnDrop && (def.statBases ?? new List<StatModifier>())
-                        .Union(def.equippedStatOffsets ?? new List<StatModifier>())
-                        .Any(sm => relevantStats.Contains(sm.stat))));
+                        def.IsWeapon && !def.destroyOnDrop &&
+                        (def.statBases ?? new List<StatModifier>())
+                            .Union(def.equippedStatOffsets ?? new List<StatModifier>())
+                            .Any(sm => relevantStats.Contains(sm.stat) || workStats.Contains(sm.stat))));
                 }
                 return _allRelevantThings;
             }
@@ -197,5 +199,11 @@ namespace EquipmentManager
                 EquipmentManager.UpdateStatRange(stat, cache.GetStatValueDeviation(stat, workTypeDefs));
             }
         }
+
+        public static void InvalidateCache()
+        {
+            _allRelevantThings = null;
+        }
+
     }
 }

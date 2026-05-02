@@ -14,7 +14,7 @@ namespace EquipmentManager
         private static EquipmentManagerGameComponent _equipmentManager;
 
         private static readonly Dictionary<string, IEnumerable<string>> DefaultWorkTypeStats =
-            new Dictionary<string, IEnumerable<string>>
+            new()
             {
                 {
                     "Cooking",
@@ -28,10 +28,10 @@ namespace EquipmentManager
                 {"Doctor", new[] {"MedicalTendQualityOffset", "MedicalPotency"}}
             };
 
-        private readonly HashSet<StatDef> _requiredStats = new HashSet<StatDef>();
+        private readonly HashSet<StatDef> _requiredStats = new();
         private List<StatWeight> _defaultStatWeights;
         private bool _isInitialized;
-        private List<StatWeight> _statWeights = new List<StatWeight>();
+        private List<StatWeight> _statWeights = new();
         private WorkTypeDef _workTypeDef;
         private string _workTypeDefName;
 
@@ -91,7 +91,7 @@ namespace EquipmentManager
         }
 
         private static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ?? (_equipmentManager = Current.Game.GetComponent<EquipmentManagerGameComponent>());
+            _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public string Label =>
             WorkTypeDef != null
@@ -264,6 +264,11 @@ namespace EquipmentManager
                 _statWeights.Add(statWeight);
             }
             statWeight.Weight = weight;
+        }
+
+        public static void InvalidateCache()
+        {
+            _allRelevantThings = null;
         }
     }
 }

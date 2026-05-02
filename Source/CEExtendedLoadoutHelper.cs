@@ -2,6 +2,11 @@
 using System.Collections;
 using System.Reflection;
 using HarmonyLib;
+using CombatExtended;
+using CombatExtended.ExtendedLoadout;
+using LudeonTK;
+using RimWorld;
+using System.Linq;
 using JetBrains.Annotations;
 using Verse;
 #pragma warning disable IDE0019
@@ -23,24 +28,6 @@ namespace EquipmentManager
         private static FieldInfo _slotThingDef;
         private static PropertyInfo _slotsOnLoadout;
 
-        private static void LogAllFields(Type type)
-        {
-            if (type == null) { return; }
-            var sb = new System.Text.StringBuilder();
-            _ = sb.AppendLine("[EM] Fields of " + type.FullName + ":");
-            foreach (var f in type.GetFields(
-                BindingFlags.Public | BindingFlags.NonPublic |
-                BindingFlags.Static | BindingFlags.Instance))
-            {
-                _ = sb.Append("  ");
-                _ = sb.Append(f.IsStatic ? "static " : "       ");
-                _ = sb.Append(f.FieldType.Name);
-                _ = sb.Append(" ");
-                _ = sb.AppendLine(f.Name);
-            }
-            Log.Message(sb.ToString());
-        }
-
         public static bool IsAvailable()
         {
             if (_initialized) { return _available; }
@@ -54,20 +41,15 @@ namespace EquipmentManager
             var utilType = AccessTools.TypeByName("CombatExtended.Utility_Loadouts");
             var slotType = AccessTools.TypeByName("CombatExtended.LoadoutSlot");
 
-            Log.Message("[EM] CEExtendedLoadoutHelper init:" +
-                " _loadoutMultiManagerType=" + (_loadoutMultiManagerType != null) +
-                " _loadoutMultiType=" + (_loadoutMultiType != null) +
-                " _loadoutType=" + (loadoutType != null) +
-                " _utilType=" + (utilType != null) +
-                " _slotType=" + (slotType != null));
-
-            
-
             if (_loadoutMultiManagerType == null || _loadoutMultiType == null ||
                 loadoutType == null || utilType == null || slotType == null)
             {
-                Log.Message("[EM] CEExtendedLoadoutHelper: required types not found, disabled.");
-                _available = false;
+                Log.Message("[EM] CEExtendedLoadoutHelper init:" +
+                    " _loadoutMultiManagerType=" + (_loadoutMultiManagerType != null) +
+                    " _loadoutMultiType=" + (_loadoutMultiType != null) +
+                    " _loadoutType=" + (loadoutType != null) +
+                    " _utilType=" + (utilType != null) +
+                    " _slotType=" + (slotType != null));
                 return false;
             }
 
@@ -94,15 +76,7 @@ namespace EquipmentManager
             _slotThingDef = AccessTools.Field(slotType, "_def");
             _slotsOnLoadout = AccessTools.Property(loadoutType, "Slots");
 
-            LogAllFields(slotType);
 
-            Log.Message("[EM] CEExtendedLoadoutHelper members:" +
-                " _personalLoadoutProp=" + (_personalLoadoutProp != null) +
-                " _notifyChanged=" + (_notifyChanged != null) +
-                " _addSlot=" + (_addSlot != null) +
-                " _slotCtor=" + (_slotCtor != null) +
-                " _slotThingDef=" + (_slotThingDef != null) +
-                " _slotsOnLoadout=" + (_slotsOnLoadout != null));
 
             _available = _ceGetLoadout != null &&
                          _personalLoadoutProp != null &&
@@ -112,7 +86,18 @@ namespace EquipmentManager
                          _slotThingDef != null &&
                          _slotsOnLoadout != null;
 
-            Log.Message("[EM] CEExtendedLoadoutHelper.IsAvailable = " + _available);
+            if (_available)
+            {   Log.Message("[EM] CEExtendedLoadoutHelper IsAvailable"); }
+            else
+            {
+                Log.Message("[EM] CEExtendedLoadoutHelper members:" +
+                " _personalLoadoutProp=" + (_personalLoadoutProp != null) +
+                " _notifyChanged=" + (_notifyChanged != null) +
+                " _addSlot=" + (_addSlot != null) +
+                " _slotCtor=" + (_slotCtor != null) +
+                " _slotThingDef=" + (_slotThingDef != null) +
+                " _slotsOnLoadout=" + (_slotsOnLoadout != null));
+            }
             return _available;
         }
 
@@ -123,31 +108,20 @@ namespace EquipmentManager
             if (!IsAvailable()) { return false; }
             try
             {
-                // GetLoadout перехвачен ExtendedLoadout Harmony-патчем
-                // и возвращает Loadout_Multi под видом Loadout
-                var loadout = _ceGetLoadout.Invoke(null, new object[] { pawn });
-
-                if (loadout == null)
+                // Получить Loadout_Multi пешки (создаётся автоматически, если не было)
+                if (LoadoutMulti_Manager.GetLoadout(pawn, false) is not Loadout_Multi multiLoadout)
                 {
-                    Log.Warning("[EM] GetLoadout returned null for " + pawn.LabelShortCap);
+                    Log.Error("[ExtendedLoadout Test] Failed to get Loadout_Multi for pawn.");
                     return false;
                 }
 
-                if (loadout.GetType() != _loadoutMultiType)
-                {
-                    Log.Warning("[EM] GetLoadout returned " + loadout.GetType().FullName +
-                        " instead of Loadout_Multi for " + pawn.LabelShortCap +
-                        ". ExtendedLoadout Harmony patch may not be active.");
-                    return false;
-                }
+                var personalLoadout = multiLoadout.PersonalLoadout;
 
-                var personalLoadout = _personalLoadoutProp.GetValue(loadout, null);
                 if (personalLoadout == null)
                 {
-                    Log.Warning("[EM] PersonalLoadout is null for " + pawn.LabelShortCap);
+                    Log.Error("[ExtendedLoadout Test] PersonalLoadout is null.");
                     return false;
                 }
-
                 // Удалить все weapon-слоты из PersonalLoadout перед записью нового
                 var slotsObj = _slotsOnLoadout.GetValue(personalLoadout, null);
                 var slots = slotsObj is IList list ? list : null;
@@ -155,50 +129,37 @@ namespace EquipmentManager
                 {
                     for (var i = slots.Count - 1; i >= 0; i--)
                     {
-                        var slot = slots[i];
-                        if (slot == null) { continue; }
-                        var def = _slotThingDef.GetValue(slot) is ThingDef td ? td : null;
+                        var wslot = slots[i];
+                        if (wslot == null) { continue; }
+                        var def = _slotThingDef.GetValue(wslot) is ThingDef td ? td : null;
                         if (def != null && def.IsWeapon) { slots.RemoveAt(i); }
                     }
                 }
 
-                // Добавить слот нового оружия (count=1)
-                var newSlot = _slotCtor.Invoke(new object[] { weaponDef, 1 });
-                _ = _addSlot.Invoke(personalLoadout, new object[] { newSlot });
+                // Добавить слот с оружием (count = 1)
+                //    AddSlot сам объединит с существующим слотом, если такой уже есть
+                var slot = new LoadoutSlot(weaponDef, 1);
+                personalLoadout.AddSlot(slot);
 
                 // Обновить объединённый кэш Slots в Loadout_Multi
-                _ = _notifyChanged.Invoke(loadout, null);
+                multiLoadout.NotifyLoadoutChanged();
 
-                // Диагностика: проверяем что Slots обновились
-                try
+                //  Если открыт диалог управления loadout'ами — перерисовать
+                //    Dialog_ManageLoadouts сам перерисовывается каждый тик,
+                //    но если нужно принудительно уведомить все Loadout_Multi:
+                foreach (var lm in LoadoutMulti_Manager.LoadoutsMulti)
                 {
-                    var updatedSlotsObj = _slotsOnLoadout.GetValue(loadout, null);
-                    var updatedSlots = updatedSlotsObj as IList;
-                    if (updatedSlots != null)
-                    {
-                        var sb = new System.Text.StringBuilder();
-                        _ = sb.AppendLine("[EM] Loadout_Multi.Slots after NotifyLoadoutChanged" +
-                            " for " + pawn.LabelShortCap + " (" + updatedSlots.Count + " slots):");
-                        foreach (var s in updatedSlots)
-                        {
-                            if (s == null) { continue; }
-                            var d = _slotThingDef.GetValue(s) as ThingDef;
-                            _ = sb.AppendLine("  " + (d == null ? "null" : d.defName));
-                        }
-                        Log.Message(sb.ToString());
-                    }
-                    else
-                    {
-                        Log.Warning("[EM] Loadout_Multi.Slots is null after NotifyLoadoutChanged");
-                    }
-                }
-                catch (Exception diagEx)
-                {
-                    Log.Warning("[EM] Slots diagnostics failed: " + diagEx.Message);
+                    lm.NotifyLoadoutChanged();
                 }
 
-                Log.Message("[EM] PersonalLoadout updated: " +
-                    pawn.LabelShortCap + " -> " + weaponDef.defName);
+                // 7. Вывести сообщение 
+                //Log.Message("[EM] PersonalLoadout updated: " +
+                //    pawn.Name.ToStringShort + " -> " + weaponDef.LabelCap);
+                Messages.Message(
+                            "EquipmentManager.WeaponEquipped".Translate(
+                                pawn.Name.ToStringShort, weaponDef.LabelCap),
+                            MessageTypeDefOf.SilentInput,   // без звука, не прерывает игру
+                            historical: false);
                 return true;
             }
             catch (Exception ex)
