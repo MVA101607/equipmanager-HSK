@@ -13,7 +13,7 @@ namespace EquipmentManager.CustomWidgets
         public const float ButtonHeight = 32f;
         public const float ElementGap = 12f;
         public const float ListRowHeight = 32f;
-        public static readonly Regex ValidNameRegex = new Regex("^[\\p{L}0-9 '\\-]*$");
+        public static readonly Regex ValidNameRegex = new("^[\\p{L}0-9 '\\-]*$");
         public static float LabelHeight => Text.LineHeightOf(GameFont.Medium) + 4f;
 
         public static bool? CycleSettingValue(MultiCheckboxState state)

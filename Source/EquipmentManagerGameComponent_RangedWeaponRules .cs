@@ -8,10 +8,10 @@ namespace EquipmentManager
     internal partial class EquipmentManagerGameComponent
     {
         private readonly Dictionary<ThingDef, RangedWeaponCache> _rangedWeaponDefsCache =
-            new Dictionary<ThingDef, RangedWeaponCache>();
+            new();
 
         private readonly Dictionary<Thing, RangedWeaponCache> _rangedWeaponsCache =
-            new Dictionary<Thing, RangedWeaponCache>();
+            new();
 
         private List<RangedWeaponRule> _rangedWeaponRules;
 

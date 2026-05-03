@@ -6,8 +6,8 @@ namespace EquipmentManager
     internal class ItemCache
     {
         private const float UpdateTimer = 24f;
-        private readonly RimworldTime _updateTime = new RimworldTime(-1, -1, -1);
-        protected readonly Dictionary<StatDef, float> StatValues = new Dictionary<StatDef, float>();
+        private readonly RimworldTime _updateTime = new(-1, -1, -1);
+        protected readonly Dictionary<StatDef, float> StatValues = new();
 
         public virtual bool Update(RimworldTime time)
         {

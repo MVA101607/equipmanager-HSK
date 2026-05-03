@@ -10,8 +10,8 @@ namespace EquipmentManager.Windows
 {
     internal partial class ManageWeaponRulesDialog
     {
-        private readonly List<Thing> _currentlyAvailableMeleeWeapons = new List<Thing>();
-        private readonly List<ThingDef> _globallyAvailableMeleeWeapons = new List<ThingDef>();
+        private readonly List<Thing> _currentlyAvailableMeleeWeapons = new();
+        private readonly List<ThingDef> _globallyAvailableMeleeWeapons = new();
         private MeleeWeaponRule _selectedMeleeWeaponRule;
 
         private MeleeWeaponRule SelectedMeleeWeaponRule

@@ -5,7 +5,7 @@ namespace EquipmentManager
     internal partial class EquipmentManagerGameComponent
     {
         private const int LogLimit = 5000;
-        private readonly List<string> _log = new List<string>();
+        private readonly List<string> _log = new();
 
         public IReadOnlyList<string> GetLog()
         {

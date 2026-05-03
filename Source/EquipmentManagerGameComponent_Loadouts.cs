@@ -102,19 +102,19 @@ namespace EquipmentManager
         public Loadout GetLoadout([NotNull] Pawn pawn)
         {
             if (pawn == null) { throw new ArgumentNullException(nameof(pawn)); }
-            if (_pawnLoadouts == null) { _pawnLoadouts = new List<PawnLoadout>(); }
+            _pawnLoadouts ??= new List<PawnLoadout>();
             return GetLoadout(GetPawnLoadout(pawn)?.LoadoutId);
         }
 
         public IEnumerable<Loadout> GetLoadouts()
         {
-            return _loadouts ?? (_loadouts = new List<Loadout>(Loadout.DefaultLoadouts));
+            return  _loadouts ??= new List<Loadout>(Loadout.DefaultLoadouts);
         }
 
         public PawnLoadout GetPawnLoadout([NotNull] Pawn pawn)
         {
             if (pawn == null) { throw new ArgumentNullException(nameof(pawn)); }
-            if (_pawnLoadouts == null) { _pawnLoadouts = new List<PawnLoadout>(); }
+            _pawnLoadouts ??= new List<PawnLoadout>();
             var pawnLoadout =
                 _pawnLoadouts.FirstOrDefault(pl => pl.Pawn != null && pl.Pawn.thingIDNumber == pawn.thingIDNumber);
             if (pawnLoadout != null) { return pawnLoadout; }
@@ -126,7 +126,7 @@ namespace EquipmentManager
         public void SetPawnLoadout([NotNull] Pawn pawn, Loadout loadout, bool automatic)
         {
             if (pawn == null) { throw new ArgumentNullException(nameof(pawn)); }
-            if (_pawnLoadouts == null) { _pawnLoadouts = new List<PawnLoadout>(); }
+            _pawnLoadouts ??= new List<PawnLoadout>();
             var pawnLoadout =
                 _pawnLoadouts.FirstOrDefault(pl => pl.Pawn != null && pl.Pawn.thingIDNumber == pawn.thingIDNumber);
             if (pawnLoadout != null)

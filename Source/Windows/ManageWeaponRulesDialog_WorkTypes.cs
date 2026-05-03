@@ -11,8 +11,8 @@ namespace EquipmentManager.Windows
 {
     internal partial class ManageWeaponRulesDialog
     {
-        private readonly List<Thing> _currentlyAvailableWorkTypes = new List<Thing>();
-        private readonly List<ThingDef> _globallyAvailableWorkTypes = new List<ThingDef>();
+        private readonly List<Thing> _currentlyAvailableWorkTypes = new();
+        private readonly List<ThingDef> _globallyAvailableWorkTypes = new();
         private WorkTypeRule _selectedWorkTypeRule;
 
         private WorkTypeRule SelectedWorkTypeRule

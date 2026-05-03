@@ -10,15 +10,14 @@ namespace EquipmentManager
     internal class ToolCache : ItemCache
     {
         private static EquipmentManagerGameComponent _equipmentManager;
-        private readonly Dictionary<string, float> _workTypeScores = new Dictionary<string, float>();
+        private readonly Dictionary<string, float> _workTypeScores = new();
 
         public ToolCache([NotNull] Thing thing)
         {
             Thing = thing ?? throw new ArgumentNullException(nameof(thing));
         }
 
-        private static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ?? (_equipmentManager = Current.Game.GetComponent<EquipmentManagerGameComponent>());
+        private static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         private Thing Thing { get; }
 

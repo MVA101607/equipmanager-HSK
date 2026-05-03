@@ -21,7 +21,7 @@ namespace EquipmentManager
         {
             new Loadout(1)
             {
-                Label = "Assault",
+                Label = Strings.Default.Assault,
                 Priority = 5,
                 PrimaryRuleType = PrimaryWeaponType.RangedWeapon,
                 PrimaryRangedWeaponRuleId = 0,
@@ -34,7 +34,7 @@ namespace EquipmentManager
             },
             new Loadout(2)
             {
-                Label = "Sniper",
+                Label = Strings.Default.Sniper,
                 Priority = 3,
                 PrimaryRuleType = PrimaryWeaponType.RangedWeapon,
                 PrimaryRangedWeaponRuleId = 3,
@@ -49,7 +49,7 @@ namespace EquipmentManager
             },
             new Loadout(3)
             {
-                Label = "Support",
+                Label = Strings.Default.Support,
                 Priority = 2,
                 PrimaryRuleType = PrimaryWeaponType.RangedWeapon,
                 PrimaryRangedWeaponRuleId = 2,
@@ -64,7 +64,7 @@ namespace EquipmentManager
             },
             new Loadout(4)
             {
-                Label = "Slasher",
+                Label = Strings.Default.Slasher,
                 Priority = 5,
                 PrimaryRuleType = PrimaryWeaponType.MeleeWeapon,
                 PrimaryMeleeWeaponRuleId = 1,
@@ -75,7 +75,7 @@ namespace EquipmentManager
             },
             new Loadout(5)
             {
-                Label = "Crusher",
+                Label = Strings.Default.Crusher,
                 Priority = 5,
                 PrimaryRuleType = PrimaryWeaponType.MeleeWeapon,
                 PrimaryMeleeWeaponRuleId = 2,
@@ -86,7 +86,7 @@ namespace EquipmentManager
             },
             new Loadout(6)
             {
-                Label = "Pacifist",
+                Label = Strings.Default.Pacifist,
                 Priority = 5,
                 PrimaryRuleType = PrimaryWeaponType.None,
                 ToolRuleId = 0,

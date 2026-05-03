@@ -21,7 +21,7 @@ namespace EquipmentManager.Windows
         private static Vector2 _statLimitsScrollPosition;
         private static Vector2 _statWeightsScrollPosition;
         private static Vector2 _whitelistScrollPosition;
-        private readonly List<TabRecord> _tabs = new List<TabRecord>();
+        private readonly List<TabRecord> _tabs = new();
         private bool _initialized;
 
         public ManageWeaponRulesDialog()
@@ -35,12 +35,11 @@ namespace EquipmentManager.Windows
 
         private int AvailableItemIconsRowCount => InitialSize.y < MaxSize.y ? 2 : 5;
 
-        private static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ?? (_equipmentManager = Current.Game.GetComponent<EquipmentManagerGameComponent>());
+        private static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         private int ExclusiveItemIconsRowCount => InitialSize.y < MaxSize.y ? 2 : 3;
         public override Vector2 InitialSize => UiHelpers.GetWindowSize(new Vector2(850f, 650f), MaxSize);
-        private static Vector2 MaxSize => new Vector2(1000f, 1000f);
+        private static Vector2 MaxSize => new(1000f, 1000f);
 
         private static void CheckSelectedItemRuleHasName(ItemRule rule)
         {

@@ -11,7 +11,7 @@ namespace EquipmentManager
     {
         private static EquipmentManagerGameComponent _equipmentManager;
 
-        protected static readonly SimpleCurve HitPointsCurve = new SimpleCurve
+        protected static readonly SimpleCurve HitPointsCurve = new()
         {
             new CurvePoint(0f, 0f),
             new CurvePoint(0.25f, 0.1f),
@@ -19,17 +19,17 @@ namespace EquipmentManager
             new CurvePoint(0.75f, 1f)
         };
 
-        private HashSet<ThingDef> _blacklistedItems = new HashSet<ThingDef>();
+        private HashSet<ThingDef> _blacklistedItems = new();
         private int _id;
         private bool _initialized;
         private bool _protected;
-        private HashSet<ThingDef> _whitelistedItems = new HashSet<ThingDef>();
-        protected HashSet<string> BlacklistedItemsDefNames = new HashSet<string>();
-        protected HashSet<ThingDef> GloballyAvailableItems = new HashSet<ThingDef>();
+        private HashSet<ThingDef> _whitelistedItems = new();
+        protected HashSet<string> BlacklistedItemsDefNames = new();
+        protected HashSet<ThingDef> GloballyAvailableItems = new();
         public string Label;
-        protected List<StatLimit> StatLimits = new List<StatLimit>();
-        protected List<StatWeight> StatWeights = new List<StatWeight>();
-        protected HashSet<string> WhitelistedItemsDefNames = new HashSet<string>();
+        protected List<StatLimit> StatLimits = new();
+        protected List<StatWeight> StatWeights = new();
+        protected HashSet<string> WhitelistedItemsDefNames = new();
 
         protected ItemRule(int id, string label, bool isProtected, List<StatWeight> statWeights,
             List<StatLimit> statLimits, HashSet<string> whitelistedItemsDefNames,
@@ -65,8 +65,7 @@ namespace EquipmentManager
                     new StatWeight("MarketValue", false) {Weight = 0.1f}
                 };
 
-        protected static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ?? (_equipmentManager = Current.Game.GetComponent<EquipmentManagerGameComponent>());
+        protected static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public int Id => _id;
         public bool Protected => _protected;
@@ -148,13 +147,13 @@ namespace EquipmentManager
         {
             if (_initialized) { return; }
             _initialized = true;
-            if (StatWeights == null) { StatWeights = new List<StatWeight>(); }
-            if (StatLimits == null) { StatLimits = new List<StatLimit>(); }
-            if (_whitelistedItems == null) { _whitelistedItems = new HashSet<ThingDef>(); }
-            if (WhitelistedItemsDefNames == null) { WhitelistedItemsDefNames = new HashSet<string>(); }
-            if (_blacklistedItems == null) { _blacklistedItems = new HashSet<ThingDef>(); }
-            if (BlacklistedItemsDefNames == null) { BlacklistedItemsDefNames = new HashSet<string>(); }
-            if (GloballyAvailableItems == null) { GloballyAvailableItems = new HashSet<ThingDef>(); }
+            StatWeights ??= new List<StatWeight>();
+            StatLimits ??= new List<StatLimit>();
+            _whitelistedItems ??= new HashSet<ThingDef>();
+            WhitelistedItemsDefNames ??= new HashSet<string>();
+            _blacklistedItems ??= new HashSet<ThingDef>();
+            BlacklistedItemsDefNames ??= new HashSet<string>();
+            GloballyAvailableItems ??= new HashSet<ThingDef>();
             UpdateExclusiveItems();
         }
 

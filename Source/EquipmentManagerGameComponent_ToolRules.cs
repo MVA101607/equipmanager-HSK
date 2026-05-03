@@ -7,8 +7,8 @@ namespace EquipmentManager
 {
     internal partial class EquipmentManagerGameComponent
     {
-        private readonly Dictionary<Thing, ToolCache> _toolCache = new Dictionary<Thing, ToolCache>();
-        private readonly Dictionary<ThingDef, ToolCache> _toolDefsCache = new Dictionary<ThingDef, ToolCache>();
+        private readonly Dictionary<Thing, ToolCache> _toolCache = new();
+        private readonly Dictionary<ThingDef, ToolCache> _toolDefsCache = new();
         private List<ToolRule> _toolRules;
 
         public ToolRule AddToolRule()

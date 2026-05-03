@@ -11,12 +11,12 @@ namespace EquipmentManager.Windows
     internal class ImportLoadoutsDialog : Window
     {
         private static EquipmentManagerGameComponent _equipmentManager;
-        private readonly List<Loadout> _loadouts = new List<Loadout>();
-        private readonly List<MeleeWeaponRule> _meleeWeaponRules = new List<MeleeWeaponRule>();
-        private readonly List<RangedWeaponRule> _rangedWeaponRules = new List<RangedWeaponRule>();
-        private readonly Dictionary<string, string> _savedGames = new Dictionary<string, string>();
-        private readonly List<ToolRule> _toolRules = new List<ToolRule>();
-        private readonly List<WorkTypeRule> _workTypeRules = new List<WorkTypeRule>();
+        private readonly List<Loadout> _loadouts = new();
+        private readonly List<MeleeWeaponRule> _meleeWeaponRules = new();
+        private readonly List<RangedWeaponRule> _rangedWeaponRules = new();
+        private readonly Dictionary<string, string> _savedGames = new();
+        private readonly List<ToolRule> _toolRules = new();
+        private readonly List<WorkTypeRule> _workTypeRules = new();
         private Vector2 _loadoutsListScrollPosition;
         private Vector2 _savedGamesListScrollPosition;
         private string _selectedSaveGame;
@@ -30,8 +30,7 @@ namespace EquipmentManager.Windows
             absorbInputAroundWindow = true;
         }
 
-        private static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ?? (_equipmentManager = Current.Game.GetComponent<EquipmentManagerGameComponent>());
+        private static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public override Vector2 InitialSize =>
             UiHelpers.GetWindowSize(new Vector2(850f, 500f), new Vector2(1000f, 500f));

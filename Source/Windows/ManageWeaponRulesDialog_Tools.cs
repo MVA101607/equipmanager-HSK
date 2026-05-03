@@ -11,8 +11,8 @@ namespace EquipmentManager.Windows
 {
     internal partial class ManageWeaponRulesDialog
     {
-        private readonly List<Thing> _currentlyAvailableTools = new List<Thing>();
-        private readonly List<ThingDef> _globallyAvailableTools = new List<ThingDef>();
+        private readonly List<Thing> _currentlyAvailableTools = new();
+        private readonly List<ThingDef> _globallyAvailableTools = new();
         private ToolRule _selectedToolRule;
 
         private ToolRule SelectedToolRule

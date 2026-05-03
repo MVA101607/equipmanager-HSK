@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using PeteTimesSix.SimpleSidearms;
 using RimWorld;
 using Verse;
 
@@ -147,9 +146,6 @@ namespace EquipmentManager
         public IEnumerable<ThingDef> GetGloballyAvailableItems()
         {
             var items = new List<ThingDef>();
-            // items.AddRange(AllRelevantThings.Where(def =>
-            //     (def.statBases ?? new List<StatModifier>()).Union(def.equippedStatOffsets ?? new List<StatModifier>())
-            //     .Any(sm => RequiredStats.Any(statDef => statDef == sm.stat))));
             items.AddRange(AllRelevantThings.Where(def =>
                 (def.statBases ?? new List<StatModifier>())
                 .Union(def.equippedStatOffsets ?? new List<StatModifier>())
@@ -199,8 +195,10 @@ namespace EquipmentManager
                     }
                 }
             }
-            foreach (var statDef in WorkTypeDef.relevantSkills.Where(skill => SkillStatMap.Map.ContainsKey(skill))
-                         .Select(skill => SkillStatMap.Map[skill]).SelectMany(stats => stats))
+            foreach (var statDef in WorkTypeDef.relevantSkills
+                         .Where(skill => SkillStatMap.Map.ContainsKey(skill))
+                         .Select(skill => SkillStatMap.Map[skill])
+                         .SelectMany(stats => stats))
             {
                 _ = _requiredStats.Add(statDef);
                 if (!_defaultStatWeights.Any(sw => sw.StatDefName == statDef.defName))
@@ -214,40 +212,27 @@ namespace EquipmentManager
                 if (recipe.efficiencyStat != null &&
                     !_defaultStatWeights.Any(sw => sw.StatDefName == recipe.efficiencyStat.defName))
                 {
-                    if (!_defaultStatWeights.Any(sw => sw.StatDefName == recipe.efficiencyStat.defName))
-                    {
-                        _defaultStatWeights.Add(new StatWeight(recipe.efficiencyStat.defName, false) {Weight = 0.8f});
-                    }
+                    _defaultStatWeights.Add(new StatWeight(recipe.efficiencyStat.defName, false) {Weight = 0.8f});
                 }
                 if (recipe.workSpeedStat != null)
                 {
                     _ = _requiredStats.Add(recipe.workSpeedStat);
                     if (!_defaultStatWeights.Any(sw => sw.StatDefName == recipe.workSpeedStat.defName))
                     {
-                        if (!_defaultStatWeights.Any(sw => sw.StatDefName == recipe.workSpeedStat.defName))
-                        {
-                            _defaultStatWeights.Add(
-                                new StatWeight(recipe.workSpeedStat.defName, false) {Weight = 0.5f});
-                        }
+                        _defaultStatWeights.Add(new StatWeight(recipe.workSpeedStat.defName, false) {Weight = 0.5f});
                     }
                 }
                 if (recipe.workTableEfficiencyStat != null &&
                     !_defaultStatWeights.Any(sw => sw.StatDefName == recipe.workTableEfficiencyStat.defName))
                 {
-                    if (!_defaultStatWeights.Any(sw => sw.StatDefName == recipe.workTableEfficiencyStat.defName))
-                    {
-                        _defaultStatWeights.Add(
-                            new StatWeight(recipe.workTableEfficiencyStat.defName, false) {Weight = 0.8f});
-                    }
+                    _defaultStatWeights.Add(
+                        new StatWeight(recipe.workTableEfficiencyStat.defName, false) {Weight = 0.8f});
                 }
                 if (recipe.workTableSpeedStat != null &&
                     !_defaultStatWeights.Any(sw => sw.StatDefName == recipe.workTableSpeedStat.defName))
                 {
-                    if (!_defaultStatWeights.Any(sw => sw.StatDefName == recipe.workTableSpeedStat.defName))
-                    {
-                        _defaultStatWeights.Add(
-                            new StatWeight(recipe.workTableSpeedStat.defName, false) {Weight = 0.5f});
-                    }
+                    _defaultStatWeights.Add(
+                        new StatWeight(recipe.workTableSpeedStat.defName, false) {Weight = 0.5f});
                 }
             }
             _ = _defaultStatWeights.RemoveAll(sw => !StatHelper.WorkTypeStatDefs.Contains(sw.StatDef));
