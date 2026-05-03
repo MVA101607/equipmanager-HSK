@@ -46,7 +46,8 @@ namespace EquipmentManager.PawnColumnWorkers
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
-            var editButtonSize = (rect.height - 4)/2;
+            var editButtonSize = (rect.height - 4) / 2;
+            // Два маленьких квадрата справа: [Edit] сверху, [Refresh] снизу
             var loadoutButtonRect = new Rect(rect.x, rect.y + 2,
                 rect.width - editButtonSize - 4, rect.height - 4);
 
@@ -67,14 +68,30 @@ namespace EquipmentManager.PawnColumnWorkers
                     dragLabel: label.Truncate(loadoutButtonRect.width), paintable: true);
             }
 
+            // Кнопка Edit — верхний правый квадрат
             var editButtonRect = new Rect(rect.xMax - editButtonSize, rect.y + 2f,
                 editButtonSize, editButtonSize);
+
+            // Кнопка принудительного обновления — нижний правый квадрат
+            var forceUpdateButtonRect = new Rect(rect.xMax - editButtonSize,
+                rect.y + 2f + editButtonSize, editButtonSize, editButtonSize);
+
             if (!pawn.IsQuestLodger())
             {
+                // Edit
                 TooltipHandler.TipRegion(editButtonRect, "AssignTabEdit".Translate());
                 if (Widgets.ButtonImage(editButtonRect, Resources.Textures.Edit))
                 {
                     Find.WindowStack.Add(new ManageLoadoutsDialog(EquipmentManager.GetLoadout(pawn)));
+                }
+
+                // Force Update: переназначить роль и оружие прямо сейчас
+                TooltipHandler.TipRegion(forceUpdateButtonRect,
+                    "EquipmentManager.ForceUpdatePawn.Tooltip".Translate());
+                if (Widgets.ButtonImage(forceUpdateButtonRect, Resources.Textures.Refresh))
+                {
+                    var mapComp = pawn.Map?.GetComponent<EquipmentManagerMapComponent>();
+                    mapComp?.ForceUpdateForPawn(pawn);
                 }
             }
         }

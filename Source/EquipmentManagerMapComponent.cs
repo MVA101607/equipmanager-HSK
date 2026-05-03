@@ -83,6 +83,7 @@ namespace EquipmentManager
             }
 
             UpdateAmmo(pawn, bestWeapon, rule);
+            return true;
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -126,6 +127,7 @@ namespace EquipmentManager
                 _ = CEExtendedLoadoutHelper.SetPrimaryWeaponInPersonalLoadout(
                     pawn.Pawn, bestWeapon.def, pawnLoadout.ManagedPersonalLoadoutSlots);
             }
+            return true;
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -412,6 +414,138 @@ namespace EquipmentManager
         // ─────────────────────────────────────────────────────────────────────
         // Принудительное обновление (отладка)
         // ─────────────────────────────────────────────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────
+        // Обработка снаряжения одной пешки.
+        // Предполагается, что AssignedLoadout и ShouldUpdateEquipment уже
+        // выставлены корректно вызывающей стороной.
+        // Возвращает true если обработка была выполнена.
+        // ─────────────────────────────────────────────────────────────────────
+        private bool ProcessPawnEquipment(PawnCache pawn)
+        {
+            if (!pawn.ShouldUpdateEquipment || pawn.AssignedLoadout == null) { return false; }
+
+            pawn.AssignedWeapons.Clear();
+            pawn.AssignedAmmo.Clear();
+
+            EquipmentManager.LogMessage(
+                $"[EM] ProcessPawnEquipment: {pawn.Pawn.LabelShortCap}" +
+                $" loadout={pawn.AssignedLoadout.Label}");
+
+            // Основное оружие
+            switch (pawn.AssignedLoadout.PrimaryRuleType)
+            {
+                case Loadout.PrimaryWeaponType.RangedWeapon:
+                    _ = AssignPrimaryRangedWeapon(pawn);
+                    break;
+                case Loadout.PrimaryWeaponType.MeleeWeapon:
+                    _ = AssignPrimaryMeleeWeapon(pawn);
+                    break;
+                case Loadout.PrimaryWeaponType.None:
+                default:
+                    break;
+            }
+
+            // Инструменты
+            if (pawn.AssignedLoadout.ToolRuleId != null)
+            {
+                var toolRule = EquipmentManager.GetToolRule((int)pawn.AssignedLoadout.ToolRuleId);
+                if (toolRule != null)
+                {
+                    switch (toolRule.EquipMode)
+                    {
+                        case ItemRule.ToolEquipMode.BestOne:
+                            AssignBestTool(pawn, toolRule);
+                            break;
+                        case ItemRule.ToolEquipMode.AllAvailable:
+                            AssignAllTools(pawn, toolRule);
+                            break;
+                        case ItemRule.ToolEquipMode.OneForEveryWorkType:
+                            AssignToolsForWorkTypes(pawn, toolRule,
+                                WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
+                                    .Where(wt => wt.visible && !pawn.Pawn.WorkTypeIsDisabled(wt))
+                                    .ToList());
+                            break;
+                        case ItemRule.ToolEquipMode.OneForEveryAssignedWorkType:
+                            AssignToolsForWorkTypes(pawn, toolRule,
+                                WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
+                                    .Where(wt => wt.visible &&
+                                                 pawn.Pawn.workSettings.WorkIsActive(wt))
+                                    .ToList());
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Почасовая очередь: каждый игровой час обрабатывается одна пешка.
+        //
+        // Для каждой пешки в свой час:
+        //   1. Если роль назначена автоматически — пересчитать AvailableLoadouts
+        //      и проверить, не нужно ли сменить роль (пересчёт конкурентный,
+        //      затрагивает все auto-пешки, но не меняет _updateTime).
+        //   2. Найти лучшее оружие на карте с учётом RetentionBonus для
+        //      текущего носимого оружия.
+        // ─────────────────────────────────────────────────────────────────────
+        private void ProcessPawnQueue()
+        {
+            var allCandidates = _pawnCache
+                .OrderBy(pc => pc.Pawn.thingIDNumber)
+                .ToList();
+
+            if (allCandidates.Count == 0) { return; }
+
+            // Выбрать пешку по кругу
+            _pawnProcessingIndex %= allCandidates.Count;
+            var pawn = allCandidates[_pawnProcessingIndex];
+            _pawnProcessingIndex++;
+
+            EquipmentManager.LogMessage(
+                $"[EM] Queue tick: processing {pawn.Pawn.LabelShortCap}" +
+                $" (auto={pawn.AutoLoadout}, capable={pawn.ShouldUpdateEquipment})");
+
+            // Шаг 1: переназначение роли для auto-пешек
+            if (pawn.AutoLoadout)
+            {
+                // Пересчитать очки пешки по всем loadout-ам вручную,
+                // не трогая ShouldUpdateEquipment у остальных.
+                pawn.AvailableLoadouts.Clear();
+                foreach (var loadout in EquipmentManager.GetLoadouts())
+                {
+                    if (loadout.IsAvailable(pawn.Pawn))
+                    {
+                        pawn.AvailableLoadouts.Add(loadout, loadout.GetScore(pawn.Pawn));
+                    }
+                }
+
+                // Запомнить текущую роль чтобы обнаружить смену
+                var previousLoadout = pawn.AssignedLoadout;
+
+                // Конкурентный пересчёт ролей для всех auto-пешек.
+                // Это неизбежно: алгоритм учитывает приоритеты всей колонии.
+                pawn.AssignedLoadout = null;
+                UpdateLoadouts();
+
+                if (pawn.AssignedLoadout != previousLoadout)
+                {
+                    EquipmentManager.LogMessage(
+                        $"[EM] {pawn.Pawn.LabelShortCap}: loadout changed" +
+                        $" {previousLoadout?.Label ?? "None"} → {pawn.AssignedLoadout?.Label ?? "None"}");
+                }
+            }
+
+            // Шаг 2: поиск лучшего оружия (RetentionBonus встроен в Assign*-методы)
+            pawn.ShouldUpdateEquipment = true;
+            _ = ProcessPawnEquipment(pawn);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Принудительное обновление всех пешек (отладка / DebugActions)
+        // ─────────────────────────────────────────────────────────────────────
         public void ForceUpdate()
         {
             _updateTime.Year = -1;
@@ -424,9 +558,45 @@ namespace EquipmentManager
                 .Where(pc => pc.ShouldUpdateEquipment && pc.AssignedLoadout != null)
                 .OrderBy(pc => pc.Pawn.thingIDNumber)
                 .ToList();
-            foreach (var pawn in candidates)
+            foreach (var pc in candidates)
             {
-                _ = ProcessPawnEquipment(pawn);
+                _ = ProcessPawnEquipment(pc);
+            }
+
+            RemoveUnassignedWeapons();
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Принудительное обновление одной пешки из UI.
+        // _updateTime НЕ сбрасывается — остальные пешки не затрагиваются.
+        // ─────────────────────────────────────────────────────────────────────
+        public void ForceUpdateForPawn(Pawn pawn)
+        {
+            UpdatePawnCache();
+
+            var pc = _pawnCache.FirstOrDefault(c => c.Pawn == pawn);
+            if (pc == null) { return; }
+
+            // Для auto-пешки — пересчитать AvailableLoadouts и переназначить роль
+            if (pc.AutoLoadout)
+            {
+                pc.AvailableLoadouts.Clear();
+                foreach (var loadout in EquipmentManager.GetLoadouts())
+                {
+                    if (loadout.IsAvailable(pawn))
+                    {
+                        pc.AvailableLoadouts.Add(loadout, loadout.GetScore(pawn));
+                    }
+                }
+                pc.AssignedLoadout = null;
+                UpdateLoadouts();
+            }
+
+            // Принудительно обработать оружие только для этой пешки
+            pc.ShouldUpdateEquipment = true;
+            if (pc.AssignedLoadout != null)
+            {
+                _ = ProcessPawnEquipment(pc);
             }
 
             RemoveUnassignedWeapons();
