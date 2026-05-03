@@ -5,7 +5,7 @@ namespace EquipmentManager
 {
     public class RimworldTime
     {
-        public RimworldTime(int year, int day, float hour)
+        public RimworldTime(int year, int day, int hour)
         {
             Year = year;
             Day = day;
@@ -13,14 +13,14 @@ namespace EquipmentManager
         }
 
         public int Day { get; set; }
-        public float Hour { get; set; }
+        public int Hour { get; set; }
         public int Year { get; set; }
 
         public static RimworldTime GetMapTime(Map map)
         {
             return map == null
                 ? new RimworldTime(0, 0, 0)
-                : new RimworldTime(GenLocalDate.Year(map), GenLocalDate.DayOfYear(map), GenLocalDate.HourFloat(map));
+                : new RimworldTime(GenLocalDate.Year(map), GenLocalDate.DayOfYear(map), (int) GenLocalDate.HourFloat(map));
         }
     }
 }

@@ -384,7 +384,8 @@ namespace EquipmentManager
                 p.Faction == Faction.OfPlayer &&
                 !p.HasExtraHomeFaction() &&
                 !p.HasExtraMiniFaction() &&
-                p.GuestStatus == null));
+                p.GuestStatus == null &&
+                p.DevelopmentalStage.Adult()));
 
             _pawnCache ??= new HashSet<PawnCache>();
             foreach (var pc in _pawnCache.Where(pc => !_allPawns.Contains(pc.Pawn)).ToList())
@@ -574,29 +575,62 @@ namespace EquipmentManager
         {
             UpdatePawnCache();
 
-            var pc = _pawnCache.FirstOrDefault(c => c.Pawn == pawn);
-            if (pc == null) { return; }
+            if (!pawn.DevelopmentalStage.Adult())
+            {
+                Log.Warning($"[EM] ForceUpdateForPawn: {pawn.LabelShortCap} is not adult, skipping");
+                return;
+            }
 
-            // Для auto-пешки — пересчитать AvailableLoadouts и переназначить роль
-            if (pc.AutoLoadout)
+            var pc = _pawnCache.FirstOrDefault(c => c.Pawn == pawn);
+            if (pc == null)
+            {
+                Log.Warning($"[EM] ForceUpdateForPawn: {pawn.LabelShortCap} not found in cache");
+                return;
+            }
+
+            EquipmentManager.LogMessage(
+                $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
+                $" autoLoadout={pc.AutoLoadout}" +
+                $" assignedLoadout={pc.AssignedLoadout?.Label ?? "null"}");
+
+            // Авто-выбор роли: если роль авто ИЛИ роль вообще не назначена
+            if (pc.AutoLoadout || pc.AssignedLoadout == null)
             {
                 pc.AvailableLoadouts.Clear();
                 foreach (var loadout in EquipmentManager.GetLoadouts())
                 {
                     if (loadout.IsAvailable(pawn))
                     {
-                        pc.AvailableLoadouts.Add(loadout, loadout.GetScore(pawn));
+                        var score = loadout.GetScore(pawn);
+                        pc.AvailableLoadouts.Add(loadout, score);
+                        EquipmentManager.LogMessage(
+                            $"[EM]   available loadout: {loadout.Label} score={score:F2}");
                     }
                 }
+
+                var previousLoadout = pc.AssignedLoadout?.Label ?? "null";
                 pc.AssignedLoadout = null;
                 UpdateLoadouts();
+                EquipmentManager.SetPawnLoadout(pawn, pc.AssignedLoadout, automatic: true);
+                EquipmentManager.LogMessage(
+                    $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
+                    $" loadout {previousLoadout} → {pc.AssignedLoadout?.Label ?? "null"}");
             }
 
-            // Принудительно обработать оружие только для этой пешки
+            pc.ShouldUpdateEquipment = true;
+            EquipmentManager.LogMessage(
+                $"[EM] ForceUpdateForPawn: processing equipment," +
+                $" assignedLoadout={pc.AssignedLoadout?.Label ?? "null"}");
+
             pc.ShouldUpdateEquipment = true;
             if (pc.AssignedLoadout != null)
             {
                 _ = ProcessPawnEquipment(pc);
+            }
+            else
+            {
+                Log.Warning($"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
+                    " has no loadout after UpdateLoadouts — no weapon assigned");
             }
 
             RemoveUnassignedWeapons();

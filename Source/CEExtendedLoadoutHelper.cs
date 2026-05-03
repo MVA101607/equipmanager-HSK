@@ -55,6 +55,10 @@ namespace EquipmentManager
             }
 
             _ceGetLoadout =
+                AccessTools.Method(_loadoutMultiManagerType, "GetLoadout",
+                    new Type[] { typeof(Pawn), typeof(bool) }) ??
+                AccessTools.Method(utilType, "GetLoadout",
+                    new Type[] { typeof(Pawn), typeof(bool) }) ??
                 AccessTools.Method(utilType, "GetLoadout", new Type[] { typeof(Pawn) }) ??
                 AccessTools.Method(_loadoutMultiManagerType, "GetLoadout", new Type[] { typeof(Pawn) });
 
@@ -249,11 +253,16 @@ namespace EquipmentManager
 
         private static object GetMultiLoadout(Pawn pawn)
         {
-            var result = _ceGetLoadout.Invoke(null, new object[] { pawn });
+            // Если метод двухпараметрный — передаём createIfMissing = true
+            var args = _ceGetLoadout.GetParameters().Length == 2
+                ? new object[] { pawn, true }
+                : new object[] { pawn };
+
+            var result = _ceGetLoadout.Invoke(null, args);
             if (result == null)
             {
-                Log.Error("[EM] CEExtendedLoadoutHelper: GetLoadout returned null for " +
-                    pawn.LabelShortCap);
+                Log.Warning("[EM] CEExtendedLoadoutHelper: GetLoadout returned null for " +
+                    pawn.LabelShortCap + " (createIfMissing attempted)");
             }
             return result;
         }
@@ -261,9 +270,21 @@ namespace EquipmentManager
         private static object GetPersonalLoadout(object multiLoadout)
         {
             var result = _personalLoadoutProp.GetValue(multiLoadout);
+            if (result != null) { return result; }
+
+            try
+            {
+                _ = _notifyChanged.Invoke(multiLoadout, null);
+                result = _personalLoadoutProp.GetValue(multiLoadout);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[EM] CEExtendedLoadoutHelper: failed to init PersonalLoadout: " + ex.Message);
+            }
+
             if (result == null)
             {
-                Log.Error("[EM] CEExtendedLoadoutHelper: PersonalLoadout is null.");
+                Log.Error("[EM] CEExtendedLoadoutHelper: PersonalLoadout still null after init.");
             }
             return result;
         }
