@@ -4,7 +4,7 @@
 A rework of the Equipment Manager mod by LordKuper / Michieru.
 SimpleSidearms integration has been removed. CE (Extended Loadout) integration has been added instead.
 
-The mod searches for the best weapon based on stats, assigns it to a pawn's personal loadout, adds ammo, and then directs the pawn to select the best weapon.
+The mod searches for the best weapon based on stats, assigns it to a pawn's personal loadout, adds ammo, and then directs the pawn to grab that best weapon.
 
 You can set up different weapon selection policies — a sniper will choose a long-range weapon, an assault will choose a rapid-fire weapon, etc.
 The same applies to melee weapons.
