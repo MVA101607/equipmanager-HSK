@@ -575,27 +575,19 @@ namespace EquipmentManager
         {
             UpdatePawnCache();
 
-            if (!pawn.DevelopmentalStage.Adult())
-            {
-                Log.Warning($"[EM] ForceUpdateForPawn: {pawn.LabelShortCap} is not adult, skipping");
-                return;
-            }
+            if (!pawn.DevelopmentalStage.Adult()) { /* ... */ return; }
 
             var pc = _pawnCache.FirstOrDefault(c => c.Pawn == pawn);
-            if (pc == null)
-            {
-                Log.Warning($"[EM] ForceUpdateForPawn: {pawn.LabelShortCap} not found in cache");
-                return;
-            }
+            if (pc == null) { /* ... */ return; }
 
             EquipmentManager.LogMessage(
                 $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
                 $" autoLoadout={pc.AutoLoadout}" +
                 $" assignedLoadout={pc.AssignedLoadout?.Label ?? "null"}");
 
-            // Авто-выбор роли: если роль авто ИЛИ роль вообще не назначена
             if (pc.AutoLoadout || pc.AssignedLoadout == null)
             {
+                // Авто-пешка или без роли — пересчитать через конкурентный алгоритм
                 pc.AvailableLoadouts.Clear();
                 foreach (var loadout in EquipmentManager.GetLoadouts())
                 {
@@ -603,24 +595,26 @@ namespace EquipmentManager
                     {
                         var score = loadout.GetScore(pawn);
                         pc.AvailableLoadouts.Add(loadout, score);
-                        EquipmentManager.LogMessage(
-                            $"[EM]   available loadout: {loadout.Label} score={score:F2}");
                     }
                 }
-
-                var previousLoadout = pc.AssignedLoadout?.Label ?? "null";
+                var previousLabel = pc.AssignedLoadout?.Label ?? "null";
                 pc.AssignedLoadout = null;
                 UpdateLoadouts();
                 EquipmentManager.SetPawnLoadout(pawn, pc.AssignedLoadout, automatic: true);
                 EquipmentManager.LogMessage(
                     $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
-                    $" loadout {previousLoadout} → {pc.AssignedLoadout?.Label ?? "null"}");
+                    $" loadout {previousLabel} → {pc.AssignedLoadout?.Label ?? "null"}");
             }
-
-            pc.ShouldUpdateEquipment = true;
-            EquipmentManager.LogMessage(
-                $"[EM] ForceUpdateForPawn: processing equipment," +
-                $" assignedLoadout={pc.AssignedLoadout?.Label ?? "null"}");
+            else
+            {
+                // Роль выбрана игроком — UpdatePawnCache мог сбросить AssignedLoadout если
+                // hoursPassed < 6. Восстанавливаем явно из _pawnLoadouts.
+                var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn);
+                pc.AssignedLoadout = EquipmentManager.GetLoadout(pawnLoadout?.LoadoutId);
+                EquipmentManager.LogMessage(
+                    $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
+                    $" manual loadout restored: {pc.AssignedLoadout?.Label ?? "null"}");
+            }
 
             pc.ShouldUpdateEquipment = true;
             if (pc.AssignedLoadout != null)
@@ -630,7 +624,7 @@ namespace EquipmentManager
             else
             {
                 Log.Warning($"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
-                    " has no loadout after UpdateLoadouts — no weapon assigned");
+                    " has no loadout — weapon assignment skipped");
             }
 
             RemoveUnassignedWeapons();
