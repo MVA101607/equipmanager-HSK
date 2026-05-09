@@ -3,8 +3,8 @@
 <Defs>
 	<PawnColumnDef>
 		<defName>EM_Loadout</defName>
-		<workerClass>EquipmentManager.PawnColumnWorkers.Loadout</workerClass>
-		<label>current loadout</label>
+		<workerClass>EquipmentManager.PawnColumnWorkers.Role_UI</workerClass>
+		<label>Pawn Role</label>
 		<sortable>true</sortable>
 	</PawnColumnDef>
 </Defs>
