@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <Defs>
 	<PawnColumnDef>
-		<defName>EM_Loadout</defName>
+		<defName>EM_Role</defName>
 		<workerClass>EquipmentManager.PawnColumnWorkers.Role_UI</workerClass>
-		<label>Pawn Role</label>
+		<label>combat role</label>
 		<sortable>true</sortable>
 	</PawnColumnDef>
 </Defs>

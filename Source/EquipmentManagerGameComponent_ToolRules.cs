@@ -58,7 +58,7 @@ namespace EquipmentManager
 
         public void DeleteToolRule(ToolRule toolRule)
         {
-            foreach (var loadout in GetLoadouts())
+            foreach (var loadout in GetRoles())
             {
                 if (loadout.ToolRuleId == toolRule.Id) { loadout.ToolRuleId = null; }
             }

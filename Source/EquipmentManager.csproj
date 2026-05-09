@@ -53,9 +53,11 @@
     </Reference>
     <Reference Include="CombatExtended">
       <HintPath>..\..\..\STEAM\steamapps\common\RimWorld\Mods\CombatExtended\Assemblies\CombatExtended.dll</HintPath>
+	  <Private>false</Private>
     </Reference>
     <Reference Include="CombatExtended.ExtendedLoadout">
       <HintPath>..\..\..\STEAM\steamapps\common\RimWorld\Mods\RW-CombatExtended_ExtendedLoadout\Assemblies\CombatExtended.ExtendedLoadout.dll</HintPath>
+	  <Private>false</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -102,7 +104,7 @@
     <Compile Include="EquipmentManagerGameComponent_RangedWeaponRules .cs" />
     <Compile Include="EquipmentManagerGameComponent_StatRanges.cs" />
     <Compile Include="EquipmentManagerGameComponent_MeleeWeaponRules.cs" />
-    <Compile Include="EquipmentManagerGameComponent_Loadouts.cs" />
+    <Compile Include="EquipmentManagerGameComponent_Roles.cs" />
     <Compile Include="EquipmentManagerMapComponent.cs" />
     <Compile Include="EquipmentManagerMod.cs" />
     <Compile Include="ItemCache.cs" />
@@ -127,14 +129,14 @@
     <Compile Include="ToolRule.cs" />
     <Compile Include="MeleeWeaponRule.cs" />
     <Compile Include="CustomWidgets\ThingBox.cs" />
+    <Compile Include="Windows\ImportRolesDialog.cs" />
     <Compile Include="Windows\LogDialog.cs" />
-    <Compile Include="Windows\ImportLoadoutsDialog.cs" />
-    <Compile Include="Windows\ManageLoadoutsDialog.cs" />
     <Compile Include="PawnColumnWorkers\Role_UI.cs" />
     <Compile Include="Patches\DefGeneratorPatch.cs" />
-    <Compile Include="PawnLoadout.cs" />
+    <Compile Include="PawnRole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.cs" />
+    <Compile Include="Windows\ManageRolesDialog.cs" />
     <Compile Include="Windows\ManageWeaponRulesDialog.cs" />
     <Compile Include="Windows\ManageWeaponRulesDialog_MeleeWeapons.cs" />
     <Compile Include="Windows\ManageWeaponRulesDialog_RangedWeapons.cs" />

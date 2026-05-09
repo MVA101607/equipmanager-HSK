@@ -20,28 +20,28 @@ namespace EquipmentManager.PawnColumnWorkers
 
         private static IEnumerable<Widgets.DropdownMenuElement<EquipmentManager.Role>> Button_GenerateMenu(Pawn pawn)
         {
-            var loadouts = EquipmentManager.GetLoadouts().ToList();
-            return loadouts.Any()
+            var roles = EquipmentManager.GetRoles().ToList();
+            return roles.Any()
                 ? new[]
                 {
                     new Widgets.DropdownMenuElement<EquipmentManager.Role>
                     {
-                        option = new FloatMenuOption($"* {Resources.Strings.Loadouts.AutoSelect}",
-                            () => EquipmentManager.SetPawnLoadout(pawn, EquipmentManager.GetLoadout(0), true))
+                        option = new FloatMenuOption($"* {Resources.Strings.Roles.AutoSelect}",
+                            () => EquipmentManager.SetPawnRole(pawn, null, true))
                     }
-                }.Union(loadouts.Select(currentLoadout => new Widgets.DropdownMenuElement<EquipmentManager.Role>
+                }.Union(roles.Select(role => new Widgets.DropdownMenuElement<EquipmentManager.Role>
                 {
-                    option = new FloatMenuOption(currentLoadout.Label,
-                        () => EquipmentManager.SetPawnLoadout(pawn, currentLoadout, false)),
-                    payload = currentLoadout
+                    option = new FloatMenuOption(role.Label,
+                        () => EquipmentManager.SetPawnRole(pawn, role, false)),
+                    payload = role
                 }))
                 : Array.Empty<Widgets.DropdownMenuElement<EquipmentManager.Role>>();
         }
 
         public override int Compare(Pawn a, Pawn b)
         {
-            return (EquipmentManager.GetPawnLoadout(a)?.LoadoutId ?? int.MinValue).CompareTo(
-                EquipmentManager.GetPawnLoadout(b)?.LoadoutId ?? int.MinValue);
+            return (EquipmentManager.GetPawnRole(a)?.RoleId ?? int.MinValue).CompareTo(
+                EquipmentManager.GetPawnRole(b)?.RoleId ?? int.MinValue);
         }
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
@@ -59,11 +59,11 @@ namespace EquipmentManager.PawnColumnWorkers
             }
             else
             {
-                var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn);
-                var loadout = EquipmentManager.GetLoadout(pawnLoadout?.LoadoutId);
-                var label = loadout != null ? loadout.Label : Resources.Strings.Loadouts.Default.NoLoadout;
-                if (pawnLoadout?.Automatic ?? false) { label = $"* {label}"; }
-                Widgets.Dropdown(loadoutButtonRect, pawn, p => EquipmentManager.GetLoadout(pawn),
+                var pawnRole = EquipmentManager.GetPawnRole(pawn);
+                var role = EquipmentManager.GetRole(pawnRole?.RoleId);
+                var label = role != null ? role.Label : Resources.Strings.Roles.Default.NoRole;
+                if (pawnRole?.Automatic ?? false) { label = $"* {label}"; }
+                Widgets.Dropdown(loadoutButtonRect, pawn, p => EquipmentManager.GetRole(pawn),
                     Button_GenerateMenu, label,
                     dragLabel: label.Truncate(loadoutButtonRect.width), paintable: true);
             }
@@ -82,7 +82,7 @@ namespace EquipmentManager.PawnColumnWorkers
                 TooltipHandler.TipRegion(editButtonRect, "AssignTabEdit".Translate());
                 if (Widgets.ButtonImage(editButtonRect, Resources.Textures.Edit))
                 {
-                    Find.WindowStack.Add(new ManageLoadoutsDialog(EquipmentManager.GetLoadout(pawn)));
+                    Find.WindowStack.Add(new ManageRolesDialog(EquipmentManager.GetRole(pawn)));
                 }
 
                 // Force Update: переназначить роль и оружие прямо сейчас
@@ -101,9 +101,9 @@ namespace EquipmentManager.PawnColumnWorkers
             base.DoHeader(rect, table);
             MouseoverSounds.DoRegion(rect);
             var buttonRect = new Rect(rect.x, rect.y + (rect.height - 65f), Mathf.Min(rect.width, 360f), 32f);
-            if (Widgets.ButtonText(buttonRect, Resources.Strings.Loadouts.ManageLoadouts))
+            if (Widgets.ButtonText(buttonRect, Resources.Strings.Roles.ManageRoles))
             {
-                Find.WindowStack.Add(new ManageLoadoutsDialog(null));
+                Find.WindowStack.Add(new ManageRolesDialog(null));
             }
         }
 

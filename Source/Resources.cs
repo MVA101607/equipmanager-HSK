@@ -9,138 +9,138 @@ namespace EquipmentManager
         {
             internal static readonly string Add = $"EquipmentManager.{nameof(Add)}".Translate();
 
-            internal static class Loadouts
+            internal static class Roles
             {
-                internal static readonly string AddLoadout =
-                    $"EquipmentManager.Loadouts.{nameof(AddLoadout)}".Translate();
+                internal static readonly string AddRole =
+                    $"EquipmentManager.Roles.{nameof(AddRole)}".Translate();
 
                 internal static readonly string AutoSelect =
-                    $"EquipmentManager.Loadouts.{nameof(AutoSelect)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(AutoSelect)}".Translate();
 
                 internal static readonly string AvailablePawns =
-                    $"EquipmentManager.Loadouts.{nameof(AvailablePawns)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(AvailablePawns)}".Translate();
 
                 internal static readonly string CancelDataImport =
-                    $"EquipmentManager.Loadouts.{nameof(CancelDataImport)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(CancelDataImport)}".Translate();
 
-                internal static readonly string CopyLoadout =
-                    $"EquipmentManager.Loadouts.{nameof(CopyLoadout)}".Translate();
+                internal static readonly string CopyRole =
+                    $"EquipmentManager.Roles.{nameof(CopyRole)}".Translate();
 
-                internal static readonly string DeleteLoadout =
-                    $"EquipmentManager.Loadouts.{nameof(DeleteLoadout)}".Translate();
+                internal static readonly string DeleteRole =
+                    $"EquipmentManager.Roles.{nameof(DeleteRole)}".Translate();
 
                 internal static readonly string DropUnassignedWeapons =
-                    $"EquipmentManager.Loadouts.{nameof(DropUnassignedWeapons)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(DropUnassignedWeapons)}".Translate();
 
                 internal static readonly string DropUnassignedWeaponsTooltip =
-                    $"EquipmentManager.Loadouts.{nameof(DropUnassignedWeaponsTooltip)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(DropUnassignedWeaponsTooltip)}".Translate();
 
                 internal static readonly string ImportData =
-                    $"EquipmentManager.Loadouts.{nameof(ImportData)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(ImportData)}".Translate();
 
-                internal static readonly string ImportLoadouts =
-                    $"EquipmentManager.Loadouts.{nameof(ImportLoadouts)}".Translate();
+                internal static readonly string ImportRoles =
+                    $"EquipmentManager.Roles.{nameof(ImportRoles)}".Translate();
 
-                internal static readonly string LoadoutLabel =
-                    $"EquipmentManager.Loadouts.{nameof(LoadoutLabel)}".Translate();
+                internal static readonly string RoleLabel =
+                    $"EquipmentManager.Roles.{nameof(RoleLabel)}".Translate();
 
-                internal static readonly string LoadoutListHeader =
-                    $"EquipmentManager.Loadouts.{nameof(LoadoutListHeader)}".Translate();
+                internal static readonly string RoleListHeader =
+                    $"EquipmentManager.Roles.{nameof(RoleListHeader)}".Translate();
 
-                internal static readonly string LoadoutSettings =
-                    $"EquipmentManager.Loadouts.{nameof(LoadoutSettings)}".Translate();
+                internal static readonly string RoleSettings =
+                    $"EquipmentManager.Roles.{nameof(RoleSettings)}".Translate();
 
-                internal static readonly string Log = $"EquipmentManager.Loadouts.{nameof(Log)}".Translate();
+                internal static readonly string Log = $"EquipmentManager.Roles.{nameof(Log)}".Translate();
 
-                internal static readonly string ManageLoadouts =
-                    $"EquipmentManager.Loadouts.{nameof(ManageLoadouts)}".Translate();
+                internal static readonly string ManageRoles =
+                    $"EquipmentManager.Roles.{nameof(ManageRoles)}".Translate();
 
                 internal static readonly string ManageWeaponRules =
-                    $"EquipmentManager.Loadouts.{nameof(ManageWeaponRules)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(ManageWeaponRules)}".Translate();
 
                 internal static readonly string MeleeSidearmRulesLabel =
-                    $"EquipmentManager.Loadouts.{nameof(MeleeSidearmRulesLabel)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(MeleeSidearmRulesLabel)}".Translate();
 
-                internal static readonly string NoLoadoutSelected =
-                    $"EquipmentManager.Loadouts.{nameof(NoLoadoutSelected)}".Translate();
+                internal static readonly string NoRoleSelected =
+                    $"EquipmentManager.Roles.{nameof(NoRoleSelected)}".Translate();
 
                 internal static readonly string PawnCapacityLimits =
-                    $"EquipmentManager.Loadouts.{nameof(PawnCapacityLimits)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PawnCapacityLimits)}".Translate();
 
                 internal static readonly string PawnCapacityWeights =
-                    $"EquipmentManager.Loadouts.{nameof(PawnCapacityWeights)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PawnCapacityWeights)}".Translate();
 
                 internal static readonly string PawnPassions =
-                    $"EquipmentManager.Loadouts.{nameof(PawnPassions)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PawnPassions)}".Translate();
 
                 internal static readonly string PawnSkillLimits =
-                    $"EquipmentManager.Loadouts.{nameof(PawnSkillLimits)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PawnSkillLimits)}".Translate();
 
                 internal static readonly string PawnSkillWeights =
-                    $"EquipmentManager.Loadouts.{nameof(PawnSkillWeights)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PawnSkillWeights)}".Translate();
 
                 internal static readonly string PawnStatLimits =
-                    $"EquipmentManager.Loadouts.{nameof(PawnStatLimits)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PawnStatLimits)}".Translate();
 
                 internal static readonly string PawnStatWeights =
-                    $"EquipmentManager.Loadouts.{nameof(PawnStatWeights)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PawnStatWeights)}".Translate();
 
                 internal static readonly string PawnTraits =
-                    $"EquipmentManager.Loadouts.{nameof(PawnTraits)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PawnTraits)}".Translate();
 
                 internal static readonly string PawnWorkCapacities =
-                    $"EquipmentManager.Loadouts.{nameof(PawnWorkCapacities)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PawnWorkCapacities)}".Translate();
 
                 internal static readonly string PrimaryWeaponLabel =
-                    $"EquipmentManager.Loadouts.{nameof(PrimaryWeaponLabel)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PrimaryWeaponLabel)}".Translate();
 
                 internal static readonly string PriorityLabel =
-                    $"EquipmentManager.Loadouts.{nameof(PriorityLabel)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PriorityLabel)}".Translate();
 
                 internal static readonly string PriorityTooltip =
-                    $"EquipmentManager.Loadouts.{nameof(PriorityTooltip)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(PriorityTooltip)}".Translate();
 
                 internal static readonly string RangedSidearmRulesLabel =
-                    $"EquipmentManager.Loadouts.{nameof(RangedSidearmRulesLabel)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(RangedSidearmRulesLabel)}".Translate();
 
-                internal static readonly string Rules = $"EquipmentManager.Loadouts.{nameof(Rules)}".Translate();
+                internal static readonly string Rules = $"EquipmentManager.Roles.{nameof(Rules)}".Translate();
 
                 internal static readonly string SavedGamesListHeader =
-                    $"EquipmentManager.Loadouts.{nameof(SavedGamesListHeader)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(SavedGamesListHeader)}".Translate();
 
-                internal static readonly string SelectLoadout =
-                    $"EquipmentManager.Loadouts.{nameof(SelectLoadout)}".Translate();
+                internal static readonly string SelectRole =
+                    $"EquipmentManager.Roles.{nameof(SelectRole)}".Translate();
 
                 internal static readonly string ToolsLabel =
-                    $"EquipmentManager.Loadouts.{nameof(ToolsLabel)}".Translate();
+                    $"EquipmentManager.Roles.{nameof(ToolsLabel)}".Translate();
 
                 internal static string GetPrimaryWeaponTypeLabel(Role.PrimaryWeaponType primaryWeaponType)
                 {
-                    return $"EquipmentManager.Loadouts.PrimaryWeaponTypes.{primaryWeaponType}".Translate();
+                    return $"EquipmentManager.Roles.PrimaryWeaponTypes.{primaryWeaponType}".Translate();
                 }
 
                 internal static class Default
                 {
                     internal static readonly string Assault =
-                        $"EquipmentManager.Loadouts.Default.{nameof(Assault)}".Translate();
+                        $"EquipmentManager.Roles.Default.{nameof(Assault)}".Translate();
 
                     internal static readonly string Crusher =
-                        $"EquipmentManager.Loadouts.Default.{nameof(Crusher)}".Translate();
+                        $"EquipmentManager.Roles.Default.{nameof(Crusher)}".Translate();
 
-                    internal static readonly string NoLoadout =
-                        $"EquipmentManager.Loadouts.Default.{nameof(NoLoadout)}".Translate();
+                    internal static readonly string NoRole =
+                        $"EquipmentManager.Roles.Default.{nameof(NoRole)}".Translate();
 
                     internal static readonly string Pacifist =
-                        $"EquipmentManager.Loadouts.Default.{nameof(Pacifist)}".Translate();
+                        $"EquipmentManager.Roles.Default.{nameof(Pacifist)}".Translate();
 
                     internal static readonly string Slasher =
-                        $"EquipmentManager.Loadouts.Default.{nameof(Slasher)}".Translate();
+                        $"EquipmentManager.Roles.Default.{nameof(Slasher)}".Translate();
 
                     internal static readonly string Sniper =
-                        $"EquipmentManager.Loadouts.Default.{nameof(Sniper)}".Translate();
+                        $"EquipmentManager.Roles.Default.{nameof(Sniper)}".Translate();
 
                     internal static readonly string Support =
-                        $"EquipmentManager.Loadouts.Default.{nameof(Support)}".Translate();
+                        $"EquipmentManager.Roles.Default.{nameof(Support)}".Translate();
                 }
             }
 

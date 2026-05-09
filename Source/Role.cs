@@ -4,7 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using RimWorld;
 using Verse;
-using Strings = EquipmentManager.Resources.Strings.Loadouts;
+using Strings = EquipmentManager.Resources.Strings.Roles;
 
 namespace EquipmentManager
 {
@@ -17,7 +17,7 @@ namespace EquipmentManager
             MeleeWeapon
         }
 
-        public static readonly IEnumerable<Role> DefaultLoadouts = new[]
+        public static readonly IEnumerable<Role> DefaultRoles = new[]
         {
             new Role(1)
             {

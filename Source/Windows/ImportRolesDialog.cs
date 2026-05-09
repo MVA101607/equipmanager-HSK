@@ -8,20 +8,20 @@ using Verse;
 
 namespace EquipmentManager.Windows
 {
-    internal class ImportLoadoutsDialog : Window
+    internal class ImportRolesDialog : Window
     {
         private static EquipmentManagerGameComponent _equipmentManager;
-        private readonly List<Role> _loadouts = new();
+        private readonly List<Role> _roles = new();
         private readonly List<MeleeWeaponRule> _meleeWeaponRules = new();
         private readonly List<RangedWeaponRule> _rangedWeaponRules = new();
         private readonly Dictionary<string, string> _savedGames = new();
         private readonly List<ToolRule> _toolRules = new();
         private readonly List<WorkTypeRule> _workTypeRules = new();
-        private Vector2 _loadoutsListScrollPosition;
+        private Vector2 _rolesListScrollPosition;
         private Vector2 _savedGamesListScrollPosition;
         private string _selectedSaveGame;
 
-        public ImportLoadoutsDialog()
+        public ImportRolesDialog()
         {
             forcePause = true;
             doCloseX = true;
@@ -39,34 +39,34 @@ namespace EquipmentManager.Windows
         {
             var importButtonRect = new Rect(rect.center.x - UiHelpers.ActionButtonWidth - UiHelpers.ButtonGap, rect.y,
                 UiHelpers.ActionButtonWidth, UiHelpers.ButtonHeight);
-            if (Widgets.ButtonText(importButtonRect, Resources.Strings.Loadouts.ImportData,
-                    active: _selectedSaveGame != null && _loadouts.Any()))
+            if (Widgets.ButtonText(importButtonRect, Resources.Strings.Roles.ImportData,
+                    active: _selectedSaveGame != null && _roles.Any()))
             {
                 ImportSaveGameData();
                 Close();
             }
             var cancelImportButtonRect = new Rect(rect.center.x + UiHelpers.ButtonGap, rect.y,
                 UiHelpers.ActionButtonWidth, UiHelpers.ButtonHeight);
-            if (Widgets.ButtonText(cancelImportButtonRect, Resources.Strings.Loadouts.CancelDataImport)) { Close(); }
+            if (Widgets.ButtonText(cancelImportButtonRect, Resources.Strings.Roles.CancelDataImport)) { Close(); }
         }
 
-        private void DoLoadoutList(Rect rect)
+        private void DoRoleList(Rect rect)
         {
             Text.Font = GameFont.Medium;
             Widgets.Label(new Rect(rect.x, rect.y, rect.width, Text.LineHeight),
-                Resources.Strings.Loadouts.LoadoutListHeader);
+                Resources.Strings.Roles.RoleListHeader);
             Text.Font = GameFont.Small;
             var listingRect = new Rect(rect.x, rect.y + Text.LineHeightOf(GameFont.Medium) + UiHelpers.ElementGap,
                 rect.width, rect.height - Text.LineHeightOf(GameFont.Medium) - (UiHelpers.ElementGap * 2));
             Widgets.DrawBoxSolidWithOutline(listingRect, new Color(1f, 1f, 1f, 0.05f), new Color(1f, 1f, 1f, 0.4f));
-            var listing = new Listing_Standard(listingRect, () => _loadoutsListScrollPosition);
+            var listing = new Listing_Standard(listingRect, () => _rolesListScrollPosition);
             var viewRect = new Rect(rect.x, rect.y,
                 rect.width - GUI.skin.verticalScrollbar.fixedWidth - UiHelpers.ElementGap,
-                _loadouts.Count * UiHelpers.ListRowHeight);
-            Widgets.BeginScrollView(listingRect, ref _loadoutsListScrollPosition, viewRect);
+                _roles.Count * UiHelpers.ListRowHeight);
+            Widgets.BeginScrollView(listingRect, ref _rolesListScrollPosition, viewRect);
             listing.Begin(viewRect);
             Text.Anchor = TextAnchor.MiddleLeft;
-            foreach (var loadout in _loadouts)
+            foreach (var loadout in _roles)
             {
                 Widgets.Label(listing.GetRect(UiHelpers.ListRowHeight).ContractedBy(4f), loadout.Label);
             }
@@ -79,7 +79,7 @@ namespace EquipmentManager.Windows
         {
             Text.Font = GameFont.Medium;
             Widgets.Label(new Rect(rect.x, rect.y, rect.width, Text.LineHeight),
-                Resources.Strings.Loadouts.SavedGamesListHeader);
+                Resources.Strings.Roles.SavedGamesListHeader);
             Text.Font = GameFont.Small;
             var listingRect = new Rect(rect.x, rect.y + Text.LineHeightOf(GameFont.Medium) + UiHelpers.ElementGap,
                 rect.width, rect.height - Text.LineHeightOf(GameFont.Medium) - (UiHelpers.ElementGap * 2));
@@ -122,9 +122,9 @@ namespace EquipmentManager.Windows
             var savedGamesRect = new Rect(inRect.x + UiHelpers.ElementGap, inRect.y + UiHelpers.ElementGap, columnWidth,
                 columnHeight);
             DoSavedGamesList(savedGamesRect);
-            var loadoutsRect = new Rect(savedGamesRect.xMax + UiHelpers.ElementGap, inRect.y + UiHelpers.ElementGap,
+            var rolesRect = new Rect(savedGamesRect.xMax + UiHelpers.ElementGap, inRect.y + UiHelpers.ElementGap,
                 columnWidth, columnHeight);
-            DoLoadoutList(loadoutsRect);
+            DoRoleList(rolesRect);
             var actionButtonsRect = new Rect(inRect.x, inRect.yMax - UiHelpers.ButtonHeight - UiHelpers.ButtonGap,
                 inRect.width, UiHelpers.ButtonHeight);
             DoButtonRow(actionButtonsRect);
@@ -133,10 +133,10 @@ namespace EquipmentManager.Windows
         private void ImportSaveGameData()
         {
             Find.WindowStack.WindowOfType<ManageWeaponRulesDialog>()?.Close();
-            Find.WindowStack.WindowOfType<ManageLoadoutsDialog>()?.Close();
-            foreach (var loadout in EquipmentManager.GetLoadouts().ToList())
+            Find.WindowStack.WindowOfType<ManageRolesDialog>()?.Close();
+            foreach (var loadout in EquipmentManager.GetRoles().ToList())
             {
-                EquipmentManager.DeleteLoadout(loadout);
+                EquipmentManager.DeleteRole(loadout);
             }
             foreach (var rule in EquipmentManager.GetMeleeWeaponRules().ToList())
             {
@@ -155,7 +155,7 @@ namespace EquipmentManager.Windows
                 EquipmentManager.DeleteWorkTypeRule(rule);
             }
             foreach (var rule in _workTypeRules) { EquipmentManager.AddWorkTypeRule(rule); }
-            foreach (var loadout in _loadouts) { EquipmentManager.AddLoadout(loadout); }
+            foreach (var loadout in _roles) { EquipmentManager.AddRole(loadout); }
         }
 
         private void LoadSavedGames()
@@ -227,7 +227,7 @@ namespace EquipmentManager.Windows
             return result;
         }
 
-        private void ReadLoadoutData(XmlReader xmlReader)
+        private void ReadRoleData(XmlReader xmlReader)
         {
             if (!xmlReader.ReadToFollowing("li") || !xmlReader.Read()) { return; }
             var id = 0;
@@ -381,24 +381,24 @@ namespace EquipmentManager.Windows
                         xmlReader.ReadEndElement();
                         break;
                     default:
-                        Log.Warning($"Equipment Manager: Unknown Loadout property '{xmlReader.Name}'");
+                        Log.Warning($"Equipment Manager: Unknown Role property '{xmlReader.Name}'");
                         break;
                 }
             }
-            _loadouts.Add(new Role(id, label, priority, primaryRuleType, primaryRangedWeaponRuleId,
+            _roles.Add(new Role(id, label, priority, primaryRuleType, primaryRangedWeaponRuleId,
                 primaryMeleeWeaponRuleId, rangedSidearmRules, meleeSidearmRules, toolRuleId, pawnTraits,
                 pawnWorkCapacities, dropUnassignedWeapons, passionLimits, pawnCapacityLimits, pawnCapacityWeights,
                 skillLimits, skillWeights, statLimits, statWeights));
         }
 
-        private void ReadLoadoutsData(string savedGameFile, XmlReader xmlReader)
+        private void ReadRolesData(string savedGameFile, XmlReader xmlReader)
         {
             if (xmlReader.ReadToFollowing("Loadouts"))
             {
                 var node = xmlReader.ReadSubtree();
                 if (node.ReadToDescendant("li"))
                 {
-                    do { ReadLoadoutData(node.ReadSubtree()); } while (node.ReadToNextSibling("li"));
+                    do { ReadRoleData(node.ReadSubtree()); } while (node.ReadToNextSibling("li"));
                 }
                 else
                 {
@@ -705,8 +705,8 @@ namespace EquipmentManager.Windows
 
         private void ReadSaveGameData(string savedGameFile)
         {
-            _loadoutsListScrollPosition = Vector2.zero;
-            _loadouts.Clear();
+            _rolesListScrollPosition = Vector2.zero;
+            _roles.Clear();
             _meleeWeaponRules.Clear();
             _rangedWeaponRules.Clear();
             _toolRules.Clear();
@@ -743,7 +743,7 @@ namespace EquipmentManager.Windows
                                             xmlReader.ReadEndElement();
                                             ReadRangedWeaponRulesData(savedGameFile, xmlReader.ReadSubtree());
                                             xmlReader.ReadEndElement();
-                                            ReadLoadoutsData(savedGameFile, xmlReader.ReadSubtree());
+                                            ReadRolesData(savedGameFile, xmlReader.ReadSubtree());
                                             xmlReader.Close();
                                             return;
                                         }

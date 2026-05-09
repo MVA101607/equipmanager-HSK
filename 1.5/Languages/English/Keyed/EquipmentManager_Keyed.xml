@@ -2,51 +2,51 @@
 
 <LanguageData>
 	<EquipmentManager.Add>Add</EquipmentManager.Add>
-	<EquipmentManager.Loadouts.ManageLoadouts>Manage loadouts</EquipmentManager.Loadouts.ManageLoadouts>
-	<EquipmentManager.Loadouts.SelectLoadout>Select loadout</EquipmentManager.Loadouts.SelectLoadout>
-	<EquipmentManager.Loadouts.NoLoadoutSelected>No loadout selected.</EquipmentManager.Loadouts.NoLoadoutSelected>
-	<EquipmentManager.Loadouts.LoadoutLabel>Loadout name:</EquipmentManager.Loadouts.LoadoutLabel>
-	<EquipmentManager.Loadouts.LoadoutSettings>Loadout settings</EquipmentManager.Loadouts.LoadoutSettings>
-	<EquipmentManager.Loadouts.AddLoadout>Add loadout</EquipmentManager.Loadouts.AddLoadout>
-	<EquipmentManager.Loadouts.CopyLoadout>Copy loadout</EquipmentManager.Loadouts.CopyLoadout>
-	<EquipmentManager.Loadouts.DeleteLoadout>Delete loadout</EquipmentManager.Loadouts.DeleteLoadout>
-	<EquipmentManager.Loadouts.ManageWeaponRules>Manage rules</EquipmentManager.Loadouts.ManageWeaponRules>
-	<EquipmentManager.Loadouts.ImportLoadouts>Import loadouts</EquipmentManager.Loadouts.ImportLoadouts>
-	<EquipmentManager.Loadouts.Log>Log</EquipmentManager.Loadouts.Log>
-	<EquipmentManager.Loadouts.SavedGamesListHeader>Saved games</EquipmentManager.Loadouts.SavedGamesListHeader>
-	<EquipmentManager.Loadouts.LoadoutListHeader>Loadouts</EquipmentManager.Loadouts.LoadoutListHeader>
-	<EquipmentManager.Loadouts.ImportData>Import</EquipmentManager.Loadouts.ImportData>
-	<EquipmentManager.Loadouts.CancelDataImport>Cancel</EquipmentManager.Loadouts.CancelDataImport>
-	<EquipmentManager.Loadouts.AutoSelect>Auto-select</EquipmentManager.Loadouts.AutoSelect>
-	<EquipmentManager.Loadouts.PriorityLabel>Priority:</EquipmentManager.Loadouts.PriorityLabel>
-	<EquipmentManager.Loadouts.PriorityTooltip>Loadout priority for auto-assignment. The higher the value, the more colonists matching the settings will get the loadout. Priority of '0' will disable automatic assignment of this loadout.</EquipmentManager.Loadouts.PriorityTooltip>
-	<EquipmentManager.Loadouts.DropUnassignedWeapons>Drop unassigned weapons</EquipmentManager.Loadouts.DropUnassignedWeapons>
-	<EquipmentManager.Loadouts.DropUnassignedWeaponsTooltip>Pawns will drop and forget all weapons not assigned by the Equipment Manager</EquipmentManager.Loadouts.DropUnassignedWeaponsTooltip>
-	<EquipmentManager.Loadouts.Rules>Rules</EquipmentManager.Loadouts.Rules>
-	<EquipmentManager.Loadouts.AvailablePawns>Available pawns</EquipmentManager.Loadouts.AvailablePawns>
-	<EquipmentManager.Loadouts.PawnTraits>Pawn traits</EquipmentManager.Loadouts.PawnTraits>
-	<EquipmentManager.Loadouts.PawnPassions>Pawn passions</EquipmentManager.Loadouts.PawnPassions>
-	<EquipmentManager.Loadouts.PawnCapacityLimits>Pawn capacity limits</EquipmentManager.Loadouts.PawnCapacityLimits>
-	<EquipmentManager.Loadouts.PawnCapacityWeights>Pawn capacity weights</EquipmentManager.Loadouts.PawnCapacityWeights>
-	<EquipmentManager.Loadouts.PawnWorkCapacities>Pawn work capacities</EquipmentManager.Loadouts.PawnWorkCapacities>
-	<EquipmentManager.Loadouts.PawnSkillWeights>Pawn skill weights</EquipmentManager.Loadouts.PawnSkillWeights>
-	<EquipmentManager.Loadouts.PawnSkillLimits>Pawn skill limits</EquipmentManager.Loadouts.PawnSkillLimits>
-	<EquipmentManager.Loadouts.PawnStatWeights>Pawn stat weights</EquipmentManager.Loadouts.PawnStatWeights>
-	<EquipmentManager.Loadouts.PawnStatLimits>Pawn stat limits</EquipmentManager.Loadouts.PawnStatLimits>
-	<EquipmentManager.Loadouts.PrimaryWeaponLabel>Primary weapon:</EquipmentManager.Loadouts.PrimaryWeaponLabel>
-	<EquipmentManager.Loadouts.PrimaryWeaponTypes.None>None</EquipmentManager.Loadouts.PrimaryWeaponTypes.None>
-	<EquipmentManager.Loadouts.PrimaryWeaponTypes.RangedWeapon>Ranged weapon</EquipmentManager.Loadouts.PrimaryWeaponTypes.RangedWeapon>
-	<EquipmentManager.Loadouts.PrimaryWeaponTypes.MeleeWeapon>Melee weapon</EquipmentManager.Loadouts.PrimaryWeaponTypes.MeleeWeapon>
-	<EquipmentManager.Loadouts.RangedSidearmRulesLabel>Ranged sidearm rules:</EquipmentManager.Loadouts.RangedSidearmRulesLabel>
-	<EquipmentManager.Loadouts.MeleeSidearmRulesLabel>Melee sidearm rules:</EquipmentManager.Loadouts.MeleeSidearmRulesLabel>
-	<EquipmentManager.Loadouts.ToolsLabel>Tools:</EquipmentManager.Loadouts.ToolsLabel>
-	<EquipmentManager.Loadouts.Default.NoLoadout>No loadout</EquipmentManager.Loadouts.Default.NoLoadout>
-	<EquipmentManager.Loadouts.Default.Sniper>Sniper</EquipmentManager.Loadouts.Default.Sniper>
-	<EquipmentManager.Loadouts.Default.Assault>Assault</EquipmentManager.Loadouts.Default.Assault>
-	<EquipmentManager.Loadouts.Default.Support>Support</EquipmentManager.Loadouts.Default.Support>
-	<EquipmentManager.Loadouts.Default.Crusher>Crusher</EquipmentManager.Loadouts.Default.Crusher>
-	<EquipmentManager.Loadouts.Default.Slasher>Slasher</EquipmentManager.Loadouts.Default.Slasher>
-	<EquipmentManager.Loadouts.Default.Pacifist>Pacifist</EquipmentManager.Loadouts.Default.Pacifist>
+	<EquipmentManager.Roles.ManageRoles>Manage roles</EquipmentManager.Roles.ManageRoles>
+	<EquipmentManager.Roles.SelectRole>Select role</EquipmentManager.Roles.SelectRole>
+	<EquipmentManager.Roles.NoRoleSelected>No role selected.</EquipmentManager.Roles.NoRoleSelected>
+	<EquipmentManager.Roles.RoleLabel>Role name:</EquipmentManager.Roles.RoleLabel>
+	<EquipmentManager.Roles.RoleSettings>Role settings</EquipmentManager.Roles.RoleSettings>
+	<EquipmentManager.Roles.AddRole>Add role</EquipmentManager.Roles.AddRole>
+	<EquipmentManager.Roles.CopyRole>Copy role</EquipmentManager.Roles.CopyRole>
+	<EquipmentManager.Roles.DeleteRole>Delete role</EquipmentManager.Roles.DeleteRole>
+	<EquipmentManager.Roles.ManageWeaponRules>Manage rules</EquipmentManager.Roles.ManageWeaponRules>
+	<EquipmentManager.Roles.ImportRoles>Import roles</EquipmentManager.Roles.ImportRoles>
+	<EquipmentManager.Roles.Log>Log</EquipmentManager.Roles.Log>
+	<EquipmentManager.Roles.SavedGamesListHeader>Saved games</EquipmentManager.Roles.SavedGamesListHeader>
+	<EquipmentManager.Roles.RoleListHeader>Roles</EquipmentManager.Roles.RoleListHeader>
+	<EquipmentManager.Roles.ImportData>Import</EquipmentManager.Roles.ImportData>
+	<EquipmentManager.Roles.CancelDataImport>Cancel</EquipmentManager.Roles.CancelDataImport>
+	<EquipmentManager.Roles.AutoSelect>Auto-select</EquipmentManager.Roles.AutoSelect>
+	<EquipmentManager.Roles.PriorityLabel>Priority:</EquipmentManager.Roles.PriorityLabel>
+	<EquipmentManager.Roles.PriorityTooltip>Role priority for auto-assignment. The higher the value, the more colonists matching the settings will get the role. Priority of '0' will disable automatic assignment of this role.</EquipmentManager.Roles.PriorityTooltip>
+	<EquipmentManager.Roles.DropUnassignedWeapons>Drop unassigned weapons</EquipmentManager.Roles.DropUnassignedWeapons>
+	<EquipmentManager.Roles.DropUnassignedWeaponsTooltip>Pawns will drop and forget all weapons not assigned by the Equipment Manager</EquipmentManager.Roles.DropUnassignedWeaponsTooltip>
+	<EquipmentManager.Roles.Rules>Rules</EquipmentManager.Roles.Rules>
+	<EquipmentManager.Roles.AvailablePawns>Available pawns</EquipmentManager.Roles.AvailablePawns>
+	<EquipmentManager.Roles.PawnTraits>Pawn traits</EquipmentManager.Roles.PawnTraits>
+	<EquipmentManager.Roles.PawnPassions>Pawn passions</EquipmentManager.Roles.PawnPassions>
+	<EquipmentManager.Roles.PawnCapacityLimits>Pawn capacity limits</EquipmentManager.Roles.PawnCapacityLimits>
+	<EquipmentManager.Roles.PawnCapacityWeights>Pawn capacity weights</EquipmentManager.Roles.PawnCapacityWeights>
+	<EquipmentManager.Roles.PawnWorkCapacities>Pawn work capacities</EquipmentManager.Roles.PawnWorkCapacities>
+	<EquipmentManager.Roles.PawnSkillWeights>Pawn skill weights</EquipmentManager.Roles.PawnSkillWeights>
+	<EquipmentManager.Roles.PawnSkillLimits>Pawn skill limits</EquipmentManager.Roles.PawnSkillLimits>
+	<EquipmentManager.Roles.PawnStatWeights>Pawn stat weights</EquipmentManager.Roles.PawnStatWeights>
+	<EquipmentManager.Roles.PawnStatLimits>Pawn stat limits</EquipmentManager.Roles.PawnStatLimits>
+	<EquipmentManager.Roles.PrimaryWeaponLabel>Primary weapon:</EquipmentManager.Roles.PrimaryWeaponLabel>
+	<EquipmentManager.Roles.PrimaryWeaponTypes.None>None</EquipmentManager.Roles.PrimaryWeaponTypes.None>
+	<EquipmentManager.Roles.PrimaryWeaponTypes.RangedWeapon>Ranged weapon</EquipmentManager.Roles.PrimaryWeaponTypes.RangedWeapon>
+	<EquipmentManager.Roles.PrimaryWeaponTypes.MeleeWeapon>Melee weapon</EquipmentManager.Roles.PrimaryWeaponTypes.MeleeWeapon>
+	<EquipmentManager.Roles.RangedSidearmRulesLabel>Ranged sidearm rules:</EquipmentManager.Roles.RangedSidearmRulesLabel>
+	<EquipmentManager.Roles.MeleeSidearmRulesLabel>Melee sidearm rules:</EquipmentManager.Roles.MeleeSidearmRulesLabel>
+	<EquipmentManager.Roles.ToolsLabel>Tools:</EquipmentManager.Roles.ToolsLabel>
+	<EquipmentManager.Roles.Default.NoRole>No role</EquipmentManager.Roles.Default.NoRole>
+	<EquipmentManager.Roles.Default.Sniper>Sniper</EquipmentManager.Roles.Default.Sniper>
+	<EquipmentManager.Roles.Default.Assault>Assault</EquipmentManager.Roles.Default.Assault>
+	<EquipmentManager.Roles.Default.Support>Support</EquipmentManager.Roles.Default.Support>
+	<EquipmentManager.Roles.Default.Crusher>Crusher</EquipmentManager.Roles.Default.Crusher>
+	<EquipmentManager.Roles.Default.Slasher>Slasher</EquipmentManager.Roles.Default.Slasher>
+	<EquipmentManager.Roles.Default.Pacifist>Pacifist</EquipmentManager.Roles.Default.Pacifist>
 	<EquipmentManager.WeaponRules.AddRule>Add rule</EquipmentManager.WeaponRules.AddRule>
 	<EquipmentManager.WeaponRules.CopyRule>Copy rule</EquipmentManager.WeaponRules.CopyRule>
 	<EquipmentManager.WeaponRules.DeleteRule>Delete rule</EquipmentManager.WeaponRules.DeleteRule>

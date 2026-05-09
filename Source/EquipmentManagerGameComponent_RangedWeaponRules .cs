@@ -63,7 +63,7 @@ namespace EquipmentManager
 
         public void DeleteRangedWeaponRule(RangedWeaponRule rangedWeaponRule)
         {
-            foreach (var loadout in GetLoadouts())
+            foreach (var loadout in GetRoles())
             {
                 if (loadout.PrimaryRangedWeaponRuleId == rangedWeaponRule.Id)
                 {

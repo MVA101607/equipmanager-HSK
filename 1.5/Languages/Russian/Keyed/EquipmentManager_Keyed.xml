@@ -2,51 +2,51 @@
 
 <LanguageData>
 	<EquipmentManager.Add>Добавить</EquipmentManager.Add>
-	<EquipmentManager.Loadouts.ManageLoadouts>Управление снаряжением</EquipmentManager.Loadouts.ManageLoadouts>
-	<EquipmentManager.Loadouts.SelectLoadout>Выбрать снаряжение</EquipmentManager.Loadouts.SelectLoadout>
-	<EquipmentManager.Loadouts.NoLoadoutSelected>Снаряжение не выбрано.</EquipmentManager.Loadouts.NoLoadoutSelected>
-	<EquipmentManager.Loadouts.LoadoutLabel>Название снаряжения:</EquipmentManager.Loadouts.LoadoutLabel>
-	<EquipmentManager.Loadouts.LoadoutSettings>Параметры снаряжения</EquipmentManager.Loadouts.LoadoutSettings>
-	<EquipmentManager.Loadouts.AddLoadout>Добавить снаряжение</EquipmentManager.Loadouts.AddLoadout>
-	<EquipmentManager.Loadouts.CopyLoadout>Копировать снаряжение</EquipmentManager.Loadouts.CopyLoadout>
-	<EquipmentManager.Loadouts.DeleteLoadout>Удалить снаряжение</EquipmentManager.Loadouts.DeleteLoadout>
-	<EquipmentManager.Loadouts.ManageWeaponRules>Управление правилами</EquipmentManager.Loadouts.ManageWeaponRules>
-	<EquipmentManager.Loadouts.ImportLoadouts>Импорт снаряжения</EquipmentManager.Loadouts.ImportLoadouts>
-	<EquipmentManager.Loadouts.Log>Журнал</EquipmentManager.Loadouts.Log>
-	<EquipmentManager.Loadouts.SavedGamesListHeader>Сохранённые игры</EquipmentManager.Loadouts.SavedGamesListHeader>
-	<EquipmentManager.Loadouts.LoadoutListHeader>Снаряжение</EquipmentManager.Loadouts.LoadoutListHeader>
-	<EquipmentManager.Loadouts.ImportData>Импорт</EquipmentManager.Loadouts.ImportData>
-	<EquipmentManager.Loadouts.CancelDataImport>Отмена</EquipmentManager.Loadouts.CancelDataImport>
-	<EquipmentManager.Loadouts.AutoSelect>Авто-выбор</EquipmentManager.Loadouts.AutoSelect>
-	<EquipmentManager.Loadouts.PriorityLabel>Приоритет:</EquipmentManager.Loadouts.PriorityLabel>
-	<EquipmentManager.Loadouts.PriorityTooltip>Приоритет снаряжения для авто-назначения. Чем выше значение, тем больше колонистов, соответствующих настройкам, получат это снаряжение. Приоритет «0» отключает автоматическое назначение снаряжения.</EquipmentManager.Loadouts.PriorityTooltip>
-	<EquipmentManager.Loadouts.DropUnassignedWeapons>Выбрасывать неназначенное оружие</EquipmentManager.Loadouts.DropUnassignedWeapons>
-	<EquipmentManager.Loadouts.DropUnassignedWeaponsTooltip>Пешки будут выбрасывать и забывать всё оружие, не назначенное менеджером снаряжения</EquipmentManager.Loadouts.DropUnassignedWeaponsTooltip>
-	<EquipmentManager.Loadouts.Rules>Правила</EquipmentManager.Loadouts.Rules>
-	<EquipmentManager.Loadouts.AvailablePawns>Доступные пешки</EquipmentManager.Loadouts.AvailablePawns>
-	<EquipmentManager.Loadouts.PawnTraits>Черты пешки</EquipmentManager.Loadouts.PawnTraits>
-	<EquipmentManager.Loadouts.PawnPassions>Страсти пешки</EquipmentManager.Loadouts.PawnPassions>
-	<EquipmentManager.Loadouts.PawnCapacityLimits>Ограничения возможностей пешки</EquipmentManager.Loadouts.PawnCapacityLimits>
-	<EquipmentManager.Loadouts.PawnCapacityWeights>Веса возможностей пешки</EquipmentManager.Loadouts.PawnCapacityWeights>
-	<EquipmentManager.Loadouts.PawnWorkCapacities>Рабочие возможности пешки</EquipmentManager.Loadouts.PawnWorkCapacities>
-	<EquipmentManager.Loadouts.PawnSkillWeights>Веса навыков пешки</EquipmentManager.Loadouts.PawnSkillWeights>
-	<EquipmentManager.Loadouts.PawnSkillLimits>Ограничения навыков пешки</EquipmentManager.Loadouts.PawnSkillLimits>
-	<EquipmentManager.Loadouts.PawnStatWeights>Веса характеристик пешки</EquipmentManager.Loadouts.PawnStatWeights>
-	<EquipmentManager.Loadouts.PawnStatLimits>Ограничения характеристик пешки</EquipmentManager.Loadouts.PawnStatLimits>
-	<EquipmentManager.Loadouts.PrimaryWeaponLabel>Основное оружие:</EquipmentManager.Loadouts.PrimaryWeaponLabel>
-	<EquipmentManager.Loadouts.PrimaryWeaponTypes.None>Нет</EquipmentManager.Loadouts.PrimaryWeaponTypes.None>
-	<EquipmentManager.Loadouts.PrimaryWeaponTypes.RangedWeapon>Дальнобойное оружие</EquipmentManager.Loadouts.PrimaryWeaponTypes.RangedWeapon>
-	<EquipmentManager.Loadouts.PrimaryWeaponTypes.MeleeWeapon>Оружие ближнего боя</EquipmentManager.Loadouts.PrimaryWeaponTypes.MeleeWeapon>
-	<EquipmentManager.Loadouts.RangedSidearmRulesLabel>Правила запасного дальнобойного:</EquipmentManager.Loadouts.RangedSidearmRulesLabel>
-	<EquipmentManager.Loadouts.MeleeSidearmRulesLabel>Правила запасного ближнего боя:</EquipmentManager.Loadouts.MeleeSidearmRulesLabel>
-	<EquipmentManager.Loadouts.ToolsLabel>Инструменты:</EquipmentManager.Loadouts.ToolsLabel>
-	<EquipmentManager.Loadouts.Default.NoLoadout>Без снаряжения</EquipmentManager.Loadouts.Default.NoLoadout>
-	<EquipmentManager.Loadouts.Default.Sniper>Снайпер</EquipmentManager.Loadouts.Default.Sniper>
-	<EquipmentManager.Loadouts.Default.Assault>Штурмовик</EquipmentManager.Loadouts.Default.Assault>
-	<EquipmentManager.Loadouts.Default.Support>Поддержка</EquipmentManager.Loadouts.Default.Support>
-	<EquipmentManager.Loadouts.Default.Crusher>Дробильщик</EquipmentManager.Loadouts.Default.Crusher>
-	<EquipmentManager.Loadouts.Default.Slasher>Рубака</EquipmentManager.Loadouts.Default.Slasher>
-	<EquipmentManager.Loadouts.Default.Pacifist>Пацифист</EquipmentManager.Loadouts.Default.Pacifist>
+	<EquipmentManager.Roles.ManageRoles>Управление ролями</EquipmentManager.Roles.ManageRoles>
+	<EquipmentManager.Roles.SelectRole>Выбрать роль</EquipmentManager.Roles.SelectRole>
+	<EquipmentManager.Roles.NoRoleSelected>Роль не выбрана.</EquipmentManager.Roles.NoRoleSelected>
+	<EquipmentManager.Roles.RoleLabel>Название роли:</EquipmentManager.Roles.RoleLabel>
+	<EquipmentManager.Roles.RoleSettings>Параметры роли</EquipmentManager.Roles.RoleSettings>
+	<EquipmentManager.Roles.AddRole>Добавить роль</EquipmentManager.Roles.AddRole>
+	<EquipmentManager.Roles.CopyRole>Копировать роль</EquipmentManager.Roles.CopyRole>
+	<EquipmentManager.Roles.DeleteRole>Удалить роль</EquipmentManager.Roles.DeleteRole>
+	<EquipmentManager.Roles.ManageWeaponRules>Управление правилами</EquipmentManager.Roles.ManageWeaponRules>
+	<EquipmentManager.Roles.ImportRoles>Импорт ролей</EquipmentManager.Roles.ImportRoles>
+	<EquipmentManager.Roles.Log>Журнал</EquipmentManager.Roles.Log>
+	<EquipmentManager.Roles.SavedGamesListHeader>Сохранённые игры</EquipmentManager.Roles.SavedGamesListHeader>
+	<EquipmentManager.Roles.RoleListHeader>Роли</EquipmentManager.Roles.RoleListHeader>
+	<EquipmentManager.Roles.ImportData>Импорт</EquipmentManager.Roles.ImportData>
+	<EquipmentManager.Roles.CancelDataImport>Отмена</EquipmentManager.Roles.CancelDataImport>
+	<EquipmentManager.Roles.AutoSelect>Авто-выбор</EquipmentManager.Roles.AutoSelect>
+	<EquipmentManager.Roles.PriorityLabel>Приоритет:</EquipmentManager.Roles.PriorityLabel>
+	<EquipmentManager.Roles.PriorityTooltip>Приоритет роли для авто-назначения. Чем выше значение, тем больше колонистов, соответствующих настройкам, получат эту роль. Приоритет «0» отключает автоматическое назначение роли.</EquipmentManager.Roles.PriorityTooltip>
+	<EquipmentManager.Roles.DropUnassignedWeapons>Выбрасывать неназначенное оружие</EquipmentManager.Roles.DropUnassignedWeapons>
+	<EquipmentManager.Roles.DropUnassignedWeaponsTooltip>Пешки будут выбрасывать и забывать всё оружие, не назначенное менеджером снаряжения</EquipmentManager.Roles.DropUnassignedWeaponsTooltip>
+	<EquipmentManager.Roles.Rules>Правила</EquipmentManager.Roles.Rules>
+	<EquipmentManager.Roles.AvailablePawns>Доступные пешки</EquipmentManager.Roles.AvailablePawns>
+	<EquipmentManager.Roles.PawnTraits>Черты пешки</EquipmentManager.Roles.PawnTraits>
+	<EquipmentManager.Roles.PawnPassions>Страсти пешки</EquipmentManager.Roles.PawnPassions>
+	<EquipmentManager.Roles.PawnCapacityLimits>Ограничения возможностей пешки</EquipmentManager.Roles.PawnCapacityLimits>
+	<EquipmentManager.Roles.PawnCapacityWeights>Веса возможностей пешки</EquipmentManager.Roles.PawnCapacityWeights>
+	<EquipmentManager.Roles.PawnWorkCapacities>Рабочие возможности пешки</EquipmentManager.Roles.PawnWorkCapacities>
+	<EquipmentManager.Roles.PawnSkillWeights>Веса навыков пешки</EquipmentManager.Roles.PawnSkillWeights>
+	<EquipmentManager.Roles.PawnSkillLimits>Ограничения навыков пешки</EquipmentManager.Roles.PawnSkillLimits>
+	<EquipmentManager.Roles.PawnStatWeights>Веса характеристик пешки</EquipmentManager.Roles.PawnStatWeights>
+	<EquipmentManager.Roles.PawnStatLimits>Ограничения характеристик пешки</EquipmentManager.Roles.PawnStatLimits>
+	<EquipmentManager.Roles.PrimaryWeaponLabel>Основное оружие:</EquipmentManager.Roles.PrimaryWeaponLabel>
+	<EquipmentManager.Roles.PrimaryWeaponTypes.None>Нет</EquipmentManager.Roles.PrimaryWeaponTypes.None>
+	<EquipmentManager.Roles.PrimaryWeaponTypes.RangedWeapon>Дальнобойное оружие</EquipmentManager.Roles.PrimaryWeaponTypes.RangedWeapon>
+	<EquipmentManager.Roles.PrimaryWeaponTypes.MeleeWeapon>Оружие ближнего боя</EquipmentManager.Roles.PrimaryWeaponTypes.MeleeWeapon>
+	<EquipmentManager.Roles.RangedSidearmRulesLabel>Правила запасного дальнобойного:</EquipmentManager.Roles.RangedSidearmRulesLabel>
+	<EquipmentManager.Roles.MeleeSidearmRulesLabel>Правила запасного ближнего боя:</EquipmentManager.Roles.MeleeSidearmRulesLabel>
+	<EquipmentManager.Roles.ToolsLabel>Инструменты:</EquipmentManager.Roles.ToolsLabel>
+	<EquipmentManager.Roles.Default.NoRole>Без роли</EquipmentManager.Roles.Default.NoRole>
+	<EquipmentManager.Roles.Default.Sniper>Снайпер</EquipmentManager.Roles.Default.Sniper>
+	<EquipmentManager.Roles.Default.Assault>Штурмовик</EquipmentManager.Roles.Default.Assault>
+	<EquipmentManager.Roles.Default.Support>Поддержка</EquipmentManager.Roles.Default.Support>
+	<EquipmentManager.Roles.Default.Crusher>Дробильщик</EquipmentManager.Roles.Default.Crusher>
+	<EquipmentManager.Roles.Default.Slasher>Рубака</EquipmentManager.Roles.Default.Slasher>
+	<EquipmentManager.Roles.Default.Pacifist>Пацифист</EquipmentManager.Roles.Default.Pacifist>
 	<EquipmentManager.WeaponRules.AddRule>Добавить правило</EquipmentManager.WeaponRules.AddRule>
 	<EquipmentManager.WeaponRules.CopyRule>Копировать правило</EquipmentManager.WeaponRules.CopyRule>
 	<EquipmentManager.WeaponRules.DeleteRule>Удалить правило</EquipmentManager.WeaponRules.DeleteRule>

@@ -74,9 +74,9 @@ namespace EquipmentManager
         // ─────────────────────────────────────────────────────────────────────
         private bool AssignPrimaryRangedWeapon(PawnCache pawn)
         {
-            if (pawn.AssignedLoadout.PrimaryRangedWeaponRuleId == null) { return false; }
+            if (pawn.AssignedRole.PrimaryRangedWeaponRuleId == null) { return false; }
             var rule = EquipmentManager.GetRangedWeaponRule(
-                (int)pawn.AssignedLoadout.PrimaryRangedWeaponRuleId);
+                (int)pawn.AssignedRole.PrimaryRangedWeaponRuleId);
             if (rule == null) { return false; }
 
             EquipmentManager.LogMessage(
@@ -107,12 +107,12 @@ namespace EquipmentManager
 
             pawn.AssignedWeapons.Add(bestWeapon, "primary");
 
-            var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn.Pawn);
-            if (pawnLoadout != null)
+            var pawnRole = EquipmentManager.GetPawnRole(pawn.Pawn);
+            if (pawnRole != null)
             {
-                pawnLoadout.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+                pawnRole.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
                 _ = CEExtendedLoadoutHelper.SetPrimaryWeaponInPersonalLoadout(
-                    pawn.Pawn, bestWeapon.def, pawnLoadout.ManagedPersonalLoadoutSlots);
+                    pawn.Pawn, bestWeapon.def, pawnRole.ManagedPersonalLoadoutSlots);
             }
 
             UpdateAmmo(pawn, bestWeapon, rule);
@@ -124,9 +124,9 @@ namespace EquipmentManager
         // ─────────────────────────────────────────────────────────────────────
         private bool AssignPrimaryMeleeWeapon(PawnCache pawn)
         {
-            if (pawn.AssignedLoadout.PrimaryMeleeWeaponRuleId == null) { return false; }
+            if (pawn.AssignedRole.PrimaryMeleeWeaponRuleId == null) { return false; }
             var rule = EquipmentManager.GetMeleeWeaponRule(
-                (int)pawn.AssignedLoadout.PrimaryMeleeWeaponRuleId);
+                (int)pawn.AssignedRole.PrimaryMeleeWeaponRuleId);
             if (rule == null) { return false; }
 
             EquipmentManager.LogMessage(
@@ -155,12 +155,12 @@ namespace EquipmentManager
 
             pawn.AssignedWeapons.Add(bestWeapon, "primary");
 
-            var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn.Pawn);
-            if (pawnLoadout != null)
+            var pawnRole = EquipmentManager.GetPawnRole(pawn.Pawn);
+            if (pawnRole != null)
             {
-                pawnLoadout.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+                pawnRole.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
                 _ = CEExtendedLoadoutHelper.SetPrimaryWeaponInPersonalLoadout(
-                    pawn.Pawn, bestWeapon.def, pawnLoadout.ManagedPersonalLoadoutSlots);
+                    pawn.Pawn, bestWeapon.def, pawnRole.ManagedPersonalLoadoutSlots);
             }
             return true;
         }
@@ -293,11 +293,11 @@ namespace EquipmentManager
         // Добавляет tool-слот в PersonalLoadout через CEExtendedLoadoutHelper.
         private void AddToolSlot(PawnCache pawn, ThingDef toolDef)
         {
-            var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn.Pawn);
-            if (pawnLoadout == null) { return; }
-            pawnLoadout.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+            var pawnRole = EquipmentManager.GetPawnRole(pawn.Pawn);
+            if (pawnRole == null) { return; }
+            pawnRole.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
             _ = CEExtendedLoadoutHelper.AddToolToPersonalLoadout(
-                pawn.Pawn, toolDef, pawnLoadout.ManagedPersonalLoadoutSlots);
+                pawn.Pawn, toolDef, pawnRole.ManagedPersonalLoadoutSlots);
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -327,7 +327,7 @@ namespace EquipmentManager
                 $" day={_updateTime.Day} hour={_updateTime.Hour:N1} ==================");
 
             UpdatePawnCache();
-            UpdateLoadouts();
+            UpdateRoles();
             ProcessPawnQueue();
             RemoveUnassignedWeapons();
 
@@ -340,29 +340,29 @@ namespace EquipmentManager
         {
             foreach (var pawn in _pawnCache.Where(pc => pc.ShouldUpdateEquipment))
             {
-                var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn.Pawn);
-                if (pawnLoadout == null) { continue; }
-                pawnLoadout.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+                var pawnRole = EquipmentManager.GetPawnRole(pawn.Pawn);
+                if (pawnRole == null) { continue; }
+                pawnRole.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
                 EquipmentManager.LogMessage(
                     $"[EM] {pawn.Pawn.LabelShortCap}: managed slots = " +
-                    string.Join(", ", pawnLoadout.ManagedPersonalLoadoutSlots));
+                    string.Join(", ", pawnRole.ManagedPersonalLoadoutSlots));
             }
         }
 
         // ─────────────────────────────────────────────────────────────────────
         // Распределение loadout-ов между пешками
         // ─────────────────────────────────────────────────────────────────────
-        private void UpdateLoadouts()
+        private void UpdateRoles()
         {
             // Auto-loadout pawns must be re-evaluated every hourly pass.
-            // If we keep their previous AssignedLoadout, they never enter the
-            // auto-assignment branch below because it only assigns when AssignedLoadout == null.
-            foreach (var pawn in _pawnCache.Where(pc => pc.AutoLoadout))
+            // If we keep their previous AssignedRole, they never enter the
+            // auto-assignment branch below because it only assigns when AssignedRole == null.
+            foreach (var pawn in _pawnCache.Where(pc => pc.AutoRole))
             {
-                pawn.AssignedLoadout = null;
+                pawn.AssignedRole = null;
             }
 
-            foreach (var loadout in EquipmentManager.GetLoadouts()
+            foreach (var role in EquipmentManager.GetRoles()
                          .Where(l => l.Priority > 0)
                          .OrderByDescending(l =>
                              l.PassionLimits.Count + l.PawnCapacityLimits.Count +
@@ -371,41 +371,41 @@ namespace EquipmentManager
                              l.SkillWeights.Count + l.StatLimits.Count + l.StatWeights.Count)
                          .ThenByDescending(l => l.Priority))
             {
-                var availablePawns = _pawnCache.Where(pc => pc.IsAvailable(loadout)).ToList();
+                var availablePawns = _pawnCache.Where(pc => pc.IsAvailable(role)).ToList();
                 if (availablePawns.Count == 0) { continue; }
 
                 var prioritySum = availablePawns.Sum(p =>
-                    p.AvailableLoadouts.Keys.Sum(l => l.Priority));
+                    p.AvailableRoles.Keys.Sum(l => l.Priority));
                 var avgPriority = prioritySum / availablePawns.Count;
                 if (avgPriority <= 0f) { continue; }
 
                 var targetCount = (int)Math.Ceiling(
-                    availablePawns.Count * (loadout.Priority / avgPriority));
-                var assignedCount = availablePawns.Count(pc => pc.AssignedLoadout == loadout);
+                    availablePawns.Count * (role.Priority / avgPriority));
+                var assignedCount = availablePawns.Count(pc => pc.AssignedRole == role);
 
                 while (assignedCount < targetCount)
                 {
                     var pawn = availablePawns
-                        .Where(pc => pc.AssignedLoadout == null && pc.AutoLoadout)
-                        .OrderByDescending(pc => pc.AvailableLoadouts[loadout])
+                        .Where(pc => pc.AssignedRole == null && pc.AutoRole)
+                        .OrderByDescending(pc => pc.AvailableRoles[role])
                         .ThenBy(pc => pc.Pawn.GetHashCode())
                         .FirstOrDefault();
                     if (pawn == null) { break; }
-                    pawn.AssignedLoadout = loadout;
+                    pawn.AssignedRole = role;
                     assignedCount++;
                 }
             }
 
-            foreach (var pawn in _pawnCache.Where(pc => pc.AssignedLoadout == null || !pc.ShouldUpdateEquipment))
+            foreach (var pawn in _pawnCache.Where(pc => pc.AssignedRole == null || !pc.ShouldUpdateEquipment))
             {
                 pawn.AssignedWeapons.Clear();
                 pawn.AssignedAmmo.Clear();
             }
 
-            EquipmentManager.LogMessage("[EM] Loadouts: " +
+            EquipmentManager.LogMessage("[EM] Roles: " +
                 string.Join(", ", _pawnCache
-                    .Where(pc => pc.AssignedLoadout != null)
-                    .Select(pc => $"{pc.Pawn.LabelShortCap}={pc.AssignedLoadout.Label}")));
+                    .Where(pc => pc.AssignedRole != null)
+                    .Select(pc => $"{pc.Pawn.LabelShortCap}={pc.AssignedRole.Label}")));
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -441,8 +441,8 @@ namespace EquipmentManager
             EquipmentManager.LogMessage("[EM] Pawns: " +
                 string.Join("; ", _pawnCache.Select(pc =>
                     $"{pc.Pawn.LabelShortCap}" +
-                    $"({pc.AssignedLoadout?.Label ?? "None"}" +
-                    $",{(pc.AutoLoadout ? "auto" : "manual")})" +
+                    $"({pc.AssignedRole?.Label ?? "None"}" +
+                    $",{(pc.AutoRole ? "auto" : "manual")})" +
                     $"[{(pc.ShouldUpdateEquipment ? "upd" : "skip")}]")));
         }
 
@@ -452,23 +452,23 @@ namespace EquipmentManager
         // ─────────────────────────────────────────────────────────────────────
         // ─────────────────────────────────────────────────────────────────────
         // Обработка снаряжения одной пешки.
-        // Предполагается, что AssignedLoadout и ShouldUpdateEquipment уже
+        // Предполагается, что AssignedRole и ShouldUpdateEquipment уже
         // выставлены корректно вызывающей стороной.
         // Возвращает true если обработка была выполнена.
         // ─────────────────────────────────────────────────────────────────────
         private bool ProcessPawnEquipment(PawnCache pawn)
         {
-            if (!pawn.ShouldUpdateEquipment || pawn.AssignedLoadout == null) { return false; }
+            if (!pawn.ShouldUpdateEquipment || pawn.AssignedRole == null) { return false; }
 
             pawn.AssignedWeapons.Clear();
             pawn.AssignedAmmo.Clear();
 
             EquipmentManager.LogMessage(
                 $"[EM] ProcessPawnEquipment: {pawn.Pawn.LabelShortCap}" +
-                $" loadout={pawn.AssignedLoadout.Label}");
+                $" loadout={pawn.AssignedRole.Label}");
 
             // Основное оружие
-            switch (pawn.AssignedLoadout.PrimaryRuleType)
+            switch (pawn.AssignedRole.PrimaryRuleType)
             {
                 case Role.PrimaryWeaponType.RangedWeapon:
                     _ = AssignPrimaryRangedWeapon(pawn);
@@ -482,9 +482,9 @@ namespace EquipmentManager
             }
 
             // Инструменты
-            if (pawn.AssignedLoadout.ToolRuleId != null)
+            if (pawn.AssignedRole.ToolRuleId != null)
             {
-                var toolRule = EquipmentManager.GetToolRule((int)pawn.AssignedLoadout.ToolRuleId);
+                var toolRule = EquipmentManager.GetToolRule((int)pawn.AssignedRole.ToolRuleId);
                 if (toolRule != null)
                 {
                     switch (toolRule.EquipMode)
@@ -521,7 +521,7 @@ namespace EquipmentManager
         // Почасовая очередь: каждый игровой час обрабатывается одна пешка.
         //
         // Для каждой пешки в свой час:
-        //   1. Если роль назначена автоматически — пересчитать AvailableLoadouts
+        //   1. Если роль назначена автоматически — пересчитать AvailableRoles
         //      и проверить, не нужно ли сменить роль (пересчёт конкурентный,
         //      затрагивает все auto-пешки, но не меняет _updateTime).
         //   2. Найти лучшее оружие на карте с учётом RetentionBonus для
@@ -542,35 +542,35 @@ namespace EquipmentManager
 
             EquipmentManager.LogMessage(
                 $"[EM] Queue tick: processing {pawn.Pawn.LabelShortCap}" +
-                $" (auto={pawn.AutoLoadout}, capable={pawn.ShouldUpdateEquipment})");
+                $" (auto={pawn.AutoRole}, capable={pawn.ShouldUpdateEquipment})");
 
             // Шаг 1: переназначение роли для auto-пешек
-            if (pawn.AutoLoadout)
+            if (pawn.AutoRole)
             {
                 // Пересчитать очки пешки по всем loadout-ам вручную,
                 // не трогая ShouldUpdateEquipment у остальных.
-                pawn.AvailableLoadouts.Clear();
-                foreach (var loadout in EquipmentManager.GetLoadouts())
+                pawn.AvailableRoles.Clear();
+                foreach (var role in EquipmentManager.GetRoles())
                 {
-                    if (loadout.IsAvailable(pawn.Pawn))
+                    if (role.IsAvailable(pawn.Pawn))
                     {
-                        pawn.AvailableLoadouts.Add(loadout, loadout.GetScore(pawn.Pawn));
+                        pawn.AvailableRoles.Add(role, role.GetScore(pawn.Pawn));
                     }
                 }
 
                 // Запомнить текущую роль чтобы обнаружить смену
-                var previousLoadout = pawn.AssignedLoadout;
+                var previousRole = pawn.AssignedRole;
 
                 // Конкурентный пересчёт ролей для всех auto-пешек.
                 // Это неизбежно: алгоритм учитывает приоритеты всей колонии.
-                pawn.AssignedLoadout = null;
-                UpdateLoadouts();
+                pawn.AssignedRole = null;
+                UpdateRoles();
 
-                if (pawn.AssignedLoadout != previousLoadout)
+                if (pawn.AssignedRole != previousRole)
                 {
                     EquipmentManager.LogMessage(
-                        $"[EM] {pawn.Pawn.LabelShortCap}: loadout changed" +
-                        $" {previousLoadout?.Label ?? "None"} → {pawn.AssignedLoadout?.Label ?? "None"}");
+                        $"[EM] {pawn.Pawn.LabelShortCap}: role changed" +
+                        $" {previousRole?.Label ?? "None"} → {pawn.AssignedRole?.Label ?? "None"}");
                 }
             }
 
@@ -588,10 +588,10 @@ namespace EquipmentManager
             _updateTime.Day  = -1;
             _updateTime.Hour = -1;
             UpdatePawnCache();
-            UpdateLoadouts();
+            UpdateRoles();
 
             var candidates = _pawnCache
-                .Where(pc => pc.ShouldUpdateEquipment && pc.AssignedLoadout != null)
+                .Where(pc => pc.ShouldUpdateEquipment && pc.AssignedRole != null)
                 .OrderBy(pc => pc.Pawn.thingIDNumber)
                 .ToList();
             foreach (var pc in candidates)
@@ -617,63 +617,63 @@ namespace EquipmentManager
 
             EquipmentManager.LogMessage(
                 $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
-                $" autoLoadout={pc.AutoLoadout}" +
-                $" assignedLoadout={pc.AssignedLoadout?.Label ?? "null"}");
+                $" autoRole={pc.AutoRole}" +
+                $" assignedRole={pc.AssignedRole?.Label ?? "null"}");
 
-            if (pc.AutoLoadout || pc.AssignedLoadout == null)
+            if (pc.AutoRole || pc.AssignedRole == null)
             {
                 // Авто-пешка или без роли — пересчитать через конкурентный алгоритм
-                pc.AvailableLoadouts.Clear();
-                foreach (var loadout in EquipmentManager.GetLoadouts())
+                pc.AvailableRoles.Clear();
+                foreach (var role in EquipmentManager.GetRoles())
                 {
-                    if (loadout.IsAvailable(pawn))
+                    if (role.IsAvailable(pawn))
                     {
-                        var score = loadout.GetScore(pawn);
-                        pc.AvailableLoadouts.Add(loadout, score);
+                        var score = role.GetScore(pawn);
+                        pc.AvailableRoles.Add(role, score);
                         EquipmentManager.LogMessage(
-                            $"[EM]   available loadout: {loadout.Label} score={score:F2}");
+                            $"[EM]   available role: {role.Label} score={score:F2}");
                     }
                     else
                     {
                         EquipmentManager.LogMessage(
-                            $"[EM]   NOT available: {loadout.Label} priority={loadout.Priority}");
+                            $"[EM]   NOT available: {role.Label} priority={role.Priority}");
                     }
                 }
-                if (pc.AvailableLoadouts.Count == 0)
+                if (pc.AvailableRoles.Count == 0)
                 {
                     Log.Warning(
                         $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}"
-                        + " — no loadouts match this pawn."
-                        + " Check loadout Priority > 0 and pawn skill/trait/capacity filters.");
+                        + " — no roles match this pawn."
+                        + " Check role Priority > 0 and pawn skill/trait/capacity filters.");
                 }
-                var previousLabel = pc.AssignedLoadout?.Label ?? "null";
-                pc.AssignedLoadout = null;
-                UpdateLoadouts();
-                EquipmentManager.SetPawnLoadout(pawn, pc.AssignedLoadout, automatic: true);
+                var previousLabel = pc.AssignedRole?.Label ?? "null";
+                pc.AssignedRole = null;
+                UpdateRoles();
+                EquipmentManager.SetPawnRole(pawn, pc.AssignedRole, automatic: true);
                 EquipmentManager.LogMessage(
                     $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
-                    $" loadout {previousLabel} → {pc.AssignedLoadout?.Label ?? "null"}");
+                    $" loadout {previousLabel} → {pc.AssignedRole?.Label ?? "null"}");
             }
             else
             {
-                // Роль выбрана игроком — UpdatePawnCache мог сбросить AssignedLoadout если
-                // hoursPassed < 6. Восстанавливаем явно из _pawnLoadouts.
-                var pawnLoadout = EquipmentManager.GetPawnLoadout(pawn);
-                pc.AssignedLoadout = EquipmentManager.GetLoadout(pawnLoadout?.LoadoutId);
+                // Роль выбрана игроком — UpdatePawnCache мог сбросить AssignedRole если
+                // hoursPassed < 6. Восстанавливаем явно из _pawnRoles.
+                var pawnRole = EquipmentManager.GetPawnRole(pawn);
+                pc.AssignedRole = EquipmentManager.GetRole(pawnRole?.RoleId);
                 EquipmentManager.LogMessage(
                     $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
-                    $" manual loadout restored: {pc.AssignedLoadout?.Label ?? "null"}");
+                    $" manual role restored: {pc.AssignedRole?.Label ?? "null"}");
             }
 
             pc.ShouldUpdateEquipment = true;
-            if (pc.AssignedLoadout != null)
+            if (pc.AssignedRole != null)
             {
                 _ = ProcessPawnEquipment(pc);
             }
             else
             {
                 Log.Warning($"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}" +
-                    " has no loadout — weapon assignment skipped");
+                    " has no role — weapon assignment skipped");
             }
 
             RemoveUnassignedWeapons();

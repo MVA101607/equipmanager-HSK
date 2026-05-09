@@ -9,6 +9,6 @@ namespace EquipmentManager.DefOfs
     public static class PawnColumnDefOf
     {
         [SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible")]
-        public static PawnColumnDef EM_Loadout;
+        public static PawnColumnDef EM_Role;
     }
 }

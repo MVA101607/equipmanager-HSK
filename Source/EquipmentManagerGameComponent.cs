@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Verse;
 
@@ -17,7 +17,7 @@ namespace EquipmentManager
             ExposeData_ToolRules();
             ExposeData_MeleeWeaponRules();
             ExposeData_RangedWeaponRules();
-            ExposeData_Loadouts();
+            ExposeData_Roles();
             ExposeData_StatRanges();
         }
 
@@ -28,7 +28,7 @@ namespace EquipmentManager
             ToolRule.InvalidateCache();
             WorkTypeRule.InvalidateCache();
             RangedWeaponRule.InvalidateCache();
-            MeleeWeaponRule.InvalidateCache();  
+            MeleeWeaponRule.InvalidateCache();
 
             foreach (var rule in GetMeleeWeaponRules()) { rule.UpdateGloballyAvailableItems(); }
             foreach (var rule in GetRangedWeaponRules()) { rule.UpdateGloballyAvailableItems(); }

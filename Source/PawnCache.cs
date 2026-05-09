@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using RimWorld;
 using Verse;
 
@@ -10,8 +10,8 @@ namespace EquipmentManager
         private readonly RimworldTime _updateTime = new(-1, -1, -1);
         public readonly Dictionary<Thing, int> AssignedAmmo = new();
         public readonly Dictionary<Thing, string> AssignedWeapons = new();
-        public Role AssignedLoadout;
-        public bool AutoLoadout;
+        public Role AssignedRole;
+        public bool AutoRole;
         public bool ShouldUpdateEquipment;
 
         public PawnCache(Pawn pawn)
@@ -19,24 +19,25 @@ namespace EquipmentManager
             Pawn = pawn;
         }
 
-        public Dictionary<Role, float> AvailableLoadouts { get; } = new Dictionary<Role, float>();
+        public Dictionary<Role, float> AvailableRoles { get; } = new Dictionary<Role, float>();
 
-        private static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
+        private static EquipmentManagerGameComponent EquipmentManager =>
+            _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public Pawn Pawn { get; }
 
-        public bool IsAvailable(Role loadout)
+        public bool IsAvailable(Role role)
         {
-            return AvailableLoadouts.ContainsKey(loadout);
+            return AvailableRoles.ContainsKey(role);
         }
 
         public void Update(RimworldTime time)
         {
             var capable = !Pawn.Dead && !Pawn.Downed && !Pawn.InMentalState && !Pawn.InContainerEnclosed &&
                 !Pawn.Drafted && !HealthAIUtility.ShouldSeekMedicalRest(Pawn);
-            var pawnLoadout = EquipmentManager.GetPawnLoadout(Pawn);
-            AutoLoadout = pawnLoadout?.Automatic ?? false;
-            AssignedLoadout = AutoLoadout ? null : EquipmentManager.GetLoadout(pawnLoadout?.LoadoutId);
+            var pawnRole = EquipmentManager.GetPawnRole(Pawn);
+            AutoRole = pawnRole?.Automatic ?? false;
+            AssignedRole = AutoRole ? null : EquipmentManager.GetRole(pawnRole?.RoleId);
             var hoursPassed = ((time.Year - _updateTime.Year) * 60 * 24) + ((time.Day - _updateTime.Day) * 24) +
                 time.Hour - _updateTime.Hour;
             ShouldUpdateEquipment = capable && hoursPassed > 6f;
@@ -44,10 +45,10 @@ namespace EquipmentManager
             _updateTime.Year = time.Year;
             _updateTime.Day = time.Day;
             _updateTime.Hour = time.Hour;
-            AvailableLoadouts.Clear();
-            foreach (var loadout in EquipmentManager.GetLoadouts())
+            AvailableRoles.Clear();
+            foreach (var role in EquipmentManager.GetRoles())
             {
-                if (loadout.IsAvailable(Pawn)) { AvailableLoadouts.Add(loadout, loadout.GetScore(Pawn)); }
+                if (role.IsAvailable(Pawn)) { AvailableRoles.Add(role, role.GetScore(Pawn)); }
             }
         }
     }

@@ -63,7 +63,7 @@ namespace EquipmentManager
 
         public void DeleteMeleeWeaponRule(MeleeWeaponRule meleeWeaponRule)
         {
-            foreach (var loadout in GetLoadouts())
+            foreach (var loadout in GetRoles())
             {
                 if (loadout.PrimaryMeleeWeaponRuleId == meleeWeaponRule.Id) { loadout.PrimaryMeleeWeaponRuleId = null; }
                 if (loadout.MeleeSidearmRules.Contains(meleeWeaponRule.Id))
