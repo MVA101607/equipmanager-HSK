@@ -16,6 +16,8 @@ namespace EquipmentManager.Windows
         private static Vector2 _scrollPosition;
         private float _scrollViewHeight;
         private Role _selectedRole;
+        private string _saveProfileName = string.Empty;
+        private bool _showSaveProfileDialog;
 
         public ManageRolesDialog(Role selectedRole)
         {
@@ -74,7 +76,7 @@ namespace EquipmentManager.Windows
 
         private void DoButtonRow(Rect rect)
         {
-            const int buttonCount = 7;
+            const int buttonCount = 8;
             var buttonWidth = (rect.width - (UiHelpers.ButtonGap * (buttonCount - 1))) / buttonCount;
             if (Widgets.ButtonText(new Rect(rect.x, rect.y, buttonWidth, UiHelpers.ButtonHeight),
                     Strings.SelectRole))
@@ -111,15 +113,70 @@ namespace EquipmentManager.Windows
             {
                 Find.WindowStack.Add(new ManageWeaponRulesDialog());
             }
+            // Кнопка "Сохранить профиль"
             if (Widgets.ButtonText(
                     new Rect(rect.x + ((buttonWidth + UiHelpers.ButtonGap) * 5), rect.y, buttonWidth,
+                        UiHelpers.ButtonHeight), Strings.SaveProfile))
+            {
+                _saveProfileName = string.Empty;
+                _showSaveProfileDialog = true;
+            }
+            // Кнопка "Загрузить профиль" — открывает ImportRolesDialog (теперь читает .emprofile)
+            if (Widgets.ButtonText(
+                    new Rect(rect.x + ((buttonWidth + UiHelpers.ButtonGap) * 6), rect.y, buttonWidth,
                         UiHelpers.ButtonHeight), Strings.ImportRoles))
             {
                 Find.WindowStack.Add(new ImportRolesDialog());
             }
             if (Widgets.ButtonText(
-                    new Rect(rect.x + ((buttonWidth + UiHelpers.ButtonGap) * 6), rect.y, buttonWidth,
+                    new Rect(rect.x + ((buttonWidth + UiHelpers.ButtonGap) * 7), rect.y, buttonWidth,
                         UiHelpers.ButtonHeight), Strings.Log)) { Find.WindowStack.Add(new LogDialog()); }
+        }
+
+        /// <summary>
+        /// Встроенный мини-диалог ввода имени профиля (рисуется поверх основного окна).
+        /// </summary>
+        private void DoSaveProfileDialog(Rect inRect)
+        {
+            if (!_showSaveProfileDialog) { return; }
+
+            const float dialogW = 420f;
+            const float dialogH = 110f;
+            var dialogRect = new Rect(
+                inRect.center.x - (dialogW / 2f),
+                inRect.center.y - (dialogH / 2f),
+                dialogW, dialogH);
+
+            Widgets.DrawBoxSolidWithOutline(dialogRect,
+                new Color(0.15f, 0.15f, 0.15f, 0.97f),
+                new Color(1f, 1f, 1f, 0.4f));
+            dialogRect = dialogRect.ContractedBy(UiHelpers.ElementGap);
+
+            Text.Font  = GameFont.Small;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            Widgets.Label(new Rect(dialogRect.x, dialogRect.y, dialogRect.width, UiHelpers.ListRowHeight),
+                Strings.SaveProfileNamePrompt);
+            Text.Anchor = TextAnchor.UpperLeft;
+
+            var inputRect = new Rect(dialogRect.x, dialogRect.y + UiHelpers.ListRowHeight + UiHelpers.ElementGap,
+                dialogRect.width, UiHelpers.ListRowHeight);
+            _saveProfileName = Widgets.TextField(inputRect, _saveProfileName);
+
+            var btnY = inputRect.yMax + UiHelpers.ElementGap;
+            var btnW = (dialogRect.width - UiHelpers.ButtonGap) / 2f;
+
+            if (Widgets.ButtonText(new Rect(dialogRect.x, btnY, btnW, UiHelpers.ButtonHeight),
+                    Strings.SaveProfileConfirm,
+                    active: !_saveProfileName.NullOrEmpty()))
+            {
+                if (RolesProfileManager.SaveProfile(_saveProfileName))
+                { _showSaveProfileDialog = false; }
+            }
+            if (Widgets.ButtonText(new Rect(dialogRect.x + btnW + UiHelpers.ButtonGap, btnY, btnW,
+                    UiHelpers.ButtonHeight), Strings.CancelDataImport))
+            {
+                _showSaveProfileDialog = false;
+            }
         }
 
         private float DoRoleSettings(Rect rect)

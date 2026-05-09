@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LanguageData>
+	<EquipmentManager.Roles.ProfilesListHeader>Сохранённые профили</EquipmentManager.Roles.ProfilesListHeader>
+	<EquipmentManager.Roles.SaveProfile>Сохранить профиль</EquipmentManager.Roles.SaveProfile>
+	<EquipmentManager.Roles.SaveProfileNamePrompt>Введите имя профиля:</EquipmentManager.Roles.SaveProfileNamePrompt>
+	<EquipmentManager.Roles.SaveProfileConfirm>Сохранить</EquipmentManager.Roles.SaveProfileConfirm>
+	<EquipmentManager.Profiles.InvalidName>Имя профиля пустое или содержит недопустимые символы.</EquipmentManager.Profiles.InvalidName>
+	<EquipmentManager.Profiles.Saved>Профиль "{0}" сохранён.</EquipmentManager.Profiles.Saved>
+	<EquipmentManager.Profiles.SaveFailed>Не удалось сохранить профиль: {0}</EquipmentManager.Profiles.SaveFailed>
 	<EquipmentManager.Add>Добавить</EquipmentManager.Add>
 	<EquipmentManager.Roles.ManageRoles>Управление ролями</EquipmentManager.Roles.ManageRoles>
 	<EquipmentManager.Roles.SelectRole>Выбрать роль</EquipmentManager.Roles.SelectRole>

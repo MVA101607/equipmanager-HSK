@@ -14,12 +14,12 @@ namespace EquipmentManager.Windows
         private readonly List<Role> _roles = new();
         private readonly List<MeleeWeaponRule> _meleeWeaponRules = new();
         private readonly List<RangedWeaponRule> _rangedWeaponRules = new();
-        private readonly Dictionary<string, string> _savedGames = new();
+        private readonly Dictionary<string, string> _profiles = new();
         private readonly List<ToolRule> _toolRules = new();
         private readonly List<WorkTypeRule> _workTypeRules = new();
         private Vector2 _rolesListScrollPosition;
-        private Vector2 _savedGamesListScrollPosition;
-        private string _selectedSaveGame;
+        private Vector2 _profilesListScrollPosition;
+        private string _selectedProfile;
 
         public ImportRolesDialog()
         {
@@ -40,7 +40,7 @@ namespace EquipmentManager.Windows
             var importButtonRect = new Rect(rect.center.x - UiHelpers.ActionButtonWidth - UiHelpers.ButtonGap, rect.y,
                 UiHelpers.ActionButtonWidth, UiHelpers.ButtonHeight);
             if (Widgets.ButtonText(importButtonRect, Resources.Strings.Roles.ImportData,
-                    active: _selectedSaveGame != null && _roles.Any()))
+                    active: _selectedProfile != null && _roles.Any()))
             {
                 ImportSaveGameData();
                 Close();
@@ -75,37 +75,37 @@ namespace EquipmentManager.Windows
             Widgets.EndScrollView();
         }
 
-        private void DoSavedGamesList(Rect rect)
+        private void DoProfilesList(Rect rect)
         {
             Text.Font = GameFont.Medium;
             Widgets.Label(new Rect(rect.x, rect.y, rect.width, Text.LineHeight),
-                Resources.Strings.Roles.SavedGamesListHeader);
+                Resources.Strings.Roles.ProfilesListHeader);
             Text.Font = GameFont.Small;
             var listingRect = new Rect(rect.x, rect.y + Text.LineHeightOf(GameFont.Medium) + UiHelpers.ElementGap,
                 rect.width, rect.height - Text.LineHeightOf(GameFont.Medium) - (UiHelpers.ElementGap * 2));
             Widgets.DrawBoxSolidWithOutline(listingRect, new Color(1f, 1f, 1f, 0.05f), new Color(1f, 1f, 1f, 0.4f));
-            var listing = new Listing_Standard(listingRect, () => _savedGamesListScrollPosition);
+            var listing = new Listing_Standard(listingRect, () => _profilesListScrollPosition);
             var viewRect = new Rect(rect.x, rect.y,
                 rect.width - GUI.skin.verticalScrollbar.fixedWidth - UiHelpers.ElementGap,
-                _savedGames.Count * UiHelpers.ListRowHeight * 1.5f);
-            Widgets.BeginScrollView(listingRect, ref _savedGamesListScrollPosition, viewRect);
+                _profiles.Count * UiHelpers.ListRowHeight * 1.5f);
+            Widgets.BeginScrollView(listingRect, ref _profilesListScrollPosition, viewRect);
             listing.Begin(viewRect);
             Text.Anchor = TextAnchor.MiddleLeft;
-            foreach (var savedGame in _savedGames)
+            foreach (var profile in _profiles)
             {
                 var rowRect = listing.GetRect(UiHelpers.ListRowHeight * 1.5f);
                 var toggleButtonRect = new Rect(rowRect.x,
                     rowRect.y + (((UiHelpers.ListRowHeight * 1.5f) - Math.Min(32f, UiHelpers.ListRowHeight)) / 2f),
                     Math.Min(32f, UiHelpers.ListRowHeight), Math.Min(32f, UiHelpers.ListRowHeight)).ContractedBy(4f);
-                ButtonImageToggle.DoButtonImageToggle(() => savedGame.Key == _selectedSaveGame, newValue =>
+                ButtonImageToggle.DoButtonImageToggle(() => profile.Key == _selectedProfile, newValue =>
                 {
                     if (!newValue) { return; }
-                    _selectedSaveGame = savedGame.Key;
-                    ReadSaveGameData(savedGame.Key);
+                    _selectedProfile = profile.Key;
+                    ReadProfileData(profile.Value);
                 }, toggleButtonRect, Widgets.CheckboxOnTex, Widgets.CheckboxOffTex);
                 var nameRectX = toggleButtonRect.x + toggleButtonRect.width + 4f;
                 Widgets.Label(new Rect(nameRectX, rowRect.y, rowRect.xMax - nameRectX, rowRect.height).ContractedBy(4f),
-                    savedGame.Value);
+                    profile.Key);
             }
             Text.Anchor = TextAnchor.UpperLeft;
             listing.End();
@@ -121,7 +121,7 @@ namespace EquipmentManager.Windows
                 (UiHelpers.ButtonHeight + (UiHelpers.ButtonGap * 2));
             var savedGamesRect = new Rect(inRect.x + UiHelpers.ElementGap, inRect.y + UiHelpers.ElementGap, columnWidth,
                 columnHeight);
-            DoSavedGamesList(savedGamesRect);
+            DoProfilesList(savedGamesRect);
             var rolesRect = new Rect(savedGamesRect.xMax + UiHelpers.ElementGap, inRect.y + UiHelpers.ElementGap,
                 columnWidth, columnHeight);
             DoRoleList(rolesRect);
@@ -158,33 +158,19 @@ namespace EquipmentManager.Windows
             foreach (var loadout in _roles) { EquipmentManager.AddRole(loadout); }
         }
 
-        private void LoadSavedGames()
+        private void LoadProfiles()
         {
-            foreach (var file in GenFilePaths.AllSavedGameFiles.OrderByDescending(info => info.LastWriteTimeUtc))
+            _profiles.Clear();
+            foreach (var kv in RolesProfileManager.GetProfiles())
             {
-                try
-                {
-                    var xmlReader = XmlReader.Create(file.FullName,
-                        new XmlReaderSettings
-                        {
-                            IgnoreWhitespace = true, IgnoreComments = true, IgnoreProcessingInstructions = true
-                        });
-                    if (xmlReader.ReadToFollowing("gameVersion"))
-                    {
-                        var xml = xmlReader.ReadInnerXml();
-                        _savedGames.Add(file.FullName,
-                            $"{file.Name} {xml.Substring(0, xml.FirstIndexOf(char.IsWhiteSpace))}");
-                    }
-                    xmlReader.Close();
-                }
-                catch { Log.Warning($"Equipment Manager: Could not process save game file {file.FullName}"); }
+                _profiles[kv.Key] = kv.Value;
             }
         }
 
         public override void PostOpen()
         {
             base.PostOpen();
-            LoadSavedGames();
+            LoadProfiles();
         }
 
         private static Dictionary<string, string> ReadDictionary(XmlReader xmlReader)
@@ -700,6 +686,50 @@ namespace EquipmentManager.Windows
             {
                 Log.Error(
                     $"Equipment Manager: Could not find 'RangedWeaponRules' node in the save game file {savedGameFile}");
+            }
+        }
+
+
+        /// <summary>
+        /// Читает данные из файла профиля (.emprofile).
+        /// Формат идентичен секции GameComponent в сейве, поэтому переиспользуем те же Read*Data.
+        /// </summary>
+        private void ReadProfileData(string profilePath)
+        {
+            _rolesListScrollPosition = Vector2.zero;
+            _roles.Clear();
+            _meleeWeaponRules.Clear();
+            _rangedWeaponRules.Clear();
+            _toolRules.Clear();
+            _workTypeRules.Clear();
+            try
+            {
+                var xmlReader = XmlReader.Create(profilePath,
+                    new XmlReaderSettings
+                    {
+                        IgnoreWhitespace = true, IgnoreComments = true, IgnoreProcessingInstructions = true
+                    });
+                if (!xmlReader.ReadToFollowing("EquipmentManagerProfile"))
+                {
+                    Log.Error($"Equipment Manager: Not a valid profile file: {profilePath}");
+                    xmlReader.Close();
+                    return;
+                }
+                ReadWorkTypeRulesData(profilePath, xmlReader.ReadSubtree());
+                xmlReader.ReadEndElement();
+                ReadToolRulesData(profilePath, xmlReader.ReadSubtree());
+                xmlReader.ReadEndElement();
+                ReadMeleeWeaponRulesData(profilePath, xmlReader.ReadSubtree());
+                xmlReader.ReadEndElement();
+                ReadRangedWeaponRulesData(profilePath, xmlReader.ReadSubtree());
+                xmlReader.ReadEndElement();
+                ReadRolesData(profilePath, xmlReader.ReadSubtree());
+                xmlReader.Close();
+            }
+            catch (Exception exception)
+            {
+                Log.Warning(
+                    $"Equipment Manager: Could not read profile {profilePath}{Environment.NewLine}{exception.Message}");
             }
         }
 

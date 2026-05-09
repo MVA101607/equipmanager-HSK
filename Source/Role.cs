@@ -91,7 +91,7 @@ namespace EquipmentManager
                 PrimaryRuleType = PrimaryWeaponType.None,
                 ToolRuleId = 0,
                 PawnWorkCapacities = {{"Violent", false}},
-                DropUnassignedWeapons = true
+                DropUnassignedWeapons = false
             }
         };
 

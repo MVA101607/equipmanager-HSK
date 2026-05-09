@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LanguageData>
+	<EquipmentManager.Roles.ProfilesListHeader>Saved Profiles</EquipmentManager.Roles.ProfilesListHeader>
+	<EquipmentManager.Roles.SaveProfile>Save Profile</EquipmentManager.Roles.SaveProfile>
+	<EquipmentManager.Roles.SaveProfileNamePrompt>Enter profile name:</EquipmentManager.Roles.SaveProfileNamePrompt>
+	<EquipmentManager.Roles.SaveProfileConfirm>Save</EquipmentManager.Roles.SaveProfileConfirm>
+	<EquipmentManager.Profiles.InvalidName>Profile name is empty or invalid.</EquipmentManager.Profiles.InvalidName>
+	<EquipmentManager.Profiles.Saved>Profile "{0}" saved.</EquipmentManager.Profiles.Saved>
+	<EquipmentManager.Profiles.SaveFailed>Could not save profile: {0}</EquipmentManager.Profiles.SaveFailed>
 	<EquipmentManager.Add>Add</EquipmentManager.Add>
 	<EquipmentManager.Roles.ManageRoles>Manage roles</EquipmentManager.Roles.ManageRoles>
 	<EquipmentManager.Roles.SelectRole>Select role</EquipmentManager.Roles.SelectRole>

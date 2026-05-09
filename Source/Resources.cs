@@ -11,6 +11,15 @@ namespace EquipmentManager
 
             internal static class Roles
             {
+                internal static readonly string SaveProfile =
+                    $"EquipmentManager.Roles.{nameof(SaveProfile)}".Translate();
+                internal static readonly string SaveProfileNamePrompt =
+                    $"EquipmentManager.Roles.{nameof(SaveProfileNamePrompt)}".Translate();
+                internal static readonly string SaveProfileConfirm =
+                    $"EquipmentManager.Roles.{nameof(SaveProfileConfirm)}".Translate();
+                internal static readonly string ProfilesListHeader =
+                    $"EquipmentManager.Roles.{nameof(ProfilesListHeader)}".Translate();
+
                 internal static readonly string AddRole =
                     $"EquipmentManager.Roles.{nameof(AddRole)}".Translate();
 

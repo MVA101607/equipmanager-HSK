@@ -36,17 +36,57 @@ namespace EquipmentManager
         private static IEnumerable<StatDef> DefaultWeaponStatDefs =>
             DefaultStatDefs.Where(def => WeaponCategories.Contains(def.category?.defName ?? string.Empty));
 
-        public static IReadOnlyList<StatDef> MeleeWeaponStatDefs { get; } =
-            new List<StatDef>(CustomMeleeWeaponStats.StatDefs
-                .Union(DefaultWeaponStatDefs)
-                .OrderBy(def => def.category?.defName ?? string.Empty)
-                .ThenBy(def => def.label));
+        // Ванильные melee-статы несовместимы с CE-оружием (MeleeDamageAverage и т.д.) —
+        // при активном CE исключаем их из списка, оставляя только наши кастомные.
+        private static readonly string[] VanillaMeleeOnlyStats =
+        {
+            "MeleeDamageAverage", "MeleeHitChance", "MeleeArmorPenetration",
+            "MeleeCooldownFactor", "AccuracyTouch", "AccuracyShort",
+            "AccuracyMedium", "AccuracyLong"
+        };
 
-        public static IReadOnlyList<StatDef> RangedWeaponStatDefs { get; } =
-            new List<StatDef>(CustomRangedWeaponStats.StatDefs
-                .Union(DefaultWeaponStatDefs)
-                .OrderBy(def => def.category?.defName ?? string.Empty)
-                .ThenBy(def => def.label));
+        private static IReadOnlyList<StatDef> _meleeWeaponStatDefs;
+        public static IReadOnlyList<StatDef> MeleeWeaponStatDefs
+        {
+            get
+            {
+                if (_meleeWeaponStatDefs != null) { return _meleeWeaponStatDefs; }
+                var baseStats = CombatExtendedHelper.CombatExtended
+                    ? DefaultWeaponStatDefs.Where(d =>
+                        !VanillaMeleeOnlyStats.Contains(d.defName))
+                    : DefaultWeaponStatDefs;
+                _meleeWeaponStatDefs = new List<StatDef>(CustomMeleeWeaponStats.StatDefs
+                    .Union(baseStats)
+                    .OrderBy(def => def.category?.defName ?? string.Empty)
+                    .ThenBy(def => def.label));
+                return _meleeWeaponStatDefs;
+            }
+        }
+
+        // Аналогично для ranged: ванильные AccuracyTouch/Short/Medium/Long несовместимы с CE.
+        private static readonly string[] VanillaRangedOnlyStats =
+        {
+            "AccuracyTouch", "AccuracyShort", "AccuracyMedium", "AccuracyLong",
+            "RangedWeapon_Cooldown", "ShotgunSpread", "BurstShotFireRate"
+        };
+
+        private static IReadOnlyList<StatDef> _rangedWeaponStatDefs;
+        public static IReadOnlyList<StatDef> RangedWeaponStatDefs
+        {
+            get
+            {
+                if (_rangedWeaponStatDefs != null) { return _rangedWeaponStatDefs; }
+                var baseStats = CombatExtendedHelper.CombatExtended
+                    ? DefaultWeaponStatDefs.Where(d =>
+                        !VanillaRangedOnlyStats.Contains(d.defName))
+                    : DefaultWeaponStatDefs;
+                _rangedWeaponStatDefs = new List<StatDef>(CustomRangedWeaponStats.StatDefs
+                    .Union(baseStats)
+                    .OrderBy(def => def.category?.defName ?? string.Empty)
+                    .ThenBy(def => def.label));
+                return _rangedWeaponStatDefs;
+            }
+        }
 
         public static IReadOnlyList<StatDef> ToolStatDefs { get; } =
             new List<StatDef>(CustomToolStats.StatDefs
@@ -84,6 +124,11 @@ namespace EquipmentManager
             }
             catch (Exception ex)
             {
+                // Тихо возвращаем 0 — CE бросает исключения для ванильных melee/ranged статов
+                // применяемых к CE-оружию (например MeleeDamageAverage у VQE-оружия).
+                if (CombatExtendedHelper.CombatExtended &&
+                    ex.Message.Contains("no support for Combat Extended"))
+                { return 0f; }
                 Log.Warning(
                     $"Equipment Manager: Could not evaluate stat '{statDef.LabelCap}' of {thing.LabelCapNoCount}: {ex.Message}");
                 return 0f;

@@ -86,6 +86,7 @@ namespace EquipmentManager
             _ = availableWeapons.RemoveAll(thing =>
                 _pawnCache.Any(pc => pc != pawn &&
                     (pc.AssignedWeapons.ContainsKey(thing) ||
+                     pc.ReservedWeapons.ContainsKey(thing) ||
                      pc.Pawn.inventory?.innerContainer.Contains(thing) == true ||
                      pc.Pawn.equipment?.AllEquipmentListForReading.Contains(thing) == true)));
             _ = availableWeapons.RemoveAll(thing =>
@@ -106,6 +107,7 @@ namespace EquipmentManager
             if (currentScore > 0f && bestScore < currentScore * rule.RetentionBonus) { return false; }
 
             pawn.AssignedWeapons.Add(bestWeapon, "primary");
+            pawn.ReserveWeapon(bestWeapon);
 
             var pawnRole = EquipmentManager.GetPawnRole(pawn.Pawn);
             if (pawnRole != null)
@@ -136,7 +138,9 @@ namespace EquipmentManager
             _ = availableWeapons.RemoveAll(thing =>
                 _pawnCache.Any(pc => pc != pawn &&
                     (pc.AssignedWeapons.ContainsKey(thing) ||
-                     pc.Pawn.inventory?.innerContainer.Contains(thing) == true)));
+                     pc.ReservedWeapons.ContainsKey(thing) ||
+                     pc.Pawn.inventory?.innerContainer.Contains(thing) == true ||
+                     pc.Pawn.equipment?.AllEquipmentListForReading.Contains(thing) == true)));
             _ = availableWeapons.RemoveAll(thing =>
                 !EquipmentUtility.CanEquip(thing, pawn.Pawn) ||
                 (pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap != null &&
@@ -154,6 +158,7 @@ namespace EquipmentManager
             if (currentScore > 0f && bestScore < currentScore * rule.RetentionBonus) { return false; }
 
             pawn.AssignedWeapons.Add(bestWeapon, "primary");
+            pawn.ReserveWeapon(bestWeapon);
 
             var pawnRole = EquipmentManager.GetPawnRole(pawn.Pawn);
             if (pawnRole != null)
@@ -462,6 +467,7 @@ namespace EquipmentManager
 
             pawn.AssignedWeapons.Clear();
             pawn.AssignedAmmo.Clear();
+            pawn.PurgeExpiredReservations();  // истёкшие резервы — убрать; актуальные — сохранить
 
             EquipmentManager.LogMessage(
                 $"[EM] ProcessPawnEquipment: {pawn.Pawn.LabelShortCap}" +

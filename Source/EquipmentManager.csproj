@@ -53,11 +53,11 @@
     </Reference>
     <Reference Include="CombatExtended">
       <HintPath>..\..\..\STEAM\steamapps\common\RimWorld\Mods\CombatExtended\Assemblies\CombatExtended.dll</HintPath>
-	  <Private>false</Private>
+      <Private>false</Private>
     </Reference>
     <Reference Include="CombatExtended.ExtendedLoadout">
       <HintPath>..\..\..\STEAM\steamapps\common\RimWorld\Mods\RW-CombatExtended_ExtendedLoadout\Assemblies\CombatExtended.ExtendedLoadout.dll</HintPath>
-	  <Private>false</Private>
+      <Private>false</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -142,6 +142,7 @@
     <Compile Include="Windows\ManageWeaponRulesDialog_RangedWeapons.cs" />
     <Compile Include="Windows\ManageWeaponRulesDialog_Tools.cs" />
     <Compile Include="Windows\ManageWeaponRulesDialog_WorkTypes.cs" />
+    <Compile Include="Windows\RolesProfileManager.cs" />
     <Compile Include="WorkTypeRule.cs" />
   </ItemGroup>
   <ItemGroup>

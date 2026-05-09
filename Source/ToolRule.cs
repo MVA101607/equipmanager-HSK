@@ -38,9 +38,18 @@ namespace EquipmentManager
                     var workStats = StatHelper.WorkTypeStatDefs.ToHashSet();
                     _allRelevantThings = new HashSet<ThingDef>(DefDatabase<ThingDef>.AllDefs.Where(def =>
                         def.IsWeapon && !def.destroyOnDrop &&
-                        (def.statBases ?? new List<StatModifier>())
-                            .Union(def.equippedStatOffsets ?? new List<StatModifier>())
-                            .Any(sm => relevantStats.Contains(sm.stat) || workStats.Contains(sm.stat))));
+                        (
+                            // Стандартная проверка по statBases/equippedStatOffsets
+                            (def.statBases ?? new List<StatModifier>())
+                                .Union(def.equippedStatOffsets ?? new List<StatModifier>())
+                                .Any(sm => relevantStats.Contains(sm.stat) || workStats.Contains(sm.stat))
+                            ||
+                            // HSK/моды могут давать рабочие бонусы через CompProperties,
+                            // а не statBases — включаем все не-дальнобойные, не-взрывные оружия
+                            // (те же условия что MeleeWeaponRule, исключая чистые боевые вещи)
+                            (!def.IsRangedWeapon && !def.destroyOnDrop &&
+                                def.tools != null && def.tools.Count > 0)
+                        )));
                 }
                 return _allRelevantThings;
             }
@@ -110,12 +119,13 @@ namespace EquipmentManager
             var relevantStats = EquipmentManager.GetWorkTypeRules()
                 .Where(wtr => workTypeDefs.Any(wtd => wtd.defName == wtr.WorkTypeDefName))
                 .SelectMany(rule => rule.RequiredStats).ToHashSet();
-
             var workStats = StatHelper.WorkTypeStatDefs.ToHashSet();
-
-            return GloballyAvailableItems.Where(def => (def.statBases ?? new List<StatModifier>())
-                .Union(def.equippedStatOffsets ?? new List<StatModifier>())
-                .Any(sm => relevantStats.Contains(sm.stat) || workStats.Contains(sm.stat)));
+            return GloballyAvailableItems.Where(def =>
+                (def.statBases ?? new List<StatModifier>())
+                    .Union(def.equippedStatOffsets ?? new List<StatModifier>())
+                    .Any(sm => relevantStats.Contains(sm.stat) || workStats.Contains(sm.stat))
+                // HSK-инструменты: включаем ближнее оружие с tools даже без совпадения статов
+                || (!def.IsRangedWeapon && def.tools != null && def.tools.Count > 0));
         }
 
         public IEnumerable<ThingDef> GetGloballyAvailableItemsSorted(IReadOnlyCollection<WorkTypeDef> workTypeDefs,
