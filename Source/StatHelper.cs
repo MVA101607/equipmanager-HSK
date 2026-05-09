@@ -128,7 +128,7 @@ namespace EquipmentManager
             if (Math.Abs(valueRange) < 0.001f) { return 0f; }
             var normalizedValue = (value - range.min) / valueRange;
             return range.min < 0 && range.max < 0 ? -1 + normalizedValue :
-                range.min < 0 && range.max > 0 ? -1 + 2 * normalizedValue : normalizedValue;
+                range.min < 0 && range.max > 0 ? -1 + (2 * normalizedValue) : normalizedValue;
         }
     }
 }

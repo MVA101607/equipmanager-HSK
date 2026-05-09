@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <LanguageData>
 	<EquipmentManager.Add>Add</EquipmentManager.Add>
@@ -102,43 +102,57 @@
 	<EquipmentManager.WeaponRules.Tools.Default.AllWorkTypes>Tools for every work type</EquipmentManager.WeaponRules.Tools.Default.AllWorkTypes>
 	<EquipmentManager.WeaponRules.Tools.Default.AssignedWorkTypes>Tools for assigned work types</EquipmentManager.WeaponRules.Tools.Default.AssignedWorkTypes>
 	<EquipmentManager.WeaponRules.WorkTypes.Title>Work types</EquipmentManager.WeaponRules.WorkTypes.Title>
-	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetration.Label>Average armor penetration</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetration.Label>
-	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetration.Description>The average amount of armor weapon will ignore each time it hits the target</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetration.Description>
-	<EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Label>DPS (Sharp)</EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Label>
-	<EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Description>Average sharp damage per second</EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Description>
-	<EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Label>DPS (Blunt)</EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Label>
-	<EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Description>Average blunt damage per second</EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Description>
-	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>Tech level</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>
-	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>Weapon's tech level</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Label>Average DPSA</EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Description>Average damage per second adjusted for weapon accuracy</EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>DPSA (close)</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>Close range damage per second adjusted for weapon accuracy</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>DPSA (short)</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>Short range damage per second adjusted for weapon accuracy</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>DPSA (medium)</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>Medium range damage per second adjusted for weapon accuracy</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>DPSA (long)</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>Long range damage per second adjusted for weapon accuracy</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_Damage.Label>Damage</EquipmentManager.Stats.EM_RangedWeapons_Damage.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_Damage.Description>The amount of damage weapon deals in a single hit</EquipmentManager.Stats.EM_RangedWeapons_Damage.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_Range.Label>Range</EquipmentManager.Stats.EM_RangedWeapons_Range.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_Range.Description>The maximum range of a weapon</EquipmentManager.Stats.EM_RangedWeapons_Range.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_Warmup.Label>Warmup</EquipmentManager.Stats.EM_RangedWeapons_Warmup.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_Warmup.Description>How much time passes between when a ranged attack begins aiming and when it fires</EquipmentManager.Stats.EM_RangedWeapons_Warmup.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Label>Burst shot count</EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Description>The amount of shots weapon fires in each burst</EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Label>Ticks between burst shots</EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Description>How much game ticks passes between burst shots</EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Label>Average armor penetration</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Description>The average amount of armor weapon will ignore each time it hits the target</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Label>Stopping power</EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Description>Hits from a weapon will stagger targets, slowing their movement for several seconds</EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Label>Tech level</EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Description>Weapon's tech level</EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Description>
 	<EquipmentManager.Stats.EM_Tools_WorkType.Label>Work type related stats</EquipmentManager.Stats.EM_Tools_WorkType.Label>
 	<EquipmentManager.Stats.EM_Tools_WorkType.Description>Item stats that affect performance according to work type rules</EquipmentManager.Stats.EM_Tools_WorkType.Description>
 	<EquipmentManager.Stats.EM_Tools_TechLevel.Label>Tech level</EquipmentManager.Stats.EM_Tools_TechLevel.Label>
 	<EquipmentManager.Stats.EM_Tools_TechLevel.Description>Tool's tech level</EquipmentManager.Stats.EM_Tools_TechLevel.Description>
 	<EquipmentManager.WeaponEquipped>{0} equips {1}</EquipmentManager.WeaponEquipped>
+
+	<!-- ── Ranged weapons (CE) ──────────────────────────────────────────────── -->
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Label>DPS (realistic)</EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Description>Damage per second accounting for magazine size and reload time</EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>DPS (close, ≤3)</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>Realistic DPS weighted by sights efficiency at close range (≤3 cells). Zero if weapon cannot reach this distance.</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>DPS (short, ≤12)</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>Realistic DPS weighted by sights efficiency at short range (≤12 cells). Zero if weapon cannot reach this distance.</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>DPS (medium, ≤25)</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>Realistic DPS weighted by sights efficiency at medium range (≤25 cells). Zero if weapon cannot reach this distance.</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>DPS (long, ≤40)</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>Realistic DPS weighted by sights efficiency at long range (≤40 cells). Zero if weapon cannot reach this distance.</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Label>Sights efficiency</EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Description>Quality of the weapon's sights. Higher values reduce aiming error. Replaces vanilla accuracy in CE.</EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_ShotSpread.Label>Shot spread (°)</EquipmentManager.Stats.EM_RangedWeapons_ShotSpread.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_ShotSpread.Description>Inherent conical spread of the projectile in degrees. Not affected by shooter skill — lower is better.</EquipmentManager.Stats.EM_RangedWeapons_ShotSpread.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_SwayFactor.Label>Weapon sway</EquipmentManager.Stats.EM_RangedWeapons_SwayFactor.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_SwayFactor.Description>How difficult the weapon is to keep steady. Multiplied against the shooter's aiming accuracy to determine total sway.</EquipmentManager.Stats.EM_RangedWeapons_SwayFactor.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Recoil.Label>Recoil</EquipmentManager.Stats.EM_RangedWeapons_Recoil.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Recoil.Description>How much the weapon kicks on each shot. Affects consecutive shot accuracy during a burst.</EquipmentManager.Stats.EM_RangedWeapons_Recoil.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_MagazineSize.Label>Magazine size</EquipmentManager.Stats.EM_RangedWeapons_MagazineSize.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_MagazineSize.Description>Number of shots before the weapon must be reloaded.</EquipmentManager.Stats.EM_RangedWeapons_MagazineSize.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_ReloadTime.Label>Reload time (s)</EquipmentManager.Stats.EM_RangedWeapons_ReloadTime.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_ReloadTime.Description>Time in seconds to reload the weapon's magazine.</EquipmentManager.Stats.EM_RangedWeapons_ReloadTime.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Damage.Label>Damage</EquipmentManager.Stats.EM_RangedWeapons_Damage.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Damage.Description>The amount of damage dealt per projectile hit.</EquipmentManager.Stats.EM_RangedWeapons_Damage.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Range.Label>Range</EquipmentManager.Stats.EM_RangedWeapons_Range.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Range.Description>Maximum effective range of the weapon in cells.</EquipmentManager.Stats.EM_RangedWeapons_Range.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Warmup.Label>Warmup (s)</EquipmentManager.Stats.EM_RangedWeapons_Warmup.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Warmup.Description>Time between the pawn starting to aim and the shot being fired.</EquipmentManager.Stats.EM_RangedWeapons_Warmup.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenSharp.Label>Armor pen. (sharp, mm RHA)</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenSharp.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenSharp.Description>Sharp armor penetration of the projectile in mm RHA. Determines ability to pierce hard armor plates.</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenSharp.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenBlunt.Label>Armor pen. (blunt, MPa)</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenBlunt.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenBlunt.Description>Blunt armor penetration of the projectile in MPa. Determines ability to cause blunt trauma through soft armor.</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenBlunt.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Label>Tech level</EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Description>Weapon's tech level.</EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Description>
+
+	<!-- ── Melee weapons (CE) ───────────────────────────────────────────────── -->
+	<EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Label>DPS (sharp)</EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Description>Average sharp/piercing damage per second, weighted by tool selection chance.</EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Label>DPS (blunt)</EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Description>Average blunt damage per second, weighted by tool selection chance.</EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenSharp.Label>Armor pen. (sharp, mm RHA)</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenSharp.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenSharp.Description>Weighted average sharp armor penetration in mm RHA. Determines ability to pierce hard armor plates.</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenSharp.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Label>Armor pen. (blunt, MPa)</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Description>Weighted average blunt armor penetration in MPa. Determines ability to cause blunt trauma through soft armor.</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>Tech level</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>Weapon's tech level.</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>
 </LanguageData>

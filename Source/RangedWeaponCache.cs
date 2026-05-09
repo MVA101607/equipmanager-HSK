@@ -254,9 +254,9 @@ namespace EquipmentManager
                 if (verb.defaultProjectile?.projectile != null)
                 {
                     if (CombatExtendedHelper.CombatExtended)
-                        ReadProjectilePropertiesCE(verb.defaultProjectile.projectile);
+                    { ReadProjectilePropertiesCE(verb.defaultProjectile.projectile); }
                     else
-                        ReadProjectileProperties(verb.defaultProjectile.projectile);
+                    { ReadProjectileProperties(verb.defaultProjectile.projectile);   }
                 }
 
                 // ── verbProps ──────────────────────────────────────────────
@@ -285,8 +285,8 @@ namespace EquipmentManager
 
                 // ── DPS с учётом перезарядки ───────────────────────────────
                 // Время одной очереди (в тиках)
-                var timePerBurstTicks = (Warmup + Cooldown) * 60f
-                                      + BurstShotCount * TicksBetweenBurstShots;
+                var timePerBurstTicks = ((Warmup + Cooldown) * 60f)
+                                      + (BurstShotCount * TicksBetweenBurstShots);
                 // Кол-во очередей на магазин (минимум 1)
                 var burstsPerMag = MagazineSize > 0
                     ? (float)Math.Ceiling(MagazineSize / BurstShotCount)
@@ -294,7 +294,7 @@ namespace EquipmentManager
                 // Выстрелов на магазин
                 var shotsPerMag = MagazineSize > 0 ? MagazineSize : (float)BurstShotCount;
                 // Полное время на магазин (тики) + перезарядка
-                var totalTicks = timePerBurstTicks * burstsPerMag + ReloadTime * 60f;
+                var totalTicks = (timePerBurstTicks * burstsPerMag) + (ReloadTime * 60f);
                 DpsRealistic = totalTicks > 0
                     ? (float)Math.Round(Damage * shotsPerMag / totalTicks * 60f, 2)
                     : 0f;
@@ -320,5 +320,7 @@ namespace EquipmentManager
             try { return sd != null ? Thing.GetStatValue(sd) : fallback; }
             catch { return fallback; }
         }
+
+        private delegate CompProperties AmmoUserPropsDelegate();
     }
 }

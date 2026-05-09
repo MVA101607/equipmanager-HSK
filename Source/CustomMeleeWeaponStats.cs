@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -7,9 +7,14 @@ namespace EquipmentManager
 {
     internal enum CustomMeleeWeaponStat
     {
-        ArmorPenetration,
-        DpsSharp,
-        DpsBlunt,
+        // ── вычисляются модом ──────────────────────────────────────────────
+        DpsSharp,               // DPS режущего/колющего урона (взвешен по chanceFactor)
+        DpsBlunt,               // DPS тупого урона (взвешен по chanceFactor)
+
+        // ── из ToolCE, взвешены по chanceFactor + MeleePenetrationFactor ──
+        ArmorPenSharp,          // мм RHA
+        ArmorPenBlunt,          // МПа
+
         TechLevel
     }
 
@@ -24,7 +29,9 @@ namespace EquipmentManager
         };
 
         private static IEnumerable<string> StatDefNames =>
-            Enum.GetValues(typeof(CustomMeleeWeaponStat)).OfType<CustomMeleeWeaponStat>().Select(GetStatDefName);
+            Enum.GetValues(typeof(CustomMeleeWeaponStat))
+                .OfType<CustomMeleeWeaponStat>()
+                .Select(GetStatDefName);
 
         public static IEnumerable<StatDef> StatDefs { get; } = StatDefNames.Select(defName =>
             new StatDef

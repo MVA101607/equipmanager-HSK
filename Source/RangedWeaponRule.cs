@@ -75,6 +75,7 @@ namespace EquipmentManager
         public static IEnumerable<RangedWeaponRule> DefaultRules =>
             new[]
             {
+                // ── 0. Наибольший DPS ──────────────────────────────────────────────
                 new RangedWeaponRule(0, true)
                 {
                     Label = Strings.Default.HighestDpsa,
@@ -82,7 +83,7 @@ namespace EquipmentManager
                     ManualCast = false,
                     StatWeights = new List<StatWeight>(DefaultStatWeights.Union(new[]
                     {
-                        new StatWeight(CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Dpsa),
+                        new StatWeight(CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.DpsRealistic),
                             false) {Weight = 2.0f},
                         new StatWeight(CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Range),
                             false) {Weight = 0.5f}
@@ -90,6 +91,7 @@ namespace EquipmentManager
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist),
                     AmmoCount = 100
                 },
+                // ── 1. Быстрый старт (малое время прицеливания) ───────────────────
                 new RangedWeaponRule(1, false)
                 {
                     Label = Strings.Default.LowWarmupTime,
@@ -100,20 +102,21 @@ namespace EquipmentManager
                     {
                         new StatWeight(
                             CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Warmup), false)
-                        {
-                            Weight = -2.0f
-                        },
+                            {Weight = -2.0f},
+                        new StatWeight(
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.ShotSpread), false)
+                            {Weight = -1.0f},
                         new StatWeight(
                             CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.DpsaShort), false)
-                        {
-                            Weight = 1.0f
-                        },
-                        new StatWeight(CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Dpsa),
-                            false) {Weight = 0.5f}
+                            {Weight = 1.0f},
+                        new StatWeight(
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.DpsRealistic), false)
+                            {Weight = 0.5f}
                     })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist),
                     AmmoCount = 50
                 },
+                // ── 2. Высокая скорострельность (большой магазин) ─────────────────
                 new RangedWeaponRule(2, false)
                 {
                     Label = Strings.Default.HighRof,
@@ -123,25 +126,25 @@ namespace EquipmentManager
                     StatWeights = new List<StatWeight>(DefaultStatWeights.Union(new[]
                     {
                         new StatWeight(
-                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.BurstShotCount),
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.MagazineSize),
                             false) {Weight = 2.0f},
                         new StatWeight(
-                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat
-                                .TicksBetweenBurstShots), false) {Weight = -2.0f},
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.ReloadTime),
+                            false) {Weight = -1.5f},
                         new StatWeight(
                             CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Warmup), false)
-                        {
-                            Weight = -0.5f
-                        },
-                        new StatWeight(CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Dpsa),
+                            {Weight = -0.5f},
+                        new StatWeight(
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.DpsRealistic),
                             false) {Weight = 1.0f},
-                        new StatWeight(CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Range),
-                            false) {Weight = 0.5f},
-                        new StatWeight("RangedWeapon_Cooldown", false) {Weight = -1.5f}
+                        new StatWeight(
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Range),
+                            false) {Weight = 0.5f}
                     })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist),
                     AmmoCount = 200
                 },
+                // ── 3. Дальний бой — тяжёлый урон ─────────────────────────────────
                 new RangedWeaponRule(3, false)
                 {
                     Label = Strings.Default.LongRangeHeavyHitter,
@@ -150,22 +153,20 @@ namespace EquipmentManager
                     ManualCast = false,
                     StatWeights = new List<StatWeight>(DefaultStatWeights.Union(new[]
                     {
-                        new StatWeight(CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Range),
+                        new StatWeight(
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Range),
                             false) {Weight = 2.0f},
                         new StatWeight(
-                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Damage), false)
-                        {
-                            Weight = 1.5f
-                        },
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Damage),
+                            false) {Weight = 1.5f},
                         new StatWeight(
-                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.DpsaLong), false)
-                        {
-                            Weight = 1.0f
-                        },
-                        new StatWeight(CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.Dpsa),
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.DpsaLong),
+                            false) {Weight = 1.0f},
+                        new StatWeight(
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.DpsRealistic),
                             false) {Weight = 0.5f},
                         new StatWeight(
-                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.StoppingPower),
+                            CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.ArmorPenSharp),
                             false) {Weight = 0.5f}
                     })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist),
@@ -174,9 +175,10 @@ namespace EquipmentManager
             };
 
         public new static IEnumerable<StatWeight> DefaultStatWeights =>
+
             new[]
             {
-                new StatWeight(CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.ArmorPenetration),
+                new StatWeight(CustomRangedWeaponStats.GetStatDefName(CustomRangedWeaponStat.ArmorPenSharp),
                     false) {Weight = 0.2f}
             }.Union(ItemRule.DefaultStatWeights);
 

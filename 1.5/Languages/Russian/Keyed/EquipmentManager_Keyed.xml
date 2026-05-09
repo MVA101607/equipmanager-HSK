@@ -93,45 +93,57 @@
 	<EquipmentManager.WeaponRules.RangedWeapons.Default.Sniper>Снайпер</EquipmentManager.WeaponRules.RangedWeapons.Default.Sniper>
 	<EquipmentManager.WeaponRules.Tools.Title>Инструменты</EquipmentManager.WeaponRules.Tools.Title>
 	<EquipmentManager.WeaponRules.Tools.Default.HighestWorkSpeed>Наибольшая скорость работы</EquipmentManager.WeaponRules.Tools.Default.HighestWorkSpeed>
-	<EquipmentManager.Stats.EM_MeleeWeapons_Dps.Label>DPS (ближний)</EquipmentManager.Stats.EM_MeleeWeapons_Dps.Label>
-	<EquipmentManager.Stats.EM_MeleeWeapons_Dps.Description>Урон в секунду для оружия ближнего боя</EquipmentManager.Stats.EM_MeleeWeapons_Dps.Description>
-	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationSharp.Label>Пробитие брони (острое)</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationSharp.Label>
-	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationSharp.Description>Среднее острое пробитие брони оружия ближнего боя</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationSharp.Description>
-	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationBlunt.Label>Пробитие брони (тупое)</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationBlunt.Label>
-	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationBlunt.Description>Среднее тупое пробитие брони оружия ближнего боя</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenetrationBlunt.Description>
-	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>
-	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>Уровень технологий оружия ближнего боя</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_Dps.Label>DPS (дальний)</EquipmentManager.Stats.EM_RangedWeapons_Dps.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_Dps.Description>Урон в секунду для дальнобойного оружия</EquipmentManager.Stats.EM_RangedWeapons_Dps.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Label>DPSA (средний)</EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Description>Средний урон в секунду с поправкой на точность оружия</EquipmentManager.Stats.EM_RangedWeapons_Dpsa.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>DPSA (вплотную)</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>Урон в секунду на ближней дистанции с поправкой на точность</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>DPSA (короткая)</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>Урон в секунду на короткой дистанции с поправкой на точность</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>DPSA (средняя)</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>Урон в секунду на средней дистанции с поправкой на точность</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>DPSA (длинная)</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>Урон в секунду на длинной дистанции с поправкой на точность</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_Damage.Label>Урон</EquipmentManager.Stats.EM_RangedWeapons_Damage.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_Damage.Description>Количество урона, наносимого оружием за один выстрел</EquipmentManager.Stats.EM_RangedWeapons_Damage.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_Range.Label>Дальность</EquipmentManager.Stats.EM_RangedWeapons_Range.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_Range.Description>Максимальная дальность стрельбы оружия</EquipmentManager.Stats.EM_RangedWeapons_Range.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_Warmup.Label>Время прицеливания</EquipmentManager.Stats.EM_RangedWeapons_Warmup.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_Warmup.Description>Время между началом прицеливания и выстрелом</EquipmentManager.Stats.EM_RangedWeapons_Warmup.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Label>Очередь</EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Description>Количество выстрелов в одной очереди</EquipmentManager.Stats.EM_RangedWeapons_BurstShotCount.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Label>Тиков между выстрелами</EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Description>Количество игровых тиков между выстрелами в очереди</EquipmentManager.Stats.EM_RangedWeapons_TicksBetweenBurstShots.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Label>Среднее пробитие брони</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Description>Среднее количество брони, которое оружие игнорирует при каждом попадании</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenetration.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Label>Останавливающее действие</EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Description>Попадания из этого оружия оглушают цели, замедляя их движение на несколько секунд</EquipmentManager.Stats.EM_RangedWeapons_StoppingPower.Description>
-	<EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Label>
-	<EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Description>Уровень технологий оружия</EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Description>
 	<EquipmentManager.Stats.EM_Tools_WorkType.Label>Характеристики по типу работы</EquipmentManager.Stats.EM_Tools_WorkType.Label>
 	<EquipmentManager.Stats.EM_Tools_WorkType.Description>Характеристики предмета, влияющие на производительность согласно правилам типа работы</EquipmentManager.Stats.EM_Tools_WorkType.Description>
 	<EquipmentManager.Stats.EM_Tools_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_Tools_TechLevel.Label>
 	<EquipmentManager.Stats.EM_Tools_TechLevel.Description>Уровень технологий инструмента</EquipmentManager.Stats.EM_Tools_TechLevel.Description>
 	<EquipmentManager.WeaponEquipped>{0} берёт {1}</EquipmentManager.WeaponEquipped>
+
+	<!-- ── Дальнобойное оружие (CE) ─────────────────────────────────────────── -->
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Label>DPS (реалистичный)</EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Description>Урон в секунду с учётом размера магазина и времени перезарядки</EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>DPS (вплотную, ≤3)</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>Реалистичный DPS × качество прицела на ближней дистанции (≤3 клетки). Ноль если оружие не достаёт.</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>DPS (короткая, ≤12)</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>Реалистичный DPS × качество прицела на короткой дистанции (≤12 клеток). Ноль если оружие не достаёт.</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>DPS (средняя, ≤25)</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>Реалистичный DPS × качество прицела на средней дистанции (≤25 клеток). Ноль если оружие не достаёт.</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>DPS (длинная, ≤40)</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>Реалистичный DPS × качество прицела на длинной дистанции (≤40 клеток). Ноль если оружие не достаёт.</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Label>Качество прицела</EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Description>Качество прицельных приспособлений оружия. Чем выше — тем меньше ошибка прицеливания. Заменяет ванильную точность в CE.</EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_ShotSpread.Label>Разброс выстрела (°)</EquipmentManager.Stats.EM_RangedWeapons_ShotSpread.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_ShotSpread.Description>Врождённый конический разброс снаряда в градусах. Не зависит от навыка стрелка — меньше лучше.</EquipmentManager.Stats.EM_RangedWeapons_ShotSpread.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_SwayFactor.Label>Дрожание оружия</EquipmentManager.Stats.EM_RangedWeapons_SwayFactor.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_SwayFactor.Description>Насколько трудно удерживать оружие неподвижно. Умножается на точность прицеливания стрелка.</EquipmentManager.Stats.EM_RangedWeapons_SwayFactor.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Recoil.Label>Отдача</EquipmentManager.Stats.EM_RangedWeapons_Recoil.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Recoil.Description>Сила отдачи при каждом выстреле. Влияет на точность последующих выстрелов в очереди.</EquipmentManager.Stats.EM_RangedWeapons_Recoil.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_MagazineSize.Label>Магазин</EquipmentManager.Stats.EM_RangedWeapons_MagazineSize.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_MagazineSize.Description>Количество выстрелов до перезарядки.</EquipmentManager.Stats.EM_RangedWeapons_MagazineSize.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_ReloadTime.Label>Время перезарядки (с)</EquipmentManager.Stats.EM_RangedWeapons_ReloadTime.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_ReloadTime.Description>Время в секундах на перезарядку магазина.</EquipmentManager.Stats.EM_RangedWeapons_ReloadTime.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Damage.Label>Урон</EquipmentManager.Stats.EM_RangedWeapons_Damage.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Damage.Description>Количество урона, наносимого снарядом за одно попадание.</EquipmentManager.Stats.EM_RangedWeapons_Damage.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Range.Label>Дальность</EquipmentManager.Stats.EM_RangedWeapons_Range.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Range.Description>Максимальная дальность стрельбы оружия в клетках.</EquipmentManager.Stats.EM_RangedWeapons_Range.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_Warmup.Label>Прицеливание (с)</EquipmentManager.Stats.EM_RangedWeapons_Warmup.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_Warmup.Description>Время между началом прицеливания и выстрелом.</EquipmentManager.Stats.EM_RangedWeapons_Warmup.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenSharp.Label>Пробитие брони (острое, мм RHA)</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenSharp.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenSharp.Description>Острое пробитие брони снаряда в мм RHA. Определяет способность пробивать твёрдые бронепластины.</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenSharp.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenBlunt.Label>Пробитие брони (тупое, МПа)</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenBlunt.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_ArmorPenBlunt.Description>Тупое пробитие брони снаряда в МПа. Определяет способность наносить тупую травму сквозь мягкую броню.</EquipmentManager.Stats.EM_RangedWeapons_ArmorPenBlunt.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Description>Уровень технологий оружия.</EquipmentManager.Stats.EM_RangedWeapons_TechLevel.Description>
+
+	<!-- ── Оружие ближнего боя (CE) ─────────────────────────────────────────── -->
+	<EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Label>DPS (режущий/колющий)</EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Description>Средний режущий/колющий урон в секунду, взвешенный по шансу выбора инструмента.</EquipmentManager.Stats.EM_MeleeWeapons_DpsSharp.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Label>DPS (тупой)</EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Description>Средний тупой урон в секунду, взвешенный по шансу выбора инструмента.</EquipmentManager.Stats.EM_MeleeWeapons_DpsBlunt.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenSharp.Label>Пробитие брони (острое, мм RHA)</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenSharp.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenSharp.Description>Взвешенное среднее острое пробитие брони в мм RHA. Определяет способность пробивать твёрдые бронепластины.</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenSharp.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Label>Пробитие брони (тупое, МПа)</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Description>Взвешенное среднее тупое пробитие брони в МПа. Определяет способность наносить тупую травму сквозь мягкую броню.</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Description>
+	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>
+	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>Уровень технологий оружия ближнего боя.</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>
 </LanguageData>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -26,8 +26,8 @@ namespace EquipmentManager
         public MeleeWeaponRule(int id, string label, bool isProtected, List<StatWeight> statWeights,
             List<StatLimit> statLimits, HashSet<string> whitelistedItemsDefNames,
             HashSet<string> blacklistedItemsDefNames, WeaponEquipMode equipMode, bool? usableWithShields,
-            bool? rottable, float retentionBonus = 1.25f) : base(id, label, isProtected, statWeights, statLimits, whitelistedItemsDefNames,
-            blacklistedItemsDefNames)
+            bool? rottable, float retentionBonus = 1.25f) : base(id, label, isProtected, statWeights, statLimits,
+            whitelistedItemsDefNames, blacklistedItemsDefNames)
         {
             EquipMode = equipMode;
             _usableWithShields = usableWithShields;
@@ -48,58 +48,71 @@ namespace EquipmentManager
             }
         }
 
-        public static IEnumerable<string> DefaultBlacklist => new[] {"WoodLog", "Beer"};
+        public static IEnumerable<string> DefaultBlacklist => new[] { "WoodLog", "Beer" };
 
         public static IEnumerable<MeleeWeaponRule> DefaultRules =>
             new[]
             {
+                // ── 0. Наибольший суммарный DPS ───────────────────────────────────
                 new MeleeWeaponRule(0, true)
                 {
                     Label = Strings.Default.HighestDps,
                     EquipMode = WeaponEquipMode.BestOne,
                     Rottable = false,
                     StatWeights = new List<StatWeight>(DefaultStatWeights
-                        .Where(sw => !new[] {"Mass"}.Contains(sw.StatDefName)).Union(new[]
+                        .Where(sw => sw.StatDefName != "Mass").Union(new[]
                         {
-                            new StatWeight("Mass", false) {Weight = -1.0f}
+                            new StatWeight("Mass", false) { Weight = -1.0f }
                         })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist)
                 },
+                // ── 1. Лучшее режущее/колющее — против брони ─────────────────────
                 new MeleeWeaponRule(1, false)
                 {
                     Label = Strings.Default.Sharpest,
                     EquipMode = WeaponEquipMode.BestOne,
                     Rottable = false,
                     StatWeights = new List<StatWeight>(DefaultStatWeights
-                        .Where(sw => !new[]
+                        .Where(sw => sw.StatDefName !=
+                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp) &&
+                            sw.StatDefName !=
+                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt))
+                        .Union(new[]
                         {
-                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp),
-                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt)
-                        }.Contains(sw.StatDefName)).Union(new[]
-                        {
-                            new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp), false)
-                                {Weight = 2.0f},
-                            new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt), false)
-                                {Weight = 0.25f}
+                            new StatWeight(
+                                CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp),
+                                false) { Weight = 2.0f },
+                            new StatWeight(
+                                CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.ArmorPenSharp),
+                                false) { Weight = 1.0f },
+                            new StatWeight(
+                                CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt),
+                                false) { Weight = 0.25f }
                         })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist)
                 },
+                // ── 2. Лучшее тупое — оглушение/мягкая броня ─────────────────────
                 new MeleeWeaponRule(2, false)
                 {
                     Label = Strings.Default.Bluntest,
                     EquipMode = WeaponEquipMode.BestOne,
                     Rottable = false,
                     StatWeights = new List<StatWeight>(DefaultStatWeights
-                        .Where(sw => !new[]
+                        .Where(sw => sw.StatDefName !=
+                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp) &&
+                            sw.StatDefName !=
+                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt))
+                        .Union(new[]
                         {
-                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp),
-                            CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt)
-                        }.Contains(sw.StatDefName)).Union(new[]
-                        {
-                            new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt), false)
-                                {Weight = 2.0f},
-                            new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp), false)
-                                {Weight = 0.25f}
+                            new StatWeight(
+                                CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt),
+                                false) { Weight = 2.0f },
+                            new StatWeight(
+                                CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.ArmorPenBlunt),
+                                false) { Weight = 1.0f },
+                            new StatWeight(
+                                CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp),
+                                false) { Weight = 0.25f }
                         })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist)
                 }
@@ -108,18 +121,14 @@ namespace EquipmentManager
         public new static IEnumerable<StatWeight> DefaultStatWeights =>
             new[]
             {
-        new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp), false)
-        {
-            Weight = 1.0f
-        },
-        new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt), false)
-        {
-            Weight = 1.0f
-        },
-        new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.ArmorPenetration), false)
-        {
-            Weight = 0.5f
-        }
+                new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsSharp),
+                    false) { Weight = 1.0f },
+                new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.DpsBlunt),
+                    false) { Weight = 1.0f },
+                new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.ArmorPenSharp),
+                    false) { Weight = 0.5f },
+                new StatWeight(CustomMeleeWeaponStats.GetStatDefName(CustomMeleeWeaponStat.ArmorPenBlunt),
+                    false) { Weight = 0.25f }
             }.Union(ItemRule.DefaultStatWeights);
 
         public bool? Rottable
