@@ -15,9 +15,9 @@ namespace EquipmentManager.Windows
         private static EquipmentManagerGameComponent _equipmentManager;
         private static Vector2 _scrollPosition;
         private float _scrollViewHeight;
-        private Loadout _selectedLoadout;
+        private Role _selectedLoadout;
 
-        public ManageLoadoutsDialog(Loadout selectedLoadout)
+        public ManageLoadoutsDialog(Role selectedLoadout)
         {
             forcePause = true;
             doCloseX = true;
@@ -38,7 +38,7 @@ namespace EquipmentManager.Windows
         private static Vector2 MaxSize => new(1200f, 1000f);
         private int PawnSettingsColumnCount => InitialSize.x < MaxSize.x ? 3 : 4;
 
-        private Loadout SelectedLoadout
+        private Role SelectedLoadout
         {
             get => _selectedLoadout;
             set
@@ -752,16 +752,16 @@ namespace EquipmentManager.Windows
                 inputRect.height);
             if (Widgets.ButtonText(typeRect, Strings.GetPrimaryWeaponTypeLabel(SelectedLoadout.PrimaryRuleType)))
             {
-                Find.WindowStack.Add(new FloatMenu(Enum.GetValues(typeof(Loadout.PrimaryWeaponType))
-                    .OfType<Loadout.PrimaryWeaponType>().Select(pwt =>
+                Find.WindowStack.Add(new FloatMenu(Enum.GetValues(typeof(Role.PrimaryWeaponType))
+                    .OfType<Role.PrimaryWeaponType>().Select(pwt =>
                         new FloatMenuOption(Strings.GetPrimaryWeaponTypeLabel(pwt),
                             () => SelectedLoadout.PrimaryRuleType = pwt)).ToList()));
             }
             switch (SelectedLoadout.PrimaryRuleType)
             {
-                case Loadout.PrimaryWeaponType.None:
+                case Role.PrimaryWeaponType.None:
                     break;
-                case Loadout.PrimaryWeaponType.RangedWeapon:
+                case Role.PrimaryWeaponType.RangedWeapon:
                     if (Widgets.ButtonText(ruleRect,
                             SelectedLoadout.PrimaryRangedWeaponRuleId == null
                                 ? Resources.Strings.WeaponRules.NoRuleSelected
@@ -774,7 +774,7 @@ namespace EquipmentManager.Windows
                             .ToList()));
                     }
                     break;
-                case Loadout.PrimaryWeaponType.MeleeWeapon:
+                case Role.PrimaryWeaponType.MeleeWeapon:
                     if (Widgets.ButtonText(ruleRect,
                             SelectedLoadout.PrimaryMeleeWeaponRuleId == null
                                 ? Resources.Strings.WeaponRules.NoRuleSelected

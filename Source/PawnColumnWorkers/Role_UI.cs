@@ -11,31 +11,31 @@ using Verse.Sound;
 namespace EquipmentManager.PawnColumnWorkers
 {
     [UsedImplicitly]
-    internal class Loadout : PawnColumnWorker
+    internal class Role_UI : PawnColumnWorker
     {
         private static EquipmentManagerGameComponent _equipmentManager;
 
         private static EquipmentManagerGameComponent EquipmentManager =>
             _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
-        private static IEnumerable<Widgets.DropdownMenuElement<EquipmentManager.Loadout>> Button_GenerateMenu(Pawn pawn)
+        private static IEnumerable<Widgets.DropdownMenuElement<EquipmentManager.Role>> Button_GenerateMenu(Pawn pawn)
         {
             var loadouts = EquipmentManager.GetLoadouts().ToList();
             return loadouts.Any()
                 ? new[]
                 {
-                    new Widgets.DropdownMenuElement<EquipmentManager.Loadout>
+                    new Widgets.DropdownMenuElement<EquipmentManager.Role>
                     {
                         option = new FloatMenuOption($"* {Resources.Strings.Loadouts.AutoSelect}",
                             () => EquipmentManager.SetPawnLoadout(pawn, EquipmentManager.GetLoadout(0), true))
                     }
-                }.Union(loadouts.Select(currentLoadout => new Widgets.DropdownMenuElement<EquipmentManager.Loadout>
+                }.Union(loadouts.Select(currentLoadout => new Widgets.DropdownMenuElement<EquipmentManager.Role>
                 {
                     option = new FloatMenuOption(currentLoadout.Label,
                         () => EquipmentManager.SetPawnLoadout(pawn, currentLoadout, false)),
                     payload = currentLoadout
                 }))
-                : Array.Empty<Widgets.DropdownMenuElement<EquipmentManager.Loadout>>();
+                : Array.Empty<Widgets.DropdownMenuElement<EquipmentManager.Role>>();
         }
 
         public override int Compare(Pawn a, Pawn b)

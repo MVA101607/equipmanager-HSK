@@ -11,7 +11,7 @@ namespace EquipmentManager.Windows
     internal class ImportLoadoutsDialog : Window
     {
         private static EquipmentManagerGameComponent _equipmentManager;
-        private readonly List<Loadout> _loadouts = new();
+        private readonly List<Role> _loadouts = new();
         private readonly List<MeleeWeaponRule> _meleeWeaponRules = new();
         private readonly List<RangedWeaponRule> _rangedWeaponRules = new();
         private readonly Dictionary<string, string> _savedGames = new();
@@ -233,7 +233,7 @@ namespace EquipmentManager.Windows
             var id = 0;
             var label = string.Empty;
             var priority = 0;
-            var primaryRuleType = Loadout.PrimaryWeaponType.None;
+            var primaryRuleType = Role.PrimaryWeaponType.None;
             int? primaryRangedWeaponRuleId = null;
             int? primaryMeleeWeaponRuleId = null;
             var rangedSidearmRules = new List<int>();
@@ -385,7 +385,7 @@ namespace EquipmentManager.Windows
                         break;
                 }
             }
-            _loadouts.Add(new Loadout(id, label, priority, primaryRuleType, primaryRangedWeaponRuleId,
+            _loadouts.Add(new Role(id, label, priority, primaryRuleType, primaryRangedWeaponRuleId,
                 primaryMeleeWeaponRuleId, rangedSidearmRules, meleeSidearmRules, toolRuleId, pawnTraits,
                 pawnWorkCapacities, dropUnassignedWeapons, passionLimits, pawnCapacityLimits, pawnCapacityWeights,
                 skillLimits, skillWeights, statLimits, statWeights));

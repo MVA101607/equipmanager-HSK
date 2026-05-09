@@ -107,7 +107,7 @@
     <Compile Include="EquipmentManagerMod.cs" />
     <Compile Include="ItemCache.cs" />
     <Compile Include="ItemRule.cs" />
-    <Compile Include="Loadout.cs" />
+    <Compile Include="Role.cs" />
     <Compile Include="PassionLimit.cs" />
     <Compile Include="PawnCache.cs" />
     <Compile Include="MeleeWeaponCache.cs" />
@@ -130,7 +130,7 @@
     <Compile Include="Windows\LogDialog.cs" />
     <Compile Include="Windows\ImportLoadoutsDialog.cs" />
     <Compile Include="Windows\ManageLoadoutsDialog.cs" />
-    <Compile Include="PawnColumnWorkers\Loadout.cs" />
+    <Compile Include="PawnColumnWorkers\Role_UI.cs" />
     <Compile Include="Patches\DefGeneratorPatch.cs" />
     <Compile Include="PawnLoadout.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

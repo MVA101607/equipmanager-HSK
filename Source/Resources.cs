@@ -114,7 +114,7 @@ namespace EquipmentManager
                 internal static readonly string ToolsLabel =
                     $"EquipmentManager.Loadouts.{nameof(ToolsLabel)}".Translate();
 
-                internal static string GetPrimaryWeaponTypeLabel(Loadout.PrimaryWeaponType primaryWeaponType)
+                internal static string GetPrimaryWeaponTypeLabel(Role.PrimaryWeaponType primaryWeaponType)
                 {
                     return $"EquipmentManager.Loadouts.PrimaryWeaponTypes.{primaryWeaponType}".Translate();
                 }

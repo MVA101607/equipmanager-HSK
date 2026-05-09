@@ -8,25 +8,25 @@ namespace EquipmentManager
 {
     internal partial class EquipmentManagerGameComponent
     {
-        private List<Loadout> _loadouts;
+        private List<Role> _loadouts;
         private List<PawnLoadout> _pawnLoadouts;
 
-        public Loadout AddLoadout()
+        public Role AddLoadout()
         {
             var id = _loadouts.Any() ? _loadouts.Max(l => l.Id) + 1 : 0;
-            var loadout = new Loadout(id) {Label = $"{id}"};
+            var loadout = new Role(id) {Label = $"{id}"};
             _loadouts.Add(loadout);
             return loadout;
         }
 
-        public void AddLoadout(Loadout loadout)
+        public void AddLoadout(Role loadout)
         {
             var existingLoadout = _loadouts.FirstOrDefault(l => l.Id == loadout.Id);
             if (existingLoadout != null) { _ = _loadouts.Remove(existingLoadout); }
             _loadouts.Add(loadout);
         }
 
-        public Loadout CopyLoadout(Loadout loadout)
+        public Role CopyLoadout(Role loadout)
         {
             var newLoadout = AddLoadout();
             newLoadout.Label = $"{loadout.Label} 2";
@@ -78,7 +78,7 @@ namespace EquipmentManager
             return newLoadout;
         }
 
-        public void DeleteLoadout(Loadout loadout)
+        public void DeleteLoadout(Role loadout)
         {
             foreach (var pawnLoadout in _pawnLoadouts.Where(pl => pl.LoadoutId == loadout.Id))
             {
@@ -94,21 +94,21 @@ namespace EquipmentManager
             Scribe_Collections.Look(ref _pawnLoadouts, "PawnLoadouts", LookMode.Deep);
         }
 
-        public Loadout GetLoadout(int? id)
+        public Role GetLoadout(int? id)
         {
             return id == null ? null : GetLoadouts().FirstOrDefault(loadout => loadout.Id == id);
         }
 
-        public Loadout GetLoadout([NotNull] Pawn pawn)
+        public Role GetLoadout([NotNull] Pawn pawn)
         {
             if (pawn == null) { throw new ArgumentNullException(nameof(pawn)); }
             _pawnLoadouts ??= new List<PawnLoadout>();
             return GetLoadout(GetPawnLoadout(pawn)?.LoadoutId);
         }
 
-        public IEnumerable<Loadout> GetLoadouts()
+        public IEnumerable<Role> GetLoadouts()
         {
-            return  _loadouts ??= new List<Loadout>(Loadout.DefaultLoadouts);
+            return  _loadouts ??= new List<Role>(Role.DefaultLoadouts);
         }
 
         public PawnLoadout GetPawnLoadout([NotNull] Pawn pawn)
@@ -123,7 +123,7 @@ namespace EquipmentManager
             return pawnLoadout;
         }
 
-        public void SetPawnLoadout([NotNull] Pawn pawn, Loadout loadout, bool automatic)
+        public void SetPawnLoadout([NotNull] Pawn pawn, Role loadout, bool automatic)
         {
             if (pawn == null) { throw new ArgumentNullException(nameof(pawn)); }
             _pawnLoadouts ??= new List<PawnLoadout>();

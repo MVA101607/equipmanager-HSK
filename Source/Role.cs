@@ -8,7 +8,7 @@ using Strings = EquipmentManager.Resources.Strings.Loadouts;
 
 namespace EquipmentManager
 {
-    internal class Loadout : IExposable
+    internal class Role : IExposable
     {
         public enum PrimaryWeaponType
         {
@@ -17,9 +17,9 @@ namespace EquipmentManager
             MeleeWeapon
         }
 
-        public static readonly IEnumerable<Loadout> DefaultLoadouts = new[]
+        public static readonly IEnumerable<Role> DefaultLoadouts = new[]
         {
-            new Loadout(1)
+            new Role(1)
             {
                 Label = Strings.Default.Assault,
                 Priority = 5,
@@ -32,7 +32,7 @@ namespace EquipmentManager
                 PawnWorkCapacities = {{"Violent", true}},
                 DropUnassignedWeapons = true
             },
-            new Loadout(2)
+            new Role(2)
             {
                 Label = Strings.Default.Sniper,
                 Priority = 3,
@@ -47,7 +47,7 @@ namespace EquipmentManager
                 SkillWeights = {new SkillWeight("Shooting", 1f)},
                 StatWeights = {new StatWeight("ShootingAccuracyPawn", 2f, false)}
             },
-            new Loadout(3)
+            new Role(3)
             {
                 Label = Strings.Default.Support,
                 Priority = 2,
@@ -62,7 +62,7 @@ namespace EquipmentManager
                 SkillWeights = {new SkillWeight("Shooting", -1f)},
                 StatWeights = {new StatWeight("ShootingAccuracyPawn", -2f, false)}
             },
-            new Loadout(4)
+            new Role(4)
             {
                 Label = Strings.Default.Slasher,
                 Priority = 5,
@@ -73,7 +73,7 @@ namespace EquipmentManager
                 PawnWorkCapacities = {{"Violent", true}},
                 DropUnassignedWeapons = true
             },
-            new Loadout(5)
+            new Role(5)
             {
                 Label = Strings.Default.Crusher,
                 Priority = 5,
@@ -84,7 +84,7 @@ namespace EquipmentManager
                 PawnWorkCapacities = {{"Violent", true}},
                 DropUnassignedWeapons = true
             },
-            new Loadout(6)
+            new Role(6)
             {
                 Label = Strings.Default.Pacifist,
                 Priority = 5,
@@ -117,14 +117,14 @@ namespace EquipmentManager
         public int? ToolRuleId;
 
         [UsedImplicitly]
-        public Loadout() { }
+        public Role() { }
 
-        public Loadout(int id)
+        public Role(int id)
         {
             _id = id;
         }
 
-        public Loadout(int id, string label, int priority, PrimaryWeaponType primaryRuleType,
+        public Role(int id, string label, int priority, PrimaryWeaponType primaryRuleType,
             int? primaryRangedWeaponRuleId, int? primaryMeleeWeaponRuleId, List<int> rangedSidearmRules,
             List<int> meleeSidearmRules, int? toolRuleId, Dictionary<string, bool> pawnTraits,
             Dictionary<string, bool> pawnWorkCapacities, bool dropUnassignedWeapons, List<PassionLimit> passionLimits,

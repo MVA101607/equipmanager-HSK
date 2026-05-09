@@ -86,7 +86,8 @@ namespace EquipmentManager
             _ = availableWeapons.RemoveAll(thing =>
                 _pawnCache.Any(pc => pc != pawn &&
                     (pc.AssignedWeapons.ContainsKey(thing) ||
-                     pc.Pawn.inventory?.innerContainer.Contains(thing) == true)));
+                     pc.Pawn.inventory?.innerContainer.Contains(thing) == true ||
+                     pc.Pawn.equipment?.AllEquipmentListForReading.Contains(thing) == true)));
             _ = availableWeapons.RemoveAll(thing =>
                 !EquipmentUtility.CanEquip(thing, pawn.Pawn) ||
                 (pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap != null &&
@@ -469,13 +470,13 @@ namespace EquipmentManager
             // Основное оружие
             switch (pawn.AssignedLoadout.PrimaryRuleType)
             {
-                case Loadout.PrimaryWeaponType.RangedWeapon:
+                case Role.PrimaryWeaponType.RangedWeapon:
                     _ = AssignPrimaryRangedWeapon(pawn);
                     break;
-                case Loadout.PrimaryWeaponType.MeleeWeapon:
+                case Role.PrimaryWeaponType.MeleeWeapon:
                     _ = AssignPrimaryMeleeWeapon(pawn);
                     break;
-                case Loadout.PrimaryWeaponType.None:
+                case Role.PrimaryWeaponType.None:
                 default:
                     break;
             }

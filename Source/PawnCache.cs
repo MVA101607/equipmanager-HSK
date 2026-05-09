@@ -10,7 +10,7 @@ namespace EquipmentManager
         private readonly RimworldTime _updateTime = new(-1, -1, -1);
         public readonly Dictionary<Thing, int> AssignedAmmo = new();
         public readonly Dictionary<Thing, string> AssignedWeapons = new();
-        public Loadout AssignedLoadout;
+        public Role AssignedLoadout;
         public bool AutoLoadout;
         public bool ShouldUpdateEquipment;
 
@@ -19,13 +19,13 @@ namespace EquipmentManager
             Pawn = pawn;
         }
 
-        public Dictionary<Loadout, float> AvailableLoadouts { get; } = new Dictionary<Loadout, float>();
+        public Dictionary<Role, float> AvailableLoadouts { get; } = new Dictionary<Role, float>();
 
         private static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public Pawn Pawn { get; }
 
-        public bool IsAvailable(Loadout loadout)
+        public bool IsAvailable(Role loadout)
         {
             return AvailableLoadouts.ContainsKey(loadout);
         }
