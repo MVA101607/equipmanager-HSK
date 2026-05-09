@@ -27,16 +27,46 @@ namespace EquipmentManager
         // ─────────────────────────────────────────────────────────────────────
         private float GetCurrentWeaponScore(PawnCache pawn, MeleeWeaponRule rule)
         {
-            var primary = pawn.Pawn.equipment?.Primary;
-            if (primary == null || !primary.def.IsMeleeWeapon) { return 0f; }
-            return rule.GetThingScore(primary, _updateTime);
+            // Ищем лучшее ближнее оружие среди всего носимого:
+            // слот оборудования (Primary + Secondary CE) и инвентарь.
+            var carried = (pawn.Pawn.equipment?.AllEquipmentListForReading
+                               ?? Enumerable.Empty<Thing>())
+                .Concat(pawn.Pawn.inventory?.innerContainer
+                               ?? Enumerable.Empty<Thing>())
+                .Where(t => t.def.IsMeleeWeapon && rule.IsAvailable(t, _updateTime))
+                .OrderByDescending(t => rule.GetThingScore(t, _updateTime))
+                .FirstOrDefault();
+            if (carried != null)
+            {
+                EquipmentManager.LogMessage(
+                    $"[EM] {pawn.Pawn.LabelShortCap}: current melee weapon" +
+                    $" '{carried.LabelCapNoCount}'" +
+                    $" score={rule.GetThingScore(carried, _updateTime):F2}");
+                return rule.GetThingScore(carried, _updateTime);
+            }
+            return 0f;
         }
 
         private float GetCurrentWeaponScore(PawnCache pawn, RangedWeaponRule rule)
         {
-            var primary = pawn.Pawn.equipment?.Primary;
-            if (primary == null || !primary.def.IsRangedWeapon) { return 0f; }
-            return rule.GetThingScore(primary, _updateTime);
+            // Ищем лучшее дальнобойное оружие среди всего носимого:
+            // слот оборудования (Primary + Secondary CE) и инвентарь.
+            var carried = (pawn.Pawn.equipment?.AllEquipmentListForReading
+                               ?? Enumerable.Empty<Thing>())
+                .Concat(pawn.Pawn.inventory?.innerContainer
+                               ?? Enumerable.Empty<Thing>())
+                .Where(t => t.def.IsRangedWeapon && rule.IsAvailable(t, _updateTime))
+                .OrderByDescending(t => rule.GetThingScore(t, _updateTime))
+                .FirstOrDefault();
+            if (carried != null)
+            {
+                EquipmentManager.LogMessage(
+                    $"[EM] {pawn.Pawn.LabelShortCap}: current ranged weapon" +
+                    $" '{carried.LabelCapNoCount}'" +
+                    $" score={rule.GetThingScore(carried, _updateTime):F2}");
+                return rule.GetThingScore(carried, _updateTime);
+            }
+            return 0f;
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -54,7 +84,9 @@ namespace EquipmentManager
 
             var availableWeapons = rule.GetCurrentlyAvailableItems(map, _updateTime).ToList();
             _ = availableWeapons.RemoveAll(thing =>
-                _pawnCache.Any(pc => pc != pawn && pc.AssignedWeapons.ContainsKey(thing)));
+                _pawnCache.Any(pc => pc != pawn &&
+                    (pc.AssignedWeapons.ContainsKey(thing) ||
+                     pc.Pawn.inventory?.innerContainer.Contains(thing) == true)));
             _ = availableWeapons.RemoveAll(thing =>
                 !EquipmentUtility.CanEquip(thing, pawn.Pawn) ||
                 (pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap != null &&
@@ -101,7 +133,9 @@ namespace EquipmentManager
 
             var availableWeapons = rule.GetCurrentlyAvailableItems(map, _updateTime).ToList();
             _ = availableWeapons.RemoveAll(thing =>
-                _pawnCache.Any(pc => pc != pawn && pc.AssignedWeapons.ContainsKey(thing)));
+                _pawnCache.Any(pc => pc != pawn &&
+                    (pc.AssignedWeapons.ContainsKey(thing) ||
+                     pc.Pawn.inventory?.innerContainer.Contains(thing) == true)));
             _ = availableWeapons.RemoveAll(thing =>
                 !EquipmentUtility.CanEquip(thing, pawn.Pawn) ||
                 (pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap != null &&
@@ -595,7 +629,21 @@ namespace EquipmentManager
                     {
                         var score = loadout.GetScore(pawn);
                         pc.AvailableLoadouts.Add(loadout, score);
+                        EquipmentManager.LogMessage(
+                            $"[EM]   available loadout: {loadout.Label} score={score:F2}");
                     }
+                    else
+                    {
+                        EquipmentManager.LogMessage(
+                            $"[EM]   NOT available: {loadout.Label} priority={loadout.Priority}");
+                    }
+                }
+                if (pc.AvailableLoadouts.Count == 0)
+                {
+                    Log.Warning(
+                        $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}"
+                        + " — no loadouts match this pawn."
+                        + " Check loadout Priority > 0 and pawn skill/trait/capacity filters.");
                 }
                 var previousLabel = pc.AssignedLoadout?.Label ?? "null";
                 pc.AssignedLoadout = null;

@@ -1,110 +1,37 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using HarmonyLib;
+using System.Linq;
+using CombatExtended;
+using CombatExtended.ExtendedLoadout;
 using JetBrains.Annotations;
 using RimWorld;
 using Verse;
+
+// Явные псевдонимы, чтобы избежать неоднозначности между CombatExtended.Loadout
+// и любыми другими типами с тем же именем.
+using CELoadout = CombatExtended.Loadout;
+using CELoadoutSlot = CombatExtended.LoadoutSlot;
+using CEGenericDef = CombatExtended.LoadoutGenericDef;
 
 namespace EquipmentManager
 {
     internal static class CEExtendedLoadoutHelper
     {
-        private static MethodInfo   _ceGetLoadout;
-        private static Type         _loadoutMultiManagerType;
-        private static Type         _loadoutMultiType;
-        private static PropertyInfo _personalLoadoutProp;
-        private static MethodInfo   _notifyChanged;
-        private static MethodInfo   _addSlot;
-        private static ConstructorInfo _slotCtorSpecific;
-        private static ConstructorInfo _slotCtorGeneric;
-        private static FieldInfo    _slotThingDef;
-        private static PropertyInfo _slotsOnLoadout;
-        private static Type         _loadoutGenericDefType;
-        private static bool         _available;
-        private static bool         _initialized;
-
+        // Сохранён для обратной совместимости с вызывающим кодом.
+        // Зависимости CE и ExtendedLoadout обязательны — всегда true.
         public static bool IsAvailable()
         {
-            if (_initialized) { return _available; }
-            _initialized = true;
-
-            _loadoutMultiManagerType =
-                AccessTools.TypeByName("CombatExtended.ExtendedLoadout.LoadoutMulti_Manager");
-            _loadoutMultiType =
-                AccessTools.TypeByName("CombatExtended.ExtendedLoadout.Loadout_Multi");
-            var loadoutType         = AccessTools.TypeByName("CombatExtended.Loadout");
-            var utilType            = AccessTools.TypeByName("CombatExtended.Utility_Loadouts");
-            var slotType            = AccessTools.TypeByName("CombatExtended.LoadoutSlot");
-            _loadoutGenericDefType  = AccessTools.TypeByName("CombatExtended.LoadoutGenericDef");
-
-            if (_loadoutMultiManagerType == null || _loadoutMultiType == null ||
-                loadoutType == null || utilType == null ||
-                slotType == null || _loadoutGenericDefType == null)
-            {
-                Log.Warning("[EM] CEExtendedLoadoutHelper: types not found." +
-                    " multiMgr="   + (_loadoutMultiManagerType != null) +
-                    " multiType="  + (_loadoutMultiType != null) +
-                    " loadout="    + (loadoutType != null) +
-                    " util="       + (utilType != null) +
-                    " slot="       + (slotType != null) +
-                    " genericDef=" + (_loadoutGenericDefType != null));
-                _available = false;
-                return false;
-            }
-
-            _ceGetLoadout =
-                AccessTools.Method(_loadoutMultiManagerType, "GetLoadout",
-                    new Type[] { typeof(Pawn), typeof(bool) }) ??
-                AccessTools.Method(utilType, "GetLoadout",
-                    new Type[] { typeof(Pawn), typeof(bool) }) ??
-                AccessTools.Method(utilType, "GetLoadout", new Type[] { typeof(Pawn) }) ??
-                AccessTools.Method(_loadoutMultiManagerType, "GetLoadout", new Type[] { typeof(Pawn) });
-
-            _personalLoadoutProp = AccessTools.Property(_loadoutMultiType, "PersonalLoadout");
-            _notifyChanged       = AccessTools.Method(_loadoutMultiType, "NotifyLoadoutChanged");
-            _addSlot             = AccessTools.Method(loadoutType, "AddSlot",
-                                       new Type[] { slotType });
-            _slotCtorSpecific    = AccessTools.Constructor(slotType,
-                                       new Type[] { typeof(ThingDef), typeof(int) });
-            _slotCtorGeneric     = AccessTools.Constructor(slotType,
-                                       new Type[] { _loadoutGenericDefType, typeof(int) });
-            _slotThingDef        = AccessTools.Field(slotType, "_def");
-            _slotsOnLoadout      = AccessTools.Property(loadoutType, "Slots");
-
-            _available = _ceGetLoadout       != null &&
-                         _personalLoadoutProp != null &&
-                         _notifyChanged       != null &&
-                         _addSlot             != null &&
-                         _slotCtorSpecific    != null &&
-                         _slotCtorGeneric     != null &&
-                         _slotThingDef        != null &&
-                         _slotsOnLoadout      != null;
-
-            if (!_available)
-            {
-                Log.Warning("[EM] CEExtendedLoadoutHelper: reflection incomplete." +
-                    " ceGetLoadout="     + (_ceGetLoadout != null) +
-                    " personalLoadout="  + (_personalLoadoutProp != null) +
-                    " notifyChanged="    + (_notifyChanged != null) +
-                    " addSlot="          + (_addSlot != null) +
-                    " slotCtorSpecific=" + (_slotCtorSpecific != null) +
-                    " slotCtorGeneric="  + (_slotCtorGeneric != null) +
-                    " slotThingDef="     + (_slotThingDef != null) +
-                    " slotsOnLoadout="   + (_slotsOnLoadout != null));
-            }
-            return _available;
+            return true;
         }
 
         // CE создаёт LoadoutGenericDef с именем "GenericAmmo-{gun.defName}" при старте игры.
         // Возвращает null если оружие не имеет CE ammoSet (ванильное или мод без CE ammo).
-        public static Def FindGenericAmmoDefForWeapon([NotNull] ThingDef weaponDef)
+        public static CEGenericDef FindGenericAmmoDefForWeapon([NotNull] ThingDef weaponDef)
         {
             if (weaponDef == null) { throw new ArgumentNullException(nameof(weaponDef)); }
-            if (_loadoutGenericDefType == null) { return null; }
             return GenDefDatabase.GetDefSilentFail(
-                _loadoutGenericDefType, "GenericAmmo-" + weaponDef.defName, false) as Def;
+                typeof(CEGenericDef), "GenericAmmo-" + weaponDef.defName, false)
+                as CEGenericDef;
         }
 
         // Назначить основное оружие в PersonalLoadout.
@@ -114,24 +41,20 @@ namespace EquipmentManager
             [NotNull] ThingDef weaponDef,
             [NotNull] HashSet<string> managedSlotKeys)
         {
-            if (!IsAvailable()) { return false; }
             try
             {
-                var multiLoadout = GetMultiLoadout(pawn);
-                if (multiLoadout == null) { return false; }
-                var personalLoadout = GetPersonalLoadout(multiLoadout);
+                var personalLoadout = GetPersonalLoadout(pawn);
                 if (personalLoadout == null) { return false; }
 
                 managedSlotKeys ??= new HashSet<string>();
                 RemoveManagedSlots(personalLoadout, managedSlotKeys);
 
-                var slot = _slotCtorSpecific.Invoke(new object[] { weaponDef, 1 });
-                _ = _addSlot.Invoke(personalLoadout, new[] { slot });
+                personalLoadout.AddSlot(new CELoadoutSlot(weaponDef, 1));
 
                 managedSlotKeys.Clear();
                 _ = managedSlotKeys.Add($"thingdef:{weaponDef.defName}");
 
-                NotifyChanged(multiLoadout);
+                NotifyAll(pawn);
 
                 Messages.Message(
                     "EquipmentManager.WeaponEquipped".Translate(
@@ -158,38 +81,28 @@ namespace EquipmentManager
             [NotNull] Pawn pawn,
             [NotNull] ThingDef specificAmmoDef,
             int count,
-            Def genericAmmoDef = null)
+            CEGenericDef genericAmmoDef = null)
         {
-            if (!IsAvailable()) { return false; }
             if (count <= 0 && genericAmmoDef == null) { return false; }
             try
             {
-                var multiLoadout = GetMultiLoadout(pawn);
-                if (multiLoadout == null) { return false; }
-                var personalLoadout = GetPersonalLoadout(multiLoadout);
+                var personalLoadout = GetPersonalLoadout(pawn);
                 if (personalLoadout == null) { return false; }
 
                 // Удаляем старые ammo-слоты (specific и generic) для этого калибра.
-                if (_slotsOnLoadout.GetValue(personalLoadout, null) is IList slotsObj)
-                {
-                    for (var i = slotsObj.Count - 1; i >= 0; i--)
-                    {
-                        var slotObj = slotsObj[i];
-                        if (slotObj == null) { continue; }
-                        var def = _slotThingDef.GetValue(slotObj) as Def;
-                        if (def == specificAmmoDef ||
-                            (genericAmmoDef != null && def == genericAmmoDef))
-                        {
-                            slotsObj.RemoveAt(i);
-                        }
-                    }
-                }
+                var toRemove = personalLoadout.OwnSlots
+                    .Where(s => s != null &&
+                        (s.thingDef == specificAmmoDef ||
+                         (genericAmmoDef != null && s.genericDef == genericAmmoDef)))
+                    .ToList();
+                foreach (var s in toRemove) { personalLoadout.RemoveSlot(s); }
 
-                var slot = genericAmmoDef != null
-                    ? _slotCtorGeneric.Invoke(new object[] { genericAmmoDef, count })
-                    : _slotCtorSpecific.Invoke(new object[] { specificAmmoDef, count });
-                _ = _addSlot.Invoke(personalLoadout, new[] { slot });
-                NotifyChanged(multiLoadout);
+                var newSlot = genericAmmoDef != null
+                    ? new CELoadoutSlot(genericAmmoDef, count)
+                    : new CELoadoutSlot(specificAmmoDef, count);
+                personalLoadout.AddSlot(newSlot);
+
+                NotifyAll(pawn);
                 return true;
             }
             catch (Exception ex)
@@ -209,35 +122,25 @@ namespace EquipmentManager
             [NotNull] ThingDef toolDef,
             [NotNull] HashSet<string> managedSlotKeys)
         {
-            if (!IsAvailable()) { return false; }
             try
             {
-                var multiLoadout = GetMultiLoadout(pawn);
-                if (multiLoadout == null) { return false; }
-                var personalLoadout = GetPersonalLoadout(multiLoadout);
+                var personalLoadout = GetPersonalLoadout(pawn);
                 if (personalLoadout == null) { return false; }
 
                 managedSlotKeys ??= new HashSet<string>();
                 var key = $"thingdef:{toolDef.defName}";
 
-                if (_slotsOnLoadout.GetValue(personalLoadout, null) is IList slotsObj)
+                // Не дублируем если слот уже есть
+                if (personalLoadout.OwnSlots.Any(s => s?.thingDef == toolDef))
                 {
-                    foreach (var slotObj in slotsObj)
-                    {
-                        if (slotObj == null) { continue; }
-                        if ((_slotThingDef.GetValue(slotObj) as Def) == toolDef)
-                        {
-                            _ = managedSlotKeys.Add(key);
-                            NotifyChanged(multiLoadout);
-                            return true;
-                        }
-                    }
+                    _ = managedSlotKeys.Add(key);
+                    NotifyAll(pawn);
+                    return true;
                 }
 
-                var slot = _slotCtorSpecific.Invoke(new object[] { toolDef, 1 });
-                _ = _addSlot.Invoke(personalLoadout, new[] { slot });
+                personalLoadout.AddSlot(new CELoadoutSlot(toolDef, 1));
                 _ = managedSlotKeys.Add(key);
-                NotifyChanged(multiLoadout);
+                NotifyAll(pawn);
                 return true;
             }
             catch (Exception ex)
@@ -251,67 +154,65 @@ namespace EquipmentManager
 
         // ── Вспомогательные методы ────────────────────────────────────────────
 
-        private static object GetMultiLoadout(Pawn pawn)
+        // GetLoadout(pawn, allowNull: false) — всегда создаёт Loadout_Multi если нет,
+        // и всегда возвращает объект (null только если allowNull=true и слотов 0).
+        // PersonalLoadout генерируется в конструкторе Loadout_Multi,
+        // но для старых сейвов back-compat вызывает GeneratePersonalLoadout в GetLoadout.
+        private static CELoadout GetPersonalLoadout(Pawn pawn)
         {
-            // Если метод двухпараметрный — передаём createIfMissing = true
-            var args = _ceGetLoadout.GetParameters().Length == 2
-                ? new object[] { pawn, true }
-                : new object[] { pawn };
-
-            var result = _ceGetLoadout.Invoke(null, args);
-            if (result == null)
+            if (LoadoutMulti_Manager.GetLoadout(pawn, allowNull: false) is not Loadout_Multi multiLoadout)
             {
                 Log.Warning("[EM] CEExtendedLoadoutHelper: GetLoadout returned null for " +
-                    pawn.LabelShortCap + " (createIfMissing attempted)");
+                    pawn.LabelShortCap);
+                return null;
             }
-            return result;
+
+            var personal = multiLoadout.PersonalLoadout;
+            if (personal == null)
+            {
+                // back-compat: для пешек из старых сейвов PersonalLoadout мог не создаться
+                multiLoadout.GeneratePersonalLoadout(pawn);
+                multiLoadout.NotifyLoadoutChanged();
+                personal = multiLoadout.PersonalLoadout;
+            }
+
+            if (personal == null)
+            {
+                Log.Error("[EM] CEExtendedLoadoutHelper: PersonalLoadout still null for " +
+                    pawn.LabelShortCap);
+            }
+            return personal;
         }
 
-        private static object GetPersonalLoadout(object multiLoadout)
-        {
-            var result = _personalLoadoutProp.GetValue(multiLoadout);
-            if (result != null) { return result; }
-
-            try
-            {
-                _ = _notifyChanged.Invoke(multiLoadout, null);
-                result = _personalLoadoutProp.GetValue(multiLoadout);
-            }
-            catch (Exception ex)
-            {
-                Log.Error("[EM] CEExtendedLoadoutHelper: failed to init PersonalLoadout: " + ex.Message);
-            }
-
-            if (result == null)
-            {
-                Log.Error("[EM] CEExtendedLoadoutHelper: PersonalLoadout still null after init.");
-            }
-            return result;
-        }
-
-        private static void RemoveManagedSlots(object personalLoadout,
+        private static void RemoveManagedSlots(CELoadout personalLoadout,
             HashSet<string> managedSlotKeys)
         {
-            if (_slotsOnLoadout.GetValue(personalLoadout, null) is not IList slotsObj || managedSlotKeys.Count == 0) { return; }
-            for (var i = slotsObj.Count - 1; i >= 0; i--)
-            {
-                var slotObj = slotsObj[i];
-                if (slotObj == null) { continue; }
-                if (_slotThingDef.GetValue(slotObj) is not Def def) { continue; }
-                var key = def is ThingDef td
-                    ? $"thingdef:{td.defName}"
-                    : $"genericdef:{def.defName}";
-                if (managedSlotKeys.Contains(key)) { slotsObj.RemoveAt(i); }
-            }
+            if (managedSlotKeys.Count == 0) { return; }
+            var toRemove = personalLoadout.OwnSlots
+                .Where(slot =>
+                {
+                    if (slot == null) { return false; }
+                    var key = slot.thingDef != null
+                        ? $"thingdef:{slot.thingDef.defName}"
+                        : slot.genericDef != null
+                            ? $"genericdef:{slot.genericDef.defName}"
+                            : null;
+                    return key != null && managedSlotKeys.Contains(key);
+                })
+                .ToList();
+            foreach (var s in toRemove) { personalLoadout.RemoveSlot(s); }
         }
 
-        private static void NotifyChanged(object multiLoadout)
+        // Уведомляем мультилоадаут пешки + все остальные для пересчёта агрегатора.
+        // Именно так делает TestLoadoutHelper.
+        private static void NotifyAll(Pawn pawn)
         {
-            _ = _notifyChanged.Invoke(multiLoadout, null);
-            var allMultiProp = AccessTools.Property(_loadoutMultiManagerType, "LoadoutsMulti");
-            if (allMultiProp?.GetValue(null) is IEnumerable allMulti)
+            var multiLoadout = LoadoutMulti_Manager.GetLoadout(pawn, allowNull: false) as Loadout_Multi;
+            multiLoadout?.NotifyLoadoutChanged();
+
+            foreach (var lm in LoadoutMulti_Manager.LoadoutsMulti)
             {
-                foreach (var lm in allMulti) { _ = _notifyChanged.Invoke(lm, null); }
+                lm.NotifyLoadoutChanged();
             }
         }
     }
