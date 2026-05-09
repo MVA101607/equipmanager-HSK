@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -19,11 +19,46 @@ namespace EquipmentManager
             Thing = thing ?? throw new ArgumentNullException(nameof(thing));
         }
 
-        private float AccuracyClose { get; set; }
-        private float AccuracyLong { get; set; }
-        private float AccuracyMedium { get; set; }
-        private float AccuracyShort { get; set; }
+        // ── CE stat defs (ленивая инициализация) ──────────────────────────
+        private static StatDef _sdSightsEfficiency;
+        private static StatDef _sdShotSpread;
+        private static StatDef _sdSwayFactor;
+        private static StatDef _sdRecoil;
+        private static StatDef _sdMagazineCapacity;
+        private static StatDef _sdReloadTime;
 
+        private static StatDef SdSightsEfficiency  => _sdSightsEfficiency  ??= StatDef.Named("SightsEfficiency");
+        private static StatDef SdShotSpread        => _sdShotSpread        ??= StatDef.Named("ShotSpread");
+        private static StatDef SdSwayFactor        => _sdSwayFactor        ??= StatDef.Named("SwayFactor");
+        private static StatDef SdRecoil            => _sdRecoil            ??= StatDef.Named("Recoil");
+        private static StatDef SdMagazineCapacity  => _sdMagazineCapacity  ??= StatDef.Named("MagazineCapacity");
+        private static StatDef SdReloadTime        => _sdReloadTime        ??= StatDef.Named("ReloadTime");
+
+        // ── кешированные значения ──────────────────────────────────────────
+        private float ArmorPenSharp { get; set; }
+        private float ArmorPenBlunt { get; set; }
+        private int   BurstShotCount { get; set; }
+        private float Cooldown { get; set; }
+        private float Damage { get; set; }
+        private float DpsRealistic { get; set; }
+        private float DpsaClose { get; set; }
+        private float DpsaLong { get; set; }
+        private float DpsaMedium { get; set; }
+        private float DpsaShort { get; set; }
+        private float MaxRange { get; set; }
+        private float MinRange { get; set; }
+        private float SightsEfficiency { get; set; }
+        private float ShotSpread { get; set; }
+        private float SwayFactor { get; set; }
+        private float Recoil { get; set; }
+        private float MagazineSize { get; set; }
+        private float ReloadTime { get; set; }
+        private int   TicksBetweenBurstShots { get; set; }
+        private float Warmup { get; set; }
+
+        private Thing Thing { get; }
+
+        // ── ammo ──────────────────────────────────────────────────────────
         public IEnumerable<ThingDef> AmmoTypes
         {
             get
@@ -53,85 +88,80 @@ namespace EquipmentManager
                     Log.Error($"Equipment Manager: Could not get ammo links for {Thing.LabelCapNoCount}");
                     return ammoTypes;
                 }
-                ammoTypes.AddRange(ammoLinks.Select(ammoLink => CombatExtendedHelper.AmmoDelegate(ammoLink))
-                    .Where(ammoType => ammoType != null));
+                ammoTypes.AddRange(ammoLinks
+                    .Select(link => CombatExtendedHelper.AmmoDelegate(link))
+                    .Where(t => t != null));
                 return ammoTypes;
             }
         }
 
         private ThingComp AmmoUserComp =>
-            (Thing is not ThingWithComps thingWithComps)
-                ? null
-                : thingWithComps.AllComps.FirstOrDefault(
-                    comp => comp.GetType() == CombatExtendedHelper.CompAmmoUserType);
-
-        private float ArmorPenetration { get; set; }
-        private int BurstShotCount { get; set; }
-        private float Cooldown { get; set; }
-        private float Damage { get; set; }
-        private float Dps { get; set; }
-        private float Dpsa { get; set; }
-        private float DpsaClose { get; set; }
-        private float DpsaLong { get; set; }
-        private float DpsaMedium { get; set; }
-        private float DpsaShort { get; set; }
+            Thing is not ThingWithComps twc ? null :
+            twc.AllComps.FirstOrDefault(c => c.GetType() == CombatExtendedHelper.CompAmmoUserType);
 
         public bool IsAmmo
         {
-            get
-            {
-                Initialize();
-                return _isAmmo;
-            }
+            get { Initialize(); return _isAmmo; }
         }
+
         public Def AmmoSet
         {
             get
             {
                 Initialize();
-                if (_isAmmo) { return null; }
-                if (_ammoUserPropsMethod == null) { return null; }
-
-                var ammoUserProps = _ammoUserPropsMethod();
-                return ammoUserProps == null ?  null : CombatExtendedHelper.AmmoSetDelegate(ammoUserProps);
+                if (_isAmmo || _ammoUserPropsMethod == null) { return null; }
+                var props = _ammoUserPropsMethod();
+                return props == null ? null : CombatExtendedHelper.AmmoSetDelegate(props);
             }
         }
-        private float MaxRange { get; set; }
-        private float MinRange { get; set; }
-        private float SightsEfficiency { get; set; }
-        private float StoppingPower { get; set; }
-        private Thing Thing { get; }
-        private int TicksBetweenBurstShots { get; set; }
-        private float Warmup { get; set; }
 
+        public int MagSize
+        {
+            get
+            {
+                Initialize();
+                if (!CombatExtendedHelper.CombatExtended || CombatExtendedHelper.MagSizeDelegate == null ||
+                    _ammoUserPropsMethod == null) { return 0; }
+                var props = _ammoUserPropsMethod();
+                if (props == null) { return 0; }
+                try { return CombatExtendedHelper.MagSizeDelegate(props); }
+                catch { return 0; }
+            }
+        }
+
+        // ── кастомный стат ─────────────────────────────────────────────────
         private float GetCustomStatValue([NotNull] StatDef statDef)
         {
-            if (Enum.TryParse(CustomRangedWeaponStats.GetStatName(statDef.defName),
-                    out CustomRangedWeaponStat rangedWeaponStat))
+            if (!Enum.TryParse(CustomRangedWeaponStats.GetStatName(statDef.defName),
+                    out CustomRangedWeaponStat stat))
             {
-                return rangedWeaponStat switch
-                {
-                    CustomRangedWeaponStat.Dpsa => Dpsa,
-                    CustomRangedWeaponStat.DpsaClose => DpsaClose,
-                    CustomRangedWeaponStat.DpsaShort => DpsaShort,
-                    CustomRangedWeaponStat.DpsaMedium => DpsaMedium,
-                    CustomRangedWeaponStat.DpsaLong => DpsaLong,
-                    CustomRangedWeaponStat.Range => MaxRange,
-                    CustomRangedWeaponStat.Warmup => Warmup,
-                    CustomRangedWeaponStat.BurstShotCount => BurstShotCount,
-                    CustomRangedWeaponStat.TicksBetweenBurstShots => TicksBetweenBurstShots,
-                    CustomRangedWeaponStat.ArmorPenetration => ArmorPenetration,
-                    CustomRangedWeaponStat.StoppingPower => StoppingPower,
-                    CustomRangedWeaponStat.Damage => Damage,
-                    CustomRangedWeaponStat.TechLevel => (float) Thing.def.techLevel,
-                    _ => throw new ArgumentOutOfRangeException(nameof(statDef)),
-                };
+                Log.Error($"Equipment Manager: Unknown custom ranged stat ({statDef.defName})");
+                return 0f;
             }
-            Log.Error($"Equipment Manager: Tried to evaluate unknown custom ranged stat ({statDef.defName})");
-            return 0f;
+            return stat switch
+            {
+                CustomRangedWeaponStat.DpsRealistic     => DpsRealistic,
+                CustomRangedWeaponStat.DpsaClose        => DpsaClose,
+                CustomRangedWeaponStat.DpsaShort        => DpsaShort,
+                CustomRangedWeaponStat.DpsaMedium       => DpsaMedium,
+                CustomRangedWeaponStat.DpsaLong         => DpsaLong,
+                CustomRangedWeaponStat.SightsEfficiency => SightsEfficiency,
+                CustomRangedWeaponStat.ShotSpread       => ShotSpread,
+                CustomRangedWeaponStat.SwayFactor       => SwayFactor,
+                CustomRangedWeaponStat.Recoil           => Recoil,
+                CustomRangedWeaponStat.MagazineSize     => MagazineSize,
+                CustomRangedWeaponStat.ReloadTime       => ReloadTime,
+                CustomRangedWeaponStat.Range            => MaxRange,
+                CustomRangedWeaponStat.Warmup           => Warmup,
+                CustomRangedWeaponStat.ArmorPenSharp    => ArmorPenSharp,
+                CustomRangedWeaponStat.ArmorPenBlunt    => ArmorPenBlunt,
+                CustomRangedWeaponStat.Damage           => Damage,
+                CustomRangedWeaponStat.TechLevel        => (float)Thing.def.techLevel,
+                _ => throw new ArgumentOutOfRangeException(nameof(statDef))
+            };
         }
 
-        public float GetStatValue(StatDef statDef)
+        public float GetStatValue([NotNull] StatDef statDef)
         {
             if (!StatValues.TryGetValue(statDef, out var value))
             {
@@ -146,10 +176,12 @@ namespace EquipmentManager
         public float GetStatValueDeviation([NotNull] StatDef statDef)
         {
             return statDef == null ? throw new ArgumentNullException(nameof(statDef)) :
-                CustomRangedWeaponStats.IsCustomStat(statDef.defName) ? GetCustomStatValue(statDef) :
-                StatHelper.GetStatValueDeviation(Thing, statDef);
+                CustomRangedWeaponStats.IsCustomStat(statDef.defName)
+                    ? GetCustomStatValue(statDef)
+                    : StatHelper.GetStatValueDeviation(Thing, statDef);
         }
 
+        // ── инициализация CE-делегатов ─────────────────────────────────────
         private void Initialize()
         {
             if (_initialized) { return; }
@@ -159,171 +191,134 @@ namespace EquipmentManager
             {
                 if (AmmoUserComp == null)
                 {
-                    if (Thing.def.Verbs.Any(properties => string.Equals(properties.verbClass.FullName,
+                    if (Thing.def.Verbs.Any(vp => string.Equals(vp.verbClass?.FullName,
                             "CombatExtended.Verb_ShootCEOneUse", StringComparison.OrdinalIgnoreCase)))
-                    {
-                        _isAmmo = true;
-                    }
+                    { _isAmmo = true; }
                 }
                 else
                 {
-                    var ammoUserPropsMethod =
-                        AccessTools.PropertyGetter(CombatExtendedHelper.CompAmmoUserType, "Props");
-                    if (ammoUserPropsMethod == null)
-                    {
-                        Log.Error("Equipment Manager: Could not find 'CombatExtended.CompAmmoUser.Props'");
-                    }
+                    var getter = AccessTools.PropertyGetter(CombatExtendedHelper.CompAmmoUserType, "Props");
+                    if (getter == null)
+                    { Log.Error("Equipment Manager: Could not find 'CombatExtended.CompAmmoUser.Props'"); }
                     else
-                    {
-                        _ammoUserPropsMethod =
-                            AccessTools.MethodDelegate<AmmoUserPropsDelegate>(ammoUserPropsMethod, AmmoUserComp);
-                    }
+                    { _ammoUserPropsMethod = AccessTools.MethodDelegate<AmmoUserPropsDelegate>(getter, AmmoUserComp); }
                 }
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Log.Error(
-                    $"Equipment Manager: Could not create Combat Extended delegates for {Thing.LabelCapNoCount}: {exception.Message}");
+                Log.Error($"Equipment Manager: Could not create CE delegates for {Thing.LabelCapNoCount}: {ex.Message}");
                 _ammoUserPropsMethod = null;
             }
         }
 
-        private void ReadProjectileProperties(ProjectileProperties projectileProperties)
+        // ── чтение свойств снаряда ─────────────────────────────────────────
+        private void ReadProjectileProperties(ProjectileProperties proj)
         {
-            Damage = projectileProperties.GetDamageAmount(Thing);
-            StoppingPower = projectileProperties.StoppingPower;
-            ArmorPenetration = projectileProperties.GetArmorPenetration(Thing);
+            Damage      = proj.GetDamageAmount(Thing);
+            ArmorPenSharp = proj.GetArmorPenetration(Thing);
+            ArmorPenBlunt = 0f;
         }
 
-        private void ReadProjectilePropertiesCombatExtended(ProjectileProperties projectileProperties)
+        private void ReadProjectilePropertiesCE(ProjectileProperties proj)
         {
-            Damage = projectileProperties.GetDamageAmount(Thing);
-            StoppingPower = projectileProperties.StoppingPower;
-            if (projectileProperties.GetType() != CombatExtendedHelper.ProjectilePropertiesType)
+            Damage = proj.GetDamageAmount(Thing);
+            if (proj.GetType() != CombatExtendedHelper.ProjectilePropertiesType)
             {
-                Log.Warning(
-                    $"Equipment Manager: {Thing.LabelCapNoCount}'s projectile type is not CombatExtended-compatible");
-                ReadProjectileProperties(projectileProperties);
+                Log.Warning($"Equipment Manager: {Thing.LabelCapNoCount} projectile is not CE-compatible");
+                ReadProjectileProperties(proj);
+                return;
             }
-            else
-            {
-                if (CombatExtendedHelper.ArmorPenetrationSharpDelegate != null &&
-                    CombatExtendedHelper.ArmorPenetrationBluntDelegate != null)
-                {
-                    ArmorPenetration = CombatExtendedHelper.ArmorPenetrationSharpDelegate(projectileProperties) +
-                        CombatExtendedHelper.ArmorPenetrationBluntDelegate(projectileProperties);
-                }
-            }
+            ArmorPenSharp = CombatExtendedHelper.ArmorPenetrationSharpDelegate != null
+                ? CombatExtendedHelper.ArmorPenetrationSharpDelegate(proj) : 0f;
+            ArmorPenBlunt = CombatExtendedHelper.ArmorPenetrationBluntDelegate != null
+                ? CombatExtendedHelper.ArmorPenetrationBluntDelegate(proj) : 0f;
         }
 
-        public int MagSize
-        {
-            get
-            {
-                Initialize();
-                if (!CombatExtendedHelper.CombatExtended || CombatExtendedHelper.MagSizeDelegate == null)
-                { return 0; }
-                if (_ammoUserPropsMethod == null) { return 0; }
-                 var props = _ammoUserPropsMethod();
-                if (props == null) { return 0; }
-                 try { return CombatExtendedHelper.MagSizeDelegate(props); }
-                catch { return 0; }
-            }
-        }
-
+        // ── основное обновление ────────────────────────────────────────────
         public override bool Update(RimworldTime time)
         {
             if (!base.Update(time)) { return false; }
             try
             {
-                if (Thing.def?.Verbs != null)
+                if (Thing.def?.Verbs == null) { return true; }
+
+                var verb = Thing.def.Verbs.FirstOrDefault(vp => vp.range > 0)
+                        ?? Thing.def.Verbs.FirstOrDefault();
+                if (verb == null)
                 {
-                    var verb = Thing.def.Verbs.FirstOrDefault(vp => vp.range > 0);
-                    if (verb == null)
-                    {
-                        Log.Warning(
-                            $"Equipment Manager: Could not find correct ranged weapon verb on the first try for weapon '{Thing.LabelCapNoCount}' ({Thing.def.defName})");
-                        verb = Thing.def.Verbs.FirstOrDefault();
-                    }
-                    if (verb == null)
-                    {
-                        Log.Error(
-                            $"Equipment Manager: Could not find ranged weapon verb for weapon '{Thing.LabelCapNoCount}' ({Thing.def.defName})");
-                        return true;
-                    }
-                    if (verb.defaultProjectile?.projectile != null)
-                    {
-                        if (CombatExtendedHelper.CombatExtended)
-                        {
-                            ReadProjectilePropertiesCombatExtended(verb.defaultProjectile.projectile);
-                        }
-                        else { ReadProjectileProperties(verb.defaultProjectile.projectile); }
-                    }
-                    SightsEfficiency = CombatExtendedHelper.CombatExtended
-                        ? Thing.GetStatValue(StatDef.Named("SightsEfficiency"))
-                        : 1f;
-                    BurstShotCount = verb.burstShotCount <= 0 ? 1 : verb.burstShotCount;
-                    TicksBetweenBurstShots = verb.ticksBetweenBurstShots <= 0 ? 10 : verb.ticksBetweenBurstShots;
-                    Warmup = verb.warmupTime;
-                    MinRange = verb.minRange;
-                    MaxRange = verb.range;
-                    Cooldown = Thing.GetStatValue(StatDefOf.RangedWeapon_Cooldown);
-                    Dps = (float) Math.Round(
-                        Damage * (double) BurstShotCount / ((((Cooldown + (double) Warmup) * 60f) +
-                            (BurstShotCount * TicksBetweenBurstShots)) / 60f), 2);
+                    Log.Error($"Equipment Manager: No verb for '{Thing.LabelCapNoCount}'");
+                    return true;
                 }
-                if (MinRange <= 3f && MaxRange >= 3f)
+
+                // ── снаряд ─────────────────────────────────────────────────
+                if (verb.defaultProjectile?.projectile != null)
                 {
-                    AccuracyClose = (float) Math.Round(Thing.GetStatValue(StatDefOf.AccuracyTouch) * 100f, 2);
+                    if (CombatExtendedHelper.CombatExtended)
+                        ReadProjectilePropertiesCE(verb.defaultProjectile.projectile);
+                    else
+                        ReadProjectileProperties(verb.defaultProjectile.projectile);
                 }
-                if (MinRange <= 12f && MaxRange >= 12f)
+
+                // ── verbProps ──────────────────────────────────────────────
+                BurstShotCount        = verb.burstShotCount <= 0 ? 1 : verb.burstShotCount;
+                TicksBetweenBurstShots = verb.ticksBetweenBurstShots <= 0 ? 10 : verb.ticksBetweenBurstShots;
+                Warmup  = verb.warmupTime;
+                MinRange = verb.minRange;
+                MaxRange = verb.range;
+                Cooldown = Thing.GetStatValue(StatDefOf.RangedWeapon_Cooldown);
+
+                // ── CE StatDef-ы ───────────────────────────────────────────
+                if (CombatExtendedHelper.CombatExtended)
                 {
-                    AccuracyShort = (float) Math.Round(Thing.GetStatValue(StatDefOf.AccuracyShort) * 100f, 2);
+                    SightsEfficiency = SafeGetStat(SdSightsEfficiency, 1f);
+                    ShotSpread       = SafeGetStat(SdShotSpread,       0f);
+                    SwayFactor       = SafeGetStat(SdSwayFactor,       0f);
+                    Recoil           = SafeGetStat(SdRecoil,           0f);
+                    MagazineSize     = SafeGetStat(SdMagazineCapacity, 0f);
+                    ReloadTime       = SafeGetStat(SdReloadTime,       0f);
                 }
-                if (MinRange <= 25f && MaxRange >= 25f)
+                else
                 {
-                    AccuracyMedium = (float) Math.Round(Thing.GetStatValue(StatDefOf.AccuracyMedium) * 100f, 2);
+                    SightsEfficiency = 1f;
+                    ShotSpread = SwayFactor = Recoil = MagazineSize = ReloadTime = 0f;
                 }
-                if (MinRange <= 40f && MaxRange >= 40f)
-                {
-                    AccuracyLong = (float) Math.Round(Thing.GetStatValue(StatDefOf.AccuracyLong) * 100f, 2);
-                }
-                var totalAccuracy = 0f;
-                var rangeCount = 0;
-                if (AccuracyClose > 0f)
-                {
-                    DpsaClose = Dps * AccuracyClose / 100f;
-                    totalAccuracy += AccuracyClose;
-                    rangeCount++;
-                }
-                if (AccuracyShort > 0f)
-                {
-                    DpsaShort = Dps * AccuracyShort / 100f;
-                    totalAccuracy += AccuracyShort;
-                    rangeCount++;
-                }
-                if (AccuracyMedium > 0f)
-                {
-                    DpsaMedium = Dps * AccuracyMedium / 100f;
-                    totalAccuracy += AccuracyMedium;
-                    rangeCount++;
-                }
-                if (AccuracyLong > 0f)
-                {
-                    DpsaLong = Dps * AccuracyLong / 100f;
-                    totalAccuracy += AccuracyLong;
-                    rangeCount++;
-                }
-                Dpsa = rangeCount == 0 ? 0f : Dps * (totalAccuracy * SightsEfficiency / rangeCount) / 100f;
+
+                // ── DPS с учётом перезарядки ───────────────────────────────
+                // Время одной очереди (в тиках)
+                var timePerBurstTicks = (Warmup + Cooldown) * 60f
+                                      + BurstShotCount * TicksBetweenBurstShots;
+                // Кол-во очередей на магазин (минимум 1)
+                var burstsPerMag = MagazineSize > 0
+                    ? (float)Math.Ceiling(MagazineSize / BurstShotCount)
+                    : 1f;
+                // Выстрелов на магазин
+                var shotsPerMag = MagazineSize > 0 ? MagazineSize : (float)BurstShotCount;
+                // Полное время на магазин (тики) + перезарядка
+                var totalTicks = timePerBurstTicks * burstsPerMag + ReloadTime * 60f;
+                DpsRealistic = totalTicks > 0
+                    ? (float)Math.Round(Damage * shotsPerMag / totalTicks * 60f, 2)
+                    : 0f;
+
+                // ── Dpsa = DpsRealistic × SightsEfficiency по дистанциям ───
+                // (SightsEfficiency — качество прицела, не зависит от дистанции,
+                //  используем как единственный оружейный модификатор точности)
+                DpsaClose  = MinRange <= 3f  && MaxRange >= 3f  ? DpsRealistic * SightsEfficiency : 0f;
+                DpsaShort  = MinRange <= 12f && MaxRange >= 12f ? DpsRealistic * SightsEfficiency : 0f;
+                DpsaMedium = MinRange <= 25f && MaxRange >= 25f ? DpsRealistic * SightsEfficiency : 0f;
+                DpsaLong   = MinRange <= 40f && MaxRange >= 40f ? DpsRealistic * SightsEfficiency : 0f;
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
                 Log.Error(
-                    $"Equipment Manager: Could not update cache of '{Thing.LabelCapNoCount}' ({Thing.def?.defName}): {exception.Message}");
+                    $"Equipment Manager: Could not update cache of '{Thing.LabelCapNoCount}' ({Thing.def?.defName}): {ex.Message}");
             }
             return true;
         }
 
-        private delegate CompProperties AmmoUserPropsDelegate();
+        private float SafeGetStat(StatDef sd, float fallback)
+        {
+            try { return sd != null ? Thing.GetStatValue(sd) : fallback; }
+            catch { return fallback; }
+        }
     }
 }
