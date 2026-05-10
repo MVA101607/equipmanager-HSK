@@ -16,6 +16,7 @@ jobs:
 
       - name: Create Zip Archive
         run: |
+          ls -la 
           mkdir EquipManager-HSK
           cp -r About/ Common/ 1.5/ EquipManager-HSK/
           zip -r EquipManager-HSK.zip EquipManager-HSK/
@@ -24,5 +25,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: EquipManager-HSK.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
