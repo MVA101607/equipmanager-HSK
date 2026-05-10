@@ -18,17 +18,13 @@ namespace EquipmentManager.CustomWidgets
 
         public static bool? CycleSettingValue(MultiCheckboxState state)
         {
-            switch (state)
+            return state switch
             {
-                case MultiCheckboxState.On:
-                    return false;
-                case MultiCheckboxState.Off:
-                    return null;
-                case MultiCheckboxState.Partial:
-                    return true;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
-            }
+                MultiCheckboxState.On => false,
+                MultiCheckboxState.Off => null,
+                MultiCheckboxState.Partial => true,
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null),
+            };
         }
 
         public static void DoGapLineHorizontal(Rect rect)

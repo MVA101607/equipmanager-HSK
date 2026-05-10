@@ -7,7 +7,6 @@ namespace EquipmentManager
 {
     internal class PawnCache
     {
-        private static EquipmentManagerGameComponent _equipmentManager;
         private readonly RimworldTime _updateTime = new(-1, -1, -1);
         public readonly Dictionary<Thing, int>    AssignedAmmo    = new();
         public readonly Dictionary<Thing, string> AssignedWeapons = new();
@@ -31,7 +30,7 @@ namespace EquipmentManager
         public Dictionary<Role, float> AvailableRoles { get; } = new();
 
         private static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
+            Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public Pawn Pawn { get; }
 

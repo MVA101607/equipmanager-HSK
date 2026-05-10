@@ -12,6 +12,11 @@ namespace EquipmentManager
             return _log;
         }
 
+        public void ClearLog()
+        {
+            _log.Clear();
+        }
+
         public void LogMessage(string message)
         {
             if (_log.Count >= LogLimit) { _log.RemoveAt(0); }

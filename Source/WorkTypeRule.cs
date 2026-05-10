@@ -10,7 +10,6 @@ namespace EquipmentManager
     internal class WorkTypeRule : IExposable
     {
         private static HashSet<ThingDef> _allRelevantThings;
-        private static EquipmentManagerGameComponent _equipmentManager;
 
         private static readonly Dictionary<string, IEnumerable<string>> DefaultWorkTypeStats =
             new()
@@ -90,7 +89,7 @@ namespace EquipmentManager
         }
 
         private static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
+            Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public string Label =>
             WorkTypeDef != null

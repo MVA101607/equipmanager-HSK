@@ -45,6 +45,11 @@ namespace EquipmentManager.Windows
             {
                 CopyAllMessagesToClipboard();
             }
+            if (widgetRow.ButtonText("Clear", "Clear all log messages."))
+            {
+                EquipmentManager.ClearLog();
+                _scrollPosition = Vector2.zero;
+            }
             Text.Anchor = TextAnchor.MiddleLeft;
             var outRect = inRect;
             outRect.yMin += 26f;

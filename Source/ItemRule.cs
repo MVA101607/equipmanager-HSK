@@ -9,7 +9,6 @@ namespace EquipmentManager
 {
     internal class ItemRule : IExposable
     {
-        private static EquipmentManagerGameComponent _equipmentManager;
 
         protected static readonly SimpleCurve HitPointsCurve = new()
         {
@@ -65,7 +64,8 @@ namespace EquipmentManager
                     new StatWeight("MarketValue", false) {Weight = 0.1f}
                 };
 
-        protected static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
+        protected static EquipmentManagerGameComponent EquipmentManager =>
+            Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public int Id => _id;
         public bool Protected => _protected;
