@@ -16,7 +16,6 @@ namespace EquipmentManager.Windows
         private static Vector2 _blacklistScrollPosition;
         private static Vector2 _currentItemsScrollPosition;
         private static DialogTab _currentTab = DialogTab.MeleeWeapons;
-        private static EquipmentManagerGameComponent _equipmentManager;
         private static Vector2 _globalItemsScrollPosition;
         private static Vector2 _statLimitsScrollPosition;
         private static Vector2 _statWeightsScrollPosition;
@@ -35,7 +34,8 @@ namespace EquipmentManager.Windows
 
         private int AvailableItemIconsRowCount => InitialSize.y < MaxSize.y ? 2 : 5;
 
-        private static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
+        private static EquipmentManagerGameComponent EquipmentManager =>
+            Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         private int ExclusiveItemIconsRowCount => InitialSize.y < MaxSize.y ? 2 : 3;
         public override Vector2 InitialSize => UiHelpers.GetWindowSize(new Vector2(850f, 650f), MaxSize);

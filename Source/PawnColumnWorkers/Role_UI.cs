@@ -13,10 +13,9 @@ namespace EquipmentManager.PawnColumnWorkers
     [UsedImplicitly]
     internal class Role_UI : PawnColumnWorker
     {
-        private static EquipmentManagerGameComponent _equipmentManager;
 
         private static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
+            Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         private static IEnumerable<Widgets.DropdownMenuElement<EquipmentManager.Role>> Button_GenerateMenu(Pawn pawn)
         {

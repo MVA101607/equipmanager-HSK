@@ -7,7 +7,6 @@ namespace EquipmentManager.Windows
 {
     internal class LogDialog : Window
     {
-        private static EquipmentManagerGameComponent _equipmentManager;
         private static Vector2 _scrollPosition;
         private float _listingViewHeight;
 
@@ -23,7 +22,8 @@ namespace EquipmentManager.Windows
             absorbInputAroundWindow = false;
         }
 
-        private static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
+        private static EquipmentManagerGameComponent EquipmentManager =>
+            Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public override Vector2 InitialSize =>
             UiHelpers.GetWindowSize(new Vector2(500f, 500f), new Vector2(1000f, 1000f));

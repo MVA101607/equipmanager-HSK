@@ -10,7 +10,6 @@ namespace EquipmentManager.Windows
 {
     internal class ImportRolesDialog : Window
     {
-        private static EquipmentManagerGameComponent _equipmentManager;
         private readonly List<Role> _roles = new();
         private readonly List<MeleeWeaponRule> _meleeWeaponRules = new();
         private readonly List<RangedWeaponRule> _rangedWeaponRules = new();
@@ -30,7 +29,8 @@ namespace EquipmentManager.Windows
             absorbInputAroundWindow = true;
         }
 
-        private static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
+        private static EquipmentManagerGameComponent EquipmentManager =>
+            Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public override Vector2 InitialSize =>
             UiHelpers.GetWindowSize(new Vector2(850f, 500f), new Vector2(1000f, 500f));
