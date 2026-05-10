@@ -162,4 +162,5 @@
 	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Description>Weighted average blunt armor penetration in MPa. Determines ability to cause blunt trauma through soft armor.</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Description>
 	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>Tech level</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>
 	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>Weapon's tech level.</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>
+	<EquipmentManager.NoRoleAvailable>No role fits {0}. Check Log in Equipment Manager.</EquipmentManager.NoRoleAvailable>
 </LanguageData>

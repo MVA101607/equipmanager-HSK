@@ -81,7 +81,8 @@ namespace EquipmentManager
             [NotNull] Pawn pawn,
             [NotNull] ThingDef specificAmmoDef,
             int count,
-            CEGenericDef genericAmmoDef = null)
+            CEGenericDef genericAmmoDef = null,
+            HashSet<string> managedSlotKeys = null)
         {
             if (count <= 0 && genericAmmoDef == null) { return false; }
             try
@@ -101,7 +102,14 @@ namespace EquipmentManager
                     ? new CELoadoutSlot(genericAmmoDef, count)
                     : new CELoadoutSlot(specificAmmoDef, count);
                 personalLoadout.AddSlot(newSlot);
-
+                // Регистрируем слот как управляемый, чтобы при смене роли он был удалён.
+                if (managedSlotKeys != null)
+                {
+                    var key = genericAmmoDef != null
+                        ? $"genericdef:{genericAmmoDef.defName}"
+                        : $"thingdef:{specificAmmoDef.defName}";
+                    _ = managedSlotKeys.Add(key);
+                }
                 NotifyAll(pawn);
                 return true;
             }

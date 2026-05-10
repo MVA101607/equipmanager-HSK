@@ -304,7 +304,7 @@ namespace EquipmentManager
         public IReadOnlyList<Pawn> GetAvailablePawnsOrdered()
         {
             Initialize();
-            return new List<Pawn>(PawnsFinder.AllMaps_FreeColonistsSpawned.Where(IsAvailable)
+            return new List<Pawn>(PawnsFinder.AllMaps_FreeColonistsSpawned.Where(p => IsAvailable(p))
                 .OrderByDescending(GetScore));
         }
 
@@ -356,30 +356,57 @@ namespace EquipmentManager
             _statWeights ??= new List<StatWeight>();
         }
 
-        public bool IsAvailable(Pawn pawn)
+        public bool IsAvailable(Pawn pawn, bool showLog = false)
         {
             Initialize();
+            var em = showLog ? Current.Game?.GetComponent<EquipmentManagerGameComponent>() : null;
             if (ModsConfig.IdeologyActive && pawn.Ideo != null)
             {
                 var role = pawn.Ideo.GetRole(pawn);
                 if (role?.def?.roleEffects != null)
                 {
                     if (PrimaryRuleType == PrimaryWeaponType.RangedWeapon && PrimaryRangedWeaponRuleId != null &&
-                        role.def.roleEffects.Any(effect => effect is RoleEffect_NoRangedWeapons)) { return false; }
+                        role.def.roleEffects.Any(effect => effect is RoleEffect_NoRangedWeapons))
+                    {
+                        em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - IdeoRole blocks ranged");
+                        return false;
+                    }
                     if (PrimaryRuleType == PrimaryWeaponType.MeleeWeapon && PrimaryMeleeWeaponRuleId != null &&
-                        role.def.roleEffects.Any(effect => effect is RoleEffect_NoMeleeWeapons)) { return false; }
+                        role.def.roleEffects.Any(effect => effect is RoleEffect_NoMeleeWeapons))
+                    {
+                        em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - IdeoRole blocks melee");
+                        return false;
+                    }
                 }
             }
             foreach (var pawnTrait in _pawnTraits)
             {
                 var trait = DefDatabase<TraitDef>.GetNamedSilentFail(pawnTrait.Key);
-                if (trait == null) { continue; }
-                if (pawn.story.traits.HasTrait(trait) != pawnTrait.Value) { return false; }
+                if (trait == null)
+                {
+                    em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: trait '{pawnTrait.Key}' not found, skipped");
+                    continue;
+                }
+                var hasTrait = pawn.story.traits.HasTrait(trait);
+                if (hasTrait != pawnTrait.Value)
+                {
+                    em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - trait '{pawnTrait.Key}' required={pawnTrait.Value} actual={hasTrait}");
+                    return false;
+                }
             }
             foreach (var pawnCapacity in _pawnWorkCapacities)
             {
-                if (!Enum.TryParse<WorkTags>(pawnCapacity.Key, out var tag)) { continue; }
-                if (pawn.WorkTagIsDisabled(tag) == pawnCapacity.Value) { return false; }
+                if (!Enum.TryParse<WorkTags>(pawnCapacity.Key, out var tag))
+                {
+                    em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: WorkTag '{pawnCapacity.Key}' parse FAILED, skipped");
+                    continue;
+                }
+                var isDisabled = pawn.WorkTagIsDisabled(tag);
+                if (isDisabled == pawnCapacity.Value)
+                {
+                    em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - WorkTag '{pawnCapacity.Key}' required={pawnCapacity.Value} isDisabled={isDisabled}");
+                    return false;
+                }
             }
             foreach (var passionLimit in _passionLimits.Where(pl => pl.SkillDef != null))
             {
@@ -387,16 +414,32 @@ namespace EquipmentManager
                 switch (passionLimit.Value)
                 {
                     case PassionValue.None:
-                        if (passion != Passion.None) { return false; }
+                        if (passion != Passion.None)
+                        {
+                            em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - passion '{passionLimit.SkillDef.defName}' required=None actual={passion}");
+                            return false;
+                        }
                         break;
                     case PassionValue.Minor:
-                        if (passion != Passion.Minor) { return false; }
+                        if (passion != Passion.Minor)
+                        {
+                            em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - passion '{passionLimit.SkillDef.defName}' required=Minor actual={passion}");
+                            return false;
+                        }
                         break;
                     case PassionValue.Major:
-                        if (passion != Passion.Major) { return false; }
+                        if (passion != Passion.Major)
+                        {
+                            em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - passion '{passionLimit.SkillDef.defName}' required=Major actual={passion}");
+                            return false;
+                        }
                         break;
                     case PassionValue.Any:
-                        if (passion == Passion.None) { return false; }
+                        if (passion == Passion.None)
+                        {
+                            em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - passion '{passionLimit.SkillDef.defName}' required=Any actual=None");
+                            return false;
+                        }
                         break;
                 }
             }
@@ -404,20 +447,33 @@ namespace EquipmentManager
             {
                 var capacity = pawn.health.capacities.GetLevel(pawnCapacityLimit.PawnCapacityDef);
                 if ((pawnCapacityLimit.MinValue != null && capacity < pawnCapacityLimit.MinValue) ||
-                    (pawnCapacityLimit.MaxValue != null && capacity > pawnCapacityLimit.MaxValue)) { return false; }
+                    (pawnCapacityLimit.MaxValue != null && capacity > pawnCapacityLimit.MaxValue))
+                {
+                    em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - capacity '{pawnCapacityLimit.PawnCapacityDef.defName}'={capacity:F2}, Rule: min={pawnCapacityLimit.MinValue} max={pawnCapacityLimit.MaxValue}");
+                    return false;
+                }
             }
             foreach (var statLimit in _statLimits.Where(sl => sl.StatDef != null))
             {
                 var statValue = pawn.GetStatValue(statLimit.StatDef);
                 if ((statLimit.MinValue != null && statValue < statLimit.MinValue) ||
-                    (statLimit.MaxValue != null && statValue > statLimit.MaxValue)) { return false; }
+                    (statLimit.MaxValue != null && statValue > statLimit.MaxValue))
+                {
+                    em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - stat '{statLimit.StatDef.defName}'={statValue:F2}, Rule: min={statLimit.MinValue} max={statLimit.MaxValue}");
+                    return false;
+                }
             }
             foreach (var skillLimit in _skillLimits.Where(sl => sl.SkillDef != null))
             {
                 var skillValue = pawn.skills.GetSkill(skillLimit.SkillDef).Level;
                 if ((skillLimit.MinValue != null && skillValue < skillLimit.MinValue) ||
-                    (skillLimit.MaxValue != null && skillValue > skillLimit.MaxValue)) { return false; }
+                    (skillLimit.MaxValue != null && skillValue > skillLimit.MaxValue))
+                {
+                    em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: NO - skill '{skillLimit.SkillDef.defName}'={skillValue}, Rule: min={skillLimit.MinValue} max={skillLimit.MaxValue}");
+                    return false;
+                }
             }
+            em?.LogMessage($"[EM] IsAvailable [{Label}] -> {pawn.LabelShortCap}: YES");
             return true;
         }
     }

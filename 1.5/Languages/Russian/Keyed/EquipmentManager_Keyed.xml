@@ -153,4 +153,5 @@
 	<EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Description>Взвешенное среднее тупое пробитие брони в МПа. Определяет способность наносить тупую травму сквозь мягкую броню.</EquipmentManager.Stats.EM_MeleeWeapons_ArmorPenBlunt.Description>
 	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>
 	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>Уровень технологий оружия ближнего боя.</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>
+	<EquipmentManager.NoRoleAvailable>Ни одна военная профессия не подходит для {0}. Подробнее в журнале Equipment Manager.</EquipmentManager.NoRoleAvailable>
 </LanguageData>

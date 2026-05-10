@@ -184,8 +184,13 @@ namespace EquipmentManager
             {
                 EquipmentManager.LogMessage(
                     $"[EM] {pawn.Pawn.LabelShortCap}: {weapon.LabelCapNoCount} is one-use ammo, assigning 5");
+
+                var pr1 = EquipmentManager.GetPawnRole(pawn.Pawn);
+                pr1.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
                 _ = CEExtendedLoadoutHelper.SetAmmoInPersonalLoadout(
-                    pawn.Pawn, weapon.def, 5);
+                    pawn.Pawn, weapon.def, 5,
+                    managedSlotKeys: pr1.ManagedPersonalLoadoutSlots);
+
                 return;
             }
 
@@ -210,8 +215,11 @@ namespace EquipmentManager
                 $" generic={genericAmmoDef?.defName ?? "none"}" +
                 $" specific={preferredAmmoDef.defName} count={targetCount}");
 
+            var pr2 = EquipmentManager.GetPawnRole(pawn.Pawn);
+            pr2.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
             _ = CEExtendedLoadoutHelper.SetAmmoInPersonalLoadout(
-                pawn.Pawn, preferredAmmoDef, targetCount, genericAmmoDef);
+                pawn.Pawn, preferredAmmoDef, targetCount, genericAmmoDef,
+                managedSlotKeys: pr2.ManagedPersonalLoadoutSlots);
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -347,9 +355,6 @@ namespace EquipmentManager
                 var pawnRole = EquipmentManager.GetPawnRole(pawn.Pawn);
                 if (pawnRole == null) { continue; }
                 pawnRole.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
-                EquipmentManager.LogMessage(
-                    $"[EM] {pawn.Pawn.LabelShortCap}: managed slots = " +
-                    string.Join(", ", pawnRole.ManagedPersonalLoadoutSlots));
             }
         }
 
@@ -406,10 +411,10 @@ namespace EquipmentManager
                 pawn.AssignedAmmo.Clear();
             }
 
-            EquipmentManager.LogMessage("[EM] Roles: " +
-                string.Join(", ", _pawnCache
-                    .Where(pc => pc.AssignedRole != null)
-                    .Select(pc => $"{pc.Pawn.LabelShortCap}={pc.AssignedRole.Label}")));
+         //   EquipmentManager.LogMessage("[EM] Roles: " +
+           //     string.Join(", ", _pawnCache
+             //       .Where(pc => pc.AssignedRole != null)
+               //     .Select(pc => $"{pc.Pawn.LabelShortCap}={pc.AssignedRole.Label}")));
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -442,12 +447,12 @@ namespace EquipmentManager
                 pc.Update(_updateTime);
             }
 
-            EquipmentManager.LogMessage("[EM] Pawns: " +
-                string.Join("; ", _pawnCache.Select(pc =>
-                    $"{pc.Pawn.LabelShortCap}" +
-                    $"({pc.AssignedRole?.Label ?? "None"}" +
-                    $",{(pc.AutoRole ? "auto" : "manual")})" +
-                    $"[{(pc.ShouldUpdateEquipment ? "upd" : "skip")}]")));
+        //    EquipmentManager.LogMessage("[EM] Pawns: " +
+          //      string.Join("; ", _pawnCache.Select(pc =>
+            //        $"{pc.Pawn.LabelShortCap}" +
+              //      $"({pc.AssignedRole?.Label ?? "None"}" +
+                //    $",{(pc.AutoRole ? "auto" : "manual")})" +
+                  //  $"[{(pc.ShouldUpdateEquipment ? "upd" : "skip")}]")));
         }
 
 
@@ -563,6 +568,18 @@ namespace EquipmentManager
                     }
                 }
 
+                if (pawn.AvailableRoles.Count == 0)
+                {
+                    var noRoleMsg = "EquipmentManager.NoRoleAvailable".Translate(pawn.Pawn.LabelShortCap);
+                    Messages.Message(noRoleMsg, pawn.Pawn, MessageTypeDefOf.RejectInput, historical: false);
+                    EquipmentManager.LogMessage(
+                        $"[EM] ForceUpdateForPawn: {pawn.Pawn.LabelShortCap} — no roles match!");
+                    foreach (var role in EquipmentManager.GetRoles())
+                    {
+                        EquipmentManager.LogMessage(
+                            $"[EM]   role '{role.Label}': IsAvailable={role.IsAvailable(pawn.Pawn, true)}");
+                    }
+                }
                 // Запомнить текущую роль чтобы обнаружить смену
                 var previousRole = pawn.AssignedRole;
 
@@ -635,21 +652,19 @@ namespace EquipmentManager
                     {
                         var score = role.GetScore(pawn);
                         pc.AvailableRoles.Add(role, score);
-                        EquipmentManager.LogMessage(
-                            $"[EM]   available role: {role.Label} score={score:F2}");
-                    }
-                    else
-                    {
-                        EquipmentManager.LogMessage(
-                            $"[EM]   NOT available: {role.Label} priority={role.Priority}");
                     }
                 }
                 if (pc.AvailableRoles.Count == 0)
                 {
-                    Log.Warning(
-                        $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap}"
-                        + " — no roles match this pawn."
-                        + " Check role Priority > 0 and pawn skill/trait/capacity filters.");
+                    var noRoleMsg = "EquipmentManager.NoRoleAvailable".Translate(pawn.LabelShortCap);
+                    Messages.Message(noRoleMsg, pawn, MessageTypeDefOf.RejectInput, historical: false);
+                    EquipmentManager.LogMessage(
+                        $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap} — no roles match!");
+                    foreach (var role in EquipmentManager.GetRoles())
+                    {
+                        EquipmentManager.LogMessage(
+                            $"[EM]   role '{role.Label}': IsAvailable={role.IsAvailable(pawn, true)}");
+                    }
                 }
                 var previousLabel = pc.AssignedRole?.Label ?? "null";
                 pc.AssignedRole = null;
