@@ -102,7 +102,13 @@ namespace EquipmentManager
 
         public IEnumerable<ToolRule> GetToolRules()
         {
-            if (_toolRules == null || _toolRules.Count == 0) { _toolRules = new List<ToolRule>(ToolRule.DefaultRules); }
+            if (_toolRules == null || _toolRules.Count == 0)
+            {
+                var fromProfile = DefaultProfile.ToolRules.ToList();
+                _toolRules = fromProfile.Count > 0
+                    ? fromProfile
+                    : new List<ToolRule>(ToolRule.DefaultRules);
+            }
             return _toolRules;
         }
     }

@@ -129,6 +129,8 @@
     <Compile Include="ToolRule.cs" />
     <Compile Include="MeleeWeaponRule.cs" />
     <Compile Include="CustomWidgets\ThingBox.cs" />
+    <Compile Include="DefaultProfile.cs" />
+    <Compile Include="Windows\ProfileXmlReader.cs" />
     <Compile Include="Windows\ImportRolesDialog.cs" />
     <Compile Include="Windows\LogDialog.cs" />
     <Compile Include="PawnColumnWorkers\Role_UI.cs" />

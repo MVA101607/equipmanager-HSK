@@ -116,7 +116,10 @@ namespace EquipmentManager
         {
             if (_rangedWeaponRules == null || _rangedWeaponRules.Count == 0)
             {
-                _rangedWeaponRules = new List<RangedWeaponRule>(RangedWeaponRule.DefaultRules);
+                var fromProfile = DefaultProfile.RangedWeaponRules.ToList();
+                _rangedWeaponRules = fromProfile.Count > 0
+                    ? fromProfile
+                    : new List<RangedWeaponRule>(RangedWeaponRule.DefaultRules);
             }
             return _rangedWeaponRules;
         }

@@ -113,7 +113,10 @@ namespace EquipmentManager
         {
             if (_meleeWeaponRules == null || _meleeWeaponRules.Count == 0)
             {
-                _meleeWeaponRules = new List<MeleeWeaponRule>(MeleeWeaponRule.DefaultRules);
+                var fromProfile = DefaultProfile.MeleeWeaponRules.ToList();
+                _meleeWeaponRules = fromProfile.Count > 0
+                    ? fromProfile
+                    : new List<MeleeWeaponRule>(MeleeWeaponRule.DefaultRules);
             }
             return _meleeWeaponRules;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Verse;
 
 namespace EquipmentManager
@@ -29,7 +30,10 @@ namespace EquipmentManager
         {
             if (_workTypeRules == null || _workTypeRules.Count == 0)
             {
-                _workTypeRules = new List<WorkTypeRule>(WorkTypeRule.DefaultRules);
+                var fromProfile = DefaultProfile.WorkTypeRules.ToList();
+                _workTypeRules = fromProfile.Count > 0
+                    ? fromProfile
+                    : new List<WorkTypeRule>(WorkTypeRule.DefaultRules);
             }
             return _workTypeRules;
         }

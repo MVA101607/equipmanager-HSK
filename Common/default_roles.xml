@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Дефолтный профиль Equipment Manager.
+  Этот файл можно заменить любым сохранённым профилем (XML из папки
+  Config/EquipmentManager/), переименованным в default_roles.xml.
+  Все 5 секций ниже (WorkTypeRules / ToolRules / MeleeWeaponRules /
+  RangedWeaponRules / Loadouts) загружаются мод-кодом тем же парсером,
+  что и пользовательские профили в окне импорта.
+  Пустая секция означает «использовать встроенные C# дефолты»,
+  непустая секция — полностью замещает их данными из этого файла.
+-->
 <EquipmentManagerProfile>
   <WorkTypeRules />
   <ToolRules />
