@@ -33,25 +33,24 @@ namespace EquipmentManager
             if (string.IsNullOrEmpty(profilePath) || !File.Exists(profilePath)) { return data; }
             try
             {
-                using var xmlReader = XmlReader.Create(profilePath,
-                    new XmlReaderSettings
-                    {
-                        IgnoreWhitespace = true, IgnoreComments = true, IgnoreProcessingInstructions = true
-                    });
-                if (!xmlReader.ReadToFollowing("EquipmentManagerProfile"))
+                var doc = new System.Xml.XmlDocument();
+                doc.Load(profilePath);
+                var root = doc.SelectSingleNode("EquipmentManagerProfile");
+                if (root == null)
                 {
                     Log.Error($"Equipment Manager: Not a valid profile file: {profilePath}");
                     return data;
                 }
-                ReadWorkTypeRulesData(profilePath, xmlReader.ReadSubtree(), data.WorkTypeRules);
-                xmlReader.ReadEndElement();
-                ReadToolRulesData(profilePath, xmlReader.ReadSubtree(), data.ToolRules);
-                xmlReader.ReadEndElement();
-                ReadMeleeWeaponRulesData(profilePath, xmlReader.ReadSubtree(), data.MeleeWeaponRules);
-                xmlReader.ReadEndElement();
-                ReadRangedWeaponRulesData(profilePath, xmlReader.ReadSubtree(), data.RangedWeaponRules);
-                xmlReader.ReadEndElement();
-                ReadRolesData(profilePath, xmlReader.ReadSubtree(), data.Roles);
+                var section = root.SelectSingleNode("WorkTypeRules");
+                if (section != null) { ReadWorkTypeRulesData(profilePath, new XmlNodeReader(section), data.WorkTypeRules); }
+                section = root.SelectSingleNode("ToolRules");
+                if (section != null) { ReadToolRulesData(profilePath, new XmlNodeReader(section), data.ToolRules); }
+                section = root.SelectSingleNode("MeleeWeaponRules");
+                if (section != null) { ReadMeleeWeaponRulesData(profilePath, new XmlNodeReader(section), data.MeleeWeaponRules); }
+                section = root.SelectSingleNode("RangedWeaponRules");
+                if (section != null) { ReadRangedWeaponRulesData(profilePath, new XmlNodeReader(section), data.RangedWeaponRules); }
+                section = root.SelectSingleNode("Loadouts");
+                if (section != null) { ReadRolesData(profilePath, new XmlNodeReader(section), data.Roles); }
             }
             catch (Exception ex)
             {
@@ -97,15 +96,20 @@ namespace EquipmentManager
                         if (xmlReader.Value == typeof(EquipmentManagerGameComponent).FullName)
                         {
                             _ = xmlReader.MoveToElement();
-                            ReadWorkTypeRulesData(savedGameFile, xmlReader.ReadSubtree(), data.WorkTypeRules);
-                            xmlReader.ReadEndElement();
-                            ReadToolRulesData(savedGameFile, xmlReader.ReadSubtree(), data.ToolRules);
-                            xmlReader.ReadEndElement();
-                            ReadMeleeWeaponRulesData(savedGameFile, xmlReader.ReadSubtree(), data.MeleeWeaponRules);
-                            xmlReader.ReadEndElement();
-                            ReadRangedWeaponRulesData(savedGameFile, xmlReader.ReadSubtree(), data.RangedWeaponRules);
-                            xmlReader.ReadEndElement();
-                            ReadRolesData(savedGameFile, xmlReader.ReadSubtree(), data.Roles);
+                            var liXml = xmlReader.ReadOuterXml();
+                            var liDoc = new System.Xml.XmlDocument();
+                            liDoc.LoadXml(liXml);
+                            var liRoot = liDoc.DocumentElement;
+                            var sgSection = liRoot?.SelectSingleNode("WorkTypeRules");
+                            if (sgSection != null) { ReadWorkTypeRulesData(savedGameFile, new XmlNodeReader(sgSection), data.WorkTypeRules); }
+                            sgSection = liRoot?.SelectSingleNode("ToolRules");
+                            if (sgSection != null) { ReadToolRulesData(savedGameFile, new XmlNodeReader(sgSection), data.ToolRules); }
+                            sgSection = liRoot?.SelectSingleNode("MeleeWeaponRules");
+                            if (sgSection != null) { ReadMeleeWeaponRulesData(savedGameFile, new XmlNodeReader(sgSection), data.MeleeWeaponRules); }
+                            sgSection = liRoot?.SelectSingleNode("RangedWeaponRules");
+                            if (sgSection != null) { ReadRangedWeaponRulesData(savedGameFile, new XmlNodeReader(sgSection), data.RangedWeaponRules); }
+                            sgSection = liRoot?.SelectSingleNode("Loadouts");
+                            if (sgSection != null) { ReadRolesData(savedGameFile, new XmlNodeReader(sgSection), data.Roles); }
                             return data;
                         }
                         _ = xmlReader.MoveToElement();

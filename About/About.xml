@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <ModMetaData>
-	<name>Equip Manager HSK</name>
+	<name>EquipManager-HSK</name>
 	<author>LordKuper, MVA101607</author>
 	<packageId>LordKuper.EquipmentManager</packageId>
 	<supportedVersions>
@@ -28,5 +28,19 @@
 		<li>OskarPotocki.VanillaFactionsExpanded.Core</li>
 		<li>CETeam.CombatExtended</li>
 	</loadAfter>
-	<description>Automaticly adds best equipment to loadout</description>
+	<description>[English]
+A rework of the Equipment Manager mod by LordKuper / Michieru. SimpleSidearms integration has been removed. CE (Extended Loadout) integration has been added instead.
+The mod searches for the best weapon based on stats, assigns it to a pawn's personal loadout, adds ammo, and then directs the pawn to grab that best weapon.
+You can set up different weapon selection policies — a sniper will choose a long-range weapon, an assault will choose a rapid-fire weapon, etc. The same applies to melee weapons.
+
+[Русский]
+Переработка мода Equipment Manager от LordKuper / Michieru. Убрана интеграция SimpleSidearms. Вместо неё добавлена интеграция CE - Extended Loadout.
+Мод ищет лучшее оружие по статам, прописывает его в личную разгрузку(loadout) пешке, докидывает еще туда патронов и гонит пешку подбирать данный лучший экземпляр.
+Можно настраивать разные политики для выбора оружия - снайпер возьмет дальнобойное, штурмовик - скорострельное и т.д. Аналогично с холодным оружием.
+
+[简体中文]
+这是 LordKuper / Michieru 制作的装备管理器模组的重制版。SimpleSidearms 集成已被移除，取而代之的是 CE（扩展装备配置）集成。
+该模组会根据属性搜索最佳武器，将其分配到角色的个人装备配置中，添加弹药，然后指示角色拾取该最佳武器。
+您可以设置不同的武器选择策略——狙击手选择远程武器，突击兵选择速射武器等等。近战武器也适用同样的规则。
+	</description>
 </ModMetaData>

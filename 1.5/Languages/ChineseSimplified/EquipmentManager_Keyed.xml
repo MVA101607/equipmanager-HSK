@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+	<!-- ── 配置文件 ──────────────────────────────────────────────────────────── -->
+	<EquipmentManager.Roles.ProfilesListHeader>已保存的配置文件</EquipmentManager.Roles.ProfilesListHeader>
+	<EquipmentManager.Roles.SaveProfile>保存配置文件</EquipmentManager.Roles.SaveProfile>
+	<EquipmentManager.Roles.SaveProfileNamePrompt>输入配置文件名称：</EquipmentManager.Roles.SaveProfileNamePrompt>
+	<EquipmentManager.Roles.SaveProfileConfirm>保存</EquipmentManager.Roles.SaveProfileConfirm>
+	<EquipmentManager.Profiles.InvalidName>配置文件名称为空或无效。</EquipmentManager.Profiles.InvalidName>
+	<EquipmentManager.Profiles.Saved>配置文件"{0}"已保存。</EquipmentManager.Profiles.Saved>
+	<EquipmentManager.Profiles.SaveFailed>无法保存配置文件：{0}</EquipmentManager.Profiles.SaveFailed>
+
+	<!-- ── 通用 ──────────────────────────────────────────────────────────────── -->
+	<EquipmentManager.Add>添加</EquipmentManager.Add>
+
+	<!-- ── 角色 ──────────────────────────────────────────────────────────────── -->
+	<EquipmentManager.Roles.ManageRoles>管理角色</EquipmentManager.Roles.ManageRoles>
+	<EquipmentManager.Roles.SelectRole>选择角色</EquipmentManager.Roles.SelectRole>
+	<EquipmentManager.Roles.NoRoleSelected>未选择角色。</EquipmentManager.Roles.NoRoleSelected>
+	<EquipmentManager.Roles.RoleLabel>角色名称：</EquipmentManager.Roles.RoleLabel>
+	<EquipmentManager.Roles.RoleSettings>角色设置</EquipmentManager.Roles.RoleSettings>
+	<EquipmentManager.Roles.AddRole>添加角色</EquipmentManager.Roles.AddRole>
+	<EquipmentManager.Roles.CopyRole>复制角色</EquipmentManager.Roles.CopyRole>
+	<EquipmentManager.Roles.DeleteRole>删除角色</EquipmentManager.Roles.DeleteRole>
+	<EquipmentManager.Roles.ManageWeaponRules>管理规则</EquipmentManager.Roles.ManageWeaponRules>
+	<EquipmentManager.Roles.ImportRoles>导入角色</EquipmentManager.Roles.ImportRoles>
+	<EquipmentManager.Roles.Log>日志</EquipmentManager.Roles.Log>
+	<EquipmentManager.Roles.SavedGamesListHeader>已保存的游戏</EquipmentManager.Roles.SavedGamesListHeader>
+	<EquipmentManager.Roles.RoleListHeader>角色</EquipmentManager.Roles.RoleListHeader>
+	<EquipmentManager.Roles.ImportData>导入</EquipmentManager.Roles.ImportData>
+	<EquipmentManager.Roles.CancelDataImport>取消</EquipmentManager.Roles.CancelDataImport>
+	<EquipmentManager.Roles.AutoSelect>自动选择</EquipmentManager.Roles.AutoSelect>
+	<EquipmentManager.Roles.PriorityLabel>优先级：</EquipmentManager.Roles.PriorityLabel>
+	<EquipmentManager.Roles.PriorityTooltip>自动分配的角色优先级。数值越高，符合条件的殖民者越可能获得该角色。优先级为"0"时将禁用该角色的自动分配。</EquipmentManager.Roles.PriorityTooltip>
+	<EquipmentManager.GlobalReassign.Tooltip>立即为所有角色重新分配武器</EquipmentManager.GlobalReassign.Tooltip>
+	<EquipmentManager.Roles.DropUnassignedWeapons>丢弃未分配的武器</EquipmentManager.Roles.DropUnassignedWeapons>
+	<EquipmentManager.Roles.DropUnassignedWeaponsTooltip>角色将丢弃并遗忘所有未由装备管理器分配的武器</EquipmentManager.Roles.DropUnassignedWeaponsTooltip>
+	<EquipmentManager.Roles.Rules>规则</EquipmentManager.Roles.Rules>
+	<EquipmentManager.Roles.AvailablePawns>可用角色</EquipmentManager.Roles.AvailablePawns>
+	<EquipmentManager.Roles.PawnTraits>角色特质</EquipmentManager.Roles.PawnTraits>
+	<EquipmentManager.Roles.PawnPassions>角色激情</EquipmentManager.Roles.PawnPassions>
+	<EquipmentManager.Roles.PawnCapacityLimits>角色能力限制</EquipmentManager.Roles.PawnCapacityLimits>
+	<EquipmentManager.Roles.PawnCapacityWeights>角色能力权重</EquipmentManager.Roles.PawnCapacityWeights>
+	<EquipmentManager.Roles.PawnWorkCapacities>角色工作能力</EquipmentManager.Roles.PawnWorkCapacities>
+	<EquipmentManager.Roles.PawnSkillWeights>角色技能权重</EquipmentManager.Roles.PawnSkillWeights>
+	<EquipmentManager.Roles.PawnSkillLimits>角色技能限制</EquipmentManager.Roles.PawnSkillLimits>
+	<EquipmentManager.Roles.PawnStatWeights>角色属性权重</EquipmentManager.Roles.PawnStatWeights>
+	<EquipmentManager.Roles.PawnStatLimits>角色属性限制</EquipmentManager.Roles.PawnStatLimits>
+	<EquipmentManager.Roles.PrimaryWeaponLabel>主要武器：</EquipmentManager.Roles.PrimaryWeaponLabel>
+	<EquipmentManager.Roles.PrimaryWeaponTypes.None>无</EquipmentManager.Roles.PrimaryWeaponTypes.None>
+	<EquipmentManager.Roles.PrimaryWeaponTypes.RangedWeapon>远程武器</EquipmentManager.Roles.PrimaryWeaponTypes.RangedWeapon>
+	<EquipmentManager.Roles.PrimaryWeaponTypes.MeleeWeapon>近战武器</EquipmentManager.Roles.PrimaryWeaponTypes.MeleeWeapon>
+	<EquipmentManager.Roles.RangedSidearmRulesLabel>远程副武器规则：</EquipmentManager.Roles.RangedSidearmRulesLabel>
+	<EquipmentManager.Roles.MeleeSidearmRulesLabel>近战副武器规则：</EquipmentManager.Roles.MeleeSidearmRulesLabel>
+	<EquipmentManager.Roles.ToolsLabel>工具：</EquipmentManager.Roles.ToolsLabel>
+
+	<!-- ── 默认角色名称 ───────────────────────────────────────────────────────── -->
+	<EquipmentManager.Roles.Default.NoRole>无角色</EquipmentManager.Roles.Default.NoRole>
+	<EquipmentManager.Roles.Default.Sniper>狙击手</EquipmentManager.Roles.Default.Sniper>
+	<EquipmentManager.Roles.Default.Assault>突击手</EquipmentManager.Roles.Default.Assault>
+	<EquipmentManager.Roles.Default.Support>支援</EquipmentManager.Roles.Default.Support>
+	<EquipmentManager.Roles.Default.Crusher>重击手</EquipmentManager.Roles.Default.Crusher>
+	<EquipmentManager.Roles.Default.Slasher>斩击手</EquipmentManager.Roles.Default.Slasher>
+	<EquipmentManager.Roles.Default.Pacifist>和平主义者</EquipmentManager.Roles.Default.Pacifist>
+
+	<!-- ── 武器规则 ───────────────────────────────────────────────────────────── -->
+	<EquipmentManager.WeaponRules.AddRule>添加规则</EquipmentManager.WeaponRules.AddRule>
+	<EquipmentManager.WeaponRules.CopyRule>复制规则</EquipmentManager.WeaponRules.CopyRule>
+	<EquipmentManager.WeaponRules.DeleteRule>删除规则</EquipmentManager.WeaponRules.DeleteRule>
+	<EquipmentManager.WeaponRules.SelectRule>选择规则</EquipmentManager.WeaponRules.SelectRule>
+	<EquipmentManager.WeaponRules.RuleLabel>规则名称：</EquipmentManager.WeaponRules.RuleLabel>
+	<EquipmentManager.WeaponRules.NoRuleSelected>未选择规则。</EquipmentManager.WeaponRules.NoRuleSelected>
+	<EquipmentManager.WeaponRules.RuleSettings>规则设置</EquipmentManager.WeaponRules.RuleSettings>
+	<EquipmentManager.WeaponRules.ItemProperties>物品属性</EquipmentManager.WeaponRules.ItemProperties>
+	<EquipmentManager.WeaponRules.StatWeights>属性权重</EquipmentManager.WeaponRules.StatWeights>
+	<EquipmentManager.WeaponRules.StatLimits>属性限制</EquipmentManager.WeaponRules.StatLimits>
+	<EquipmentManager.WeaponRules.Refresh>刷新</EquipmentManager.WeaponRules.Refresh>
+	<EquipmentManager.WeaponRules.GloballyAvailableItems>全局可用物品</EquipmentManager.WeaponRules.GloballyAvailableItems>
+	<EquipmentManager.WeaponRules.GloballyAvailableItemsTooltip>游戏中所有符合规则设置的物品\n\n左键点击查看物品信息\n右键点击将物品加入黑名单</EquipmentManager.WeaponRules.GloballyAvailableItemsTooltip>
+	<EquipmentManager.WeaponRules.CurrentlyAvailableItems>当前可用物品</EquipmentManager.WeaponRules.CurrentlyAvailableItems>
+	<EquipmentManager.WeaponRules.CurrentlyAvailableItemsTooltip>当前地图上所有符合规则设置的物品\n\n左键点击查看物品信息\n右键点击将物品加入黑名单</EquipmentManager.WeaponRules.CurrentlyAvailableItemsTooltip>
+	<EquipmentManager.WeaponRules.WhitelistedItems>白名单物品</EquipmentManager.WeaponRules.WhitelistedItems>
+	<EquipmentManager.WeaponRules.WhitelistedItemsTooltip>无论设置如何均可装备的物品\n\n左键点击查看物品信息\n右键点击将物品从列表中移除</EquipmentManager.WeaponRules.WhitelistedItemsTooltip>
+	<EquipmentManager.WeaponRules.BlacklistedItems>黑名单物品</EquipmentManager.WeaponRules.BlacklistedItems>
+	<EquipmentManager.WeaponRules.BlacklistedItemsTooltip>无论设置如何均不可装备的物品\n\n左键点击查看物品信息\n右键点击将物品从列表中移除</EquipmentManager.WeaponRules.BlacklistedItemsTooltip>
+	<EquipmentManager.WeaponRules.RuleEquipModeLabel>装备模式：</EquipmentManager.WeaponRules.RuleEquipModeLabel>
+	<EquipmentManager.WeaponRules.WeaponEquipModes.BestOne>最佳可用武器</EquipmentManager.WeaponRules.WeaponEquipModes.BestOne>
+	<EquipmentManager.WeaponRules.WeaponEquipModes.AllAvailable>所有可用武器</EquipmentManager.WeaponRules.WeaponEquipModes.AllAvailable>
+	<EquipmentManager.WeaponRules.ToolEquipModes.OneForEveryWorkType>每种工作类型各一件</EquipmentManager.WeaponRules.ToolEquipModes.OneForEveryWorkType>
+	<EquipmentManager.WeaponRules.ToolEquipModes.OneForEveryAssignedWorkType>每种已分配工作类型各一件</EquipmentManager.WeaponRules.ToolEquipModes.OneForEveryAssignedWorkType>
+	<EquipmentManager.WeaponRules.ToolEquipModes.BestOne>最佳可用工具</EquipmentManager.WeaponRules.ToolEquipModes.BestOne>
+	<EquipmentManager.WeaponRules.ToolEquipModes.AllAvailable>所有可用工具</EquipmentManager.WeaponRules.ToolEquipModes.AllAvailable>
+
+	<!-- ── 近战武器 ───────────────────────────────────────────────────────────── -->
+	<EquipmentManager.WeaponRules.MeleeWeapons.Title>近战武器</EquipmentManager.WeaponRules.MeleeWeapons.Title>
+	<EquipmentManager.WeaponRules.MeleeWeapons.UsableWithShields>可配合盾牌使用</EquipmentManager.WeaponRules.MeleeWeapons.UsableWithShields>
+	<EquipmentManager.WeaponRules.MeleeWeapons.UsableWithShieldsTooltip>可配合盾牌使用的近战武器（需要原版扩展框架生效）</EquipmentManager.WeaponRules.MeleeWeapons.UsableWithShieldsTooltip>
+	<EquipmentManager.WeaponRules.MeleeWeapons.Rottable>可腐烂</EquipmentManager.WeaponRules.MeleeWeapons.Rottable>
+	<EquipmentManager.WeaponRules.MeleeWeapons.RottableTooltip>可能腐烂的近战武器（例如鱼类）</EquipmentManager.WeaponRules.MeleeWeapons.RottableTooltip>
+	<EquipmentManager.WeaponRules.MeleeWeapons.Default.HighestDps>最高DPS</EquipmentManager.WeaponRules.MeleeWeapons.Default.HighestDps>
+	<EquipmentManager.WeaponRules.MeleeWeapons.Default.Sharpest>最锋利</EquipmentManager.WeaponRules.MeleeWeapons.Default.Sharpest>
+	<EquipmentManager.WeaponRules.MeleeWeapons.Default.Bluntest>最钝重</EquipmentManager.WeaponRules.MeleeWeapons.Default.Bluntest>
+	<EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonus>保留加成</EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonus>
+	<EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonusTooltip>角色已持有近战武器的评分倍率。地图上的武器评分必须超过（当前评分×加成）才会触发切换。1.00=始终切换到更好的武器，1.25=仅在性能提升25%时切换（推荐用于HSK）</EquipmentManager.WeaponRules.MeleeWeapons.RetentionBonusTooltip>
+
+	<!-- ── 远程武器 ───────────────────────────────────────────────────────────── -->
+	<EquipmentManager.WeaponRules.RangedWeapons.Title>远程武器</EquipmentManager.WeaponRules.RangedWeapons.Title>
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>弹药数量</EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>每把由该规则装备的武器在背包中携带的目标弹药数量</EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>
+	<EquipmentManager.WeaponRules.RangedWeapons.RetentionBonus>保留加成</EquipmentManager.WeaponRules.RangedWeapons.RetentionBonus>
+	<EquipmentManager.WeaponRules.RangedWeapons.RetentionBonusTooltip>角色已持有远程武器的评分倍率。地图上的武器评分必须超过（当前评分×加成）才会触发切换。1.00=始终切换到更好的武器，1.25=仅在性能提升25%时切换（推荐用于HSK）</EquipmentManager.WeaponRules.RangedWeapons.RetentionBonusTooltip>
+	<EquipmentManager.WeaponRules.RangedWeapons.Explosive>爆炸性</EquipmentManager.WeaponRules.RangedWeapons.Explosive>
+	<EquipmentManager.WeaponRules.RangedWeapons.ExplosiveTooltip>发射爆炸弹药的远程武器（例如火箭筒、榴弹发射器、迫击炮）</EquipmentManager.WeaponRules.RangedWeapons.ExplosiveTooltip>
+	<EquipmentManager.WeaponRules.RangedWeapons.ManualCast>手动施放</EquipmentManager.WeaponRules.RangedWeapons.ManualCast>
+	<EquipmentManager.WeaponRules.RangedWeapons.ManualCastTooltip>仅支持手动施放的远程武器</EquipmentManager.WeaponRules.RangedWeapons.ManualCastTooltip>
+	<EquipmentManager.WeaponRules.RangedWeapons.Default.HighestDpsa>最高DPSA</EquipmentManager.WeaponRules.RangedWeapons.Default.HighestDpsa>
+	<EquipmentManager.WeaponRules.RangedWeapons.Default.HighRof>高射速</EquipmentManager.WeaponRules.RangedWeapons.Default.HighRof>
+	<EquipmentManager.WeaponRules.RangedWeapons.Default.LongRangeHeavyHitter>远程重型武器</EquipmentManager.WeaponRules.RangedWeapons.Default.LongRangeHeavyHitter>
+	<EquipmentManager.WeaponRules.RangedWeapons.Default.LowWarmupTime>低预热时间</EquipmentManager.WeaponRules.RangedWeapons.Default.LowWarmupTime>
+
+	<!-- ── 工具 ───────────────────────────────────────────────────────────────── -->
+	<EquipmentManager.WeaponRules.Tools.Title>工具</EquipmentManager.WeaponRules.Tools.Title>
+	<EquipmentManager.WeaponRules.Tools.Ranged>远程</EquipmentManager.WeaponRules.Tools.Ranged>
+	<EquipmentManager.WeaponRules.Tools.RangedTooltip>远程工具</EquipmentManager.WeaponRules.Tools.RangedTooltip>
+	<EquipmentManager.WeaponRules.Tools.Default.AllWorkTypes>适用所有工作类型的工具</EquipmentManager.WeaponRules.Tools.Default.AllWorkTypes>
+	<EquipmentManager.WeaponRules.Tools.Default.AssignedWorkTypes>适用已分配工作类型的工具</EquipmentManager.WeaponRules.Tools.Default.AssignedWorkTypes>
+
+	<!-- ── 工作类型 ───────────────────────────────────────────────────────────── -->
+	<EquipmentManager.WeaponRules.WorkTypes.Title>工作类型</EquipmentManager.WeaponRules.WorkTypes.Title>
+
+	<!-- ── 属性统计 ───────────────────────────────────────────────────────────── -->
+	<EquipmentManager.Stats.EM_Tools_WorkType.Label>与工作类型相关的属性</EquipmentManager.Stats.EM_Tools_WorkType.Label>
+	<EquipmentManager.Stats.EM_Tools_WorkType.Description>根据工作类型规则影响性能的物品属性</EquipmentManager.Stats.EM_Tools_WorkType.Description>
+	<EquipmentManager.Stats.EM_Tools_TechLevel.Label>科技等级</EquipmentManager.Stats.EM_Tools_TechLevel.Label>
+	<EquipmentManager.Stats.EM_Tools_TechLevel.Description>工具的科技等级</EquipmentManager.Stats.EM_Tools_TechLevel.Description>
+	<EquipmentManager.WeaponEquipped>{0}装备了{1}</EquipmentManager.WeaponEquipped>
+
+	<!-- ── 远程武器属性（CE）────────────────────────────────────────────────── -->
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Label>DPS（实际）</EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Description>考虑弹匣容量和装填时间的每秒伤害</EquipmentManager.Stats.EM_RangedWeapons_DpsRealistic.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>DPS（近距离，≤3）</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>按近距离（≤3格）瞄准效率加权的实际DPS。若武器无法覆盖该距离则为零。</EquipmentManager.Stats.EM_RangedWeapons_DpsaClose.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>DPS（短距离，≤12）</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>按短距离（≤12格）瞄准效率加权的实际DPS。若武器无法覆盖该距离则为零。</EquipmentManager.Stats.EM_RangedWeapons_DpsaShort.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>DPS（中距离，≤25）</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>按中距离（≤25格）瞄准效率加权的实际DPS。若武器无法覆盖该距离则为零。</EquipmentManager.Stats.EM_RangedWeapons_DpsaMedium.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>DPS（远距离，≤40）</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>按远距离（≤40格）瞄准效率加权的实际DPS。若武器无法覆盖该距离则为零。</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>
+	<EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Label>瞄准效率</EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Label>
+	<EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Description>武器瞄准镜质量。数值越高，瞄准误差越小。替代原版精度统计。</EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Description>
+</LanguageData>
