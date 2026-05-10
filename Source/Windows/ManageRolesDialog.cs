@@ -121,7 +121,7 @@ namespace EquipmentManager.Windows
                 _saveProfileName = string.Empty;
                 Find.WindowStack.Add(new SaveProfileDialog(onConfirm: name => RolesProfileManager.SaveProfile(name)));
             }
-            // Кнопка "Загрузить профиль" — открывает ImportRolesDialog (теперь читает .emprofile)
+            // Кнопка "Загрузить профиль" — открывает ImportRolesDialog (читает .xml-профиль)
             if (Widgets.ButtonText(
                     new Rect(rect.x + ((buttonWidth + UiHelpers.ButtonGap) * 6), rect.y, buttonWidth,
                         UiHelpers.ButtonHeight), Strings.ImportRoles))

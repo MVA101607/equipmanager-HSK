@@ -576,8 +576,7 @@ namespace EquipmentManager
                         $"[EM] ForceUpdateForPawn: {pawn.Pawn.LabelShortCap} — no roles match!");
                     foreach (var role in EquipmentManager.GetRoles())
                     {
-                        EquipmentManager.LogMessage(
-                            $"[EM]   role '{role.Label}': IsAvailable={role.IsAvailable(pawn.Pawn, true)}");
+                        _ = role.IsAvailable(pawn.Pawn, true);
                     }
                 }
                 // Запомнить текущую роль чтобы обнаружить смену
@@ -662,8 +661,7 @@ namespace EquipmentManager
                         $"[EM] ForceUpdateForPawn: {pawn.LabelShortCap} — no roles match!");
                     foreach (var role in EquipmentManager.GetRoles())
                     {
-                        EquipmentManager.LogMessage(
-                            $"[EM]   role '{role.Label}': IsAvailable={role.IsAvailable(pawn, true)}");
+                        _ = role.IsAvailable(pawn, true);
                     }
                 }
                 var previousLabel = pc.AssignedRole?.Label ?? "null";

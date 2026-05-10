@@ -691,7 +691,7 @@ namespace EquipmentManager.Windows
 
 
         /// <summary>
-        /// Читает данные из файла профиля (.emprofile).
+        /// Читает данные из файла профиля (.xml).
         /// Формат идентичен секции GameComponent в сейве, поэтому переиспользуем те же Read*Data.
         /// </summary>
         private void ReadProfileData(string profilePath)

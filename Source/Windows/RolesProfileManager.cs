@@ -9,7 +9,7 @@ namespace EquipmentManager
 {
     /// <summary>
     /// Сохранение / загрузка профилей настроек в собственную папку мода.
-    /// Путь: &lt;RimWorld Config&gt;/EquipmentManager/*.emprofile
+    /// Путь: &lt;RimWorld Config&gt;/EquipmentManager/*.xml
     /// Формат — стандартный RimWorld XML через SafeSaver / ScribeLoader,
     /// идентичный формату сейва (те же теги WorkTypeRules, ToolRules, MeleeWeaponRules,
     /// RangedWeaponRules, Loadouts), поэтому ImportRolesDialog может читать эти файлы
@@ -17,7 +17,8 @@ namespace EquipmentManager
     /// </summary>
     internal static class RolesProfileManager
     {
-        public const string FileExtension = ".emprofile";
+        public const string FileExtension = ".xml";
+        private const string LegacyFileExtension = ".emprofile";
         private const string RootNode = "EquipmentManagerProfile";
 
         // ── Папка профилей ────────────────────────────────────────────────
@@ -34,17 +35,20 @@ namespace EquipmentManager
 
         /// <summary>
         /// Список профилей: имя файла (без расширения) → полный путь.
-        /// Возвращает только *.emprofile, отсортированные по дате изменения.
+        /// Возвращает *.xml (а также legacy *.emprofile, если остались), отсортированные по дате изменения.
         /// </summary>
         public static Dictionary<string, string> GetProfiles()
         {
             var result = new Dictionary<string, string>();
             try
             {
-                foreach (var path in Directory.GetFiles(ProfileFolder, $"*{FileExtension}")
-                             .OrderByDescending(p => new FileInfo(p).LastWriteTimeUtc))
+                var paths = Directory.GetFiles(ProfileFolder, $"*{FileExtension}")
+                    .Concat(Directory.GetFiles(ProfileFolder, $"*{LegacyFileExtension}"))
+                    .OrderByDescending(p => new FileInfo(p).LastWriteTimeUtc);
+                foreach (var path in paths)
                 {
-                    result[Path.GetFileNameWithoutExtension(path)] = path;
+                    var key = Path.GetFileNameWithoutExtension(path);
+                    if (!result.ContainsKey(key)) { result[key] = path; }
                 }
             }
             catch (Exception ex)
