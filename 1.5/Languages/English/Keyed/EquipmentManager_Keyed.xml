@@ -27,6 +27,7 @@
 	<EquipmentManager.Roles.AutoSelect>Auto-select</EquipmentManager.Roles.AutoSelect>
 	<EquipmentManager.Roles.PriorityLabel>Priority:</EquipmentManager.Roles.PriorityLabel>
 	<EquipmentManager.Roles.PriorityTooltip>Role priority for auto-assignment. The higher the value, the more colonists matching the settings will get the role. Priority of '0' will disable automatic assignment of this role.</EquipmentManager.Roles.PriorityTooltip>
+	<EquipmentManager.GlobalReassign.Tooltip>Globally reassign weapons to all pawns now</EquipmentManager.GlobalReassign.Tooltip>
 	<EquipmentManager.Roles.DropUnassignedWeapons>Drop unassigned weapons</EquipmentManager.Roles.DropUnassignedWeapons>
 	<EquipmentManager.Roles.DropUnassignedWeaponsTooltip>Pawns will drop and forget all weapons not assigned by the Equipment Manager</EquipmentManager.Roles.DropUnassignedWeaponsTooltip>
 	<EquipmentManager.Roles.Rules>Rules</EquipmentManager.Roles.Rules>

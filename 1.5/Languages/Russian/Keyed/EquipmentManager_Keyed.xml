@@ -27,6 +27,7 @@
 	<EquipmentManager.Roles.AutoSelect>Авто-выбор</EquipmentManager.Roles.AutoSelect>
 	<EquipmentManager.Roles.PriorityLabel>Приоритет:</EquipmentManager.Roles.PriorityLabel>
 	<EquipmentManager.Roles.PriorityTooltip>Приоритет роли для авто-назначения. Чем выше значение, тем больше колонистов, соответствующих настройкам, получат эту роль. Приоритет «0» отключает автоматическое назначение роли.</EquipmentManager.Roles.PriorityTooltip>
+	<EquipmentManager.GlobalReassign.Tooltip>Глобально переназначить оружие всем пешкам прямо сейчас</EquipmentManager.GlobalReassign.Tooltip>
 	<EquipmentManager.Roles.DropUnassignedWeapons>Выбрасывать неназначенное оружие</EquipmentManager.Roles.DropUnassignedWeapons>
 	<EquipmentManager.Roles.DropUnassignedWeaponsTooltip>Пешки будут выбрасывать и забывать всё оружие, не назначенное менеджером снаряжения</EquipmentManager.Roles.DropUnassignedWeaponsTooltip>
 	<EquipmentManager.Roles.Rules>Правила</EquipmentManager.Roles.Rules>

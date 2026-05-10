@@ -13,7 +13,6 @@ namespace EquipmentManager.PawnColumnWorkers
     [UsedImplicitly]
     internal class Role_UI : PawnColumnWorker
     {
-
         private static EquipmentManagerGameComponent EquipmentManager =>
             Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
@@ -46,7 +45,6 @@ namespace EquipmentManager.PawnColumnWorkers
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             var editButtonSize = (rect.height - 4) / 2;
-            // Два маленьких квадрата справа: [Edit] сверху, [Refresh] снизу
             var loadoutButtonRect = new Rect(rect.x, rect.y + 2,
                 rect.width - editButtonSize - 4, rect.height - 4);
 
@@ -67,24 +65,19 @@ namespace EquipmentManager.PawnColumnWorkers
                     dragLabel: label.Truncate(loadoutButtonRect.width), paintable: true);
             }
 
-            // Кнопка Edit — верхний правый квадрат
             var editButtonRect = new Rect(rect.xMax - editButtonSize, rect.y + 2f,
                 editButtonSize, editButtonSize);
-
-            // Кнопка принудительного обновления — нижний правый квадрат
             var forceUpdateButtonRect = new Rect(rect.xMax - editButtonSize,
                 rect.y + 2f + editButtonSize, editButtonSize, editButtonSize);
 
             if (!pawn.IsQuestLodger())
             {
-                // Edit
                 TooltipHandler.TipRegion(editButtonRect, "AssignTabEdit".Translate());
                 if (Widgets.ButtonImage(editButtonRect, Resources.Textures.Edit))
                 {
                     Find.WindowStack.Add(new ManageRolesDialog(EquipmentManager.GetRole(pawn)));
                 }
 
-                // Force Update: переназначить роль и оружие прямо сейчас
                 TooltipHandler.TipRegion(forceUpdateButtonRect,
                     "EquipmentManager.ForceUpdatePawn.Tooltip".Translate());
                 if (Widgets.ButtonImage(forceUpdateButtonRect, Resources.Textures.Refresh))
@@ -99,11 +92,39 @@ namespace EquipmentManager.PawnColumnWorkers
         {
             base.DoHeader(rect, table);
             MouseoverSounds.DoRegion(rect);
-            var buttonRect = new Rect(rect.x, rect.y + (rect.height - 65f), Mathf.Min(rect.width, 360f), 32f);
-            if (Widgets.ButtonText(buttonRect, Resources.Strings.Roles.ManageRoles))
+
+            const float buttonHeight = 32f;
+            const float iconButtonSize = 32f;
+            const float iconButtonGap = 4f;
+
+            var headerButtonY = rect.y + (rect.height - 65f);
+
+            // «Manage Roles» — сужаем ширину, чтобы справа поместилась иконка
+            var manageButtonWidth = Mathf.Min(rect.width, 360f) - iconButtonSize - iconButtonGap;
+            var manageButtonRect = new Rect(rect.x, headerButtonY, manageButtonWidth, buttonHeight);
+
+            //if (Widgets.ButtonText(manageButtonRect, Resources.Strings.Roles.ManageRoles))
+            if (Widgets.ButtonText(manageButtonRect, "Equip. manager"))
             {
                 Find.WindowStack.Add(new ManageRolesDialog(null));
             }
+
+            // ── Кнопка глобального переназначения ──────────────────────────────
+            // Маленький квадрат с иконкой Refresh, вплотную правее «Manage Roles»
+            var globalReassignRect = new Rect(
+                manageButtonRect.xMax + iconButtonGap,
+                headerButtonY + ((buttonHeight - iconButtonSize) / 2f),
+                iconButtonSize,
+                iconButtonSize);
+
+            TooltipHandler.TipRegion(globalReassignRect,
+                "EquipmentManager.GlobalReassign.Tooltip".Translate());
+
+            if (Widgets.ButtonImage(globalReassignRect, Resources.Textures.Refresh))
+            {
+                // TODO: реализовать глобальное переназначение оружия всем пешкам
+            }
+            // ───────────────────────────────────────────────────────────────────
         }
 
         public override int GetMinHeaderHeight(PawnTable table)
