@@ -1,0 +1,28 @@
+name: Create Mod Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Zip Archive
+        run: |
+          mkdir EquipManager-HSK
+          cp -r About/ Common/ 1.5/ EquipManager-HSK/
+          zip -r EquipManager-HSK.zip EquipManager-HSK/
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: EquipManager-HSK.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
