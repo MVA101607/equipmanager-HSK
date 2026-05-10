@@ -10,7 +10,6 @@ namespace EquipmentManager
     [UsedImplicitly]
     internal class EquipmentManagerMapComponent : MapComponent
     {
-        private static EquipmentManagerGameComponent _equipmentManager;
         private readonly RimworldTime _updateTime = new(-1, -1, -1);
         private HashSet<Pawn>       _allPawns   = new();
         private HashSet<PawnCache>  _pawnCache  = new();
@@ -19,7 +18,7 @@ namespace EquipmentManager
         public EquipmentManagerMapComponent(Map map) : base(map) { }
 
         private static EquipmentManagerGameComponent EquipmentManager =>
-            _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
+            Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         // ─────────────────────────────────────────────────────────────────────
         // Score текущего оружия пешки для сравнения с кандидатом.

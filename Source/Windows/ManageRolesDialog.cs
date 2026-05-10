@@ -12,7 +12,6 @@ namespace EquipmentManager.Windows
     internal class ManageRolesDialog : Window
     {
         private static Vector2 _availablePawnsScrollPosition;
-        private static EquipmentManagerGameComponent _equipmentManager;
         private static Vector2 _scrollPosition;
         private float _scrollViewHeight;
         private Role _selectedRole;
@@ -33,7 +32,8 @@ namespace EquipmentManager.Windows
         private int AvailablePawnsRowCount => InitialSize.y < MaxSize.y ? 2 : 3;
         private static float AvailablePawnsRowHeight => Text.LineHeightOf(GameFont.Small) + UiHelpers.ElementGap;
 
-        private static EquipmentManagerGameComponent EquipmentManager =>  _equipmentManager ??= Current.Game.GetComponent<EquipmentManagerGameComponent>();
+        private static EquipmentManagerGameComponent EquipmentManager =>
+            Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
         public override Vector2 InitialSize => UiHelpers.GetWindowSize(new Vector2(850f, 650f), MaxSize);
         private int LabeledButtonListColumnCount => InitialSize.x < MaxSize.x ? 2 : 3;
