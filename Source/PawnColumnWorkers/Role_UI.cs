@@ -94,8 +94,8 @@ namespace EquipmentManager.PawnColumnWorkers
             MouseoverSounds.DoRegion(rect);
 
             const float buttonHeight = 32f;
-            const float iconButtonSize = 32f;
-            const float iconButtonGap = 4f;
+            const float iconButtonSize = 16f;
+            const float iconButtonGap = 2f;
 
             var headerButtonY = rect.y + (rect.height - 65f);
 
@@ -122,7 +122,11 @@ namespace EquipmentManager.PawnColumnWorkers
 
             if (Widgets.ButtonImage(globalReassignRect, Resources.Textures.Refresh))
             {
-                // TODO: реализовать глобальное переназначение оружия всем пешкам
+                var map = Find.CurrentMap;
+                if (map != null)
+                {
+                    GlobalReassigner.GlobalReassignAll(map);
+                }
             }
             // ───────────────────────────────────────────────────────────────────
         }

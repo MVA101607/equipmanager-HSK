@@ -106,6 +106,7 @@
     <Compile Include="EquipmentManagerGameComponent_MeleeWeaponRules.cs" />
     <Compile Include="EquipmentManagerGameComponent_Roles.cs" />
     <Compile Include="EquipmentManagerMapComponent.cs" />
+    <Compile Include="GlobalReassigner.cs" />
     <Compile Include="EquipmentManagerMod.cs" />
     <Compile Include="ItemCache.cs" />
     <Compile Include="ItemRule.cs" />
