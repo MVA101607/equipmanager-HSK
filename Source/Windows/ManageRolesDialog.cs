@@ -119,7 +119,7 @@ namespace EquipmentManager.Windows
                         UiHelpers.ButtonHeight), Strings.SaveProfile))
             {
                 _saveProfileName = string.Empty;
-                _showSaveProfileDialog = true;
+                Find.WindowStack.Add(new SaveProfileDialog(onConfirm: name => RolesProfileManager.SaveProfile(name)));
             }
             // Кнопка "Загрузить профиль" — открывает ImportRolesDialog (теперь читает .emprofile)
             if (Widgets.ButtonText(
@@ -139,7 +139,26 @@ namespace EquipmentManager.Windows
         private void DoSaveProfileDialog(Rect inRect)
         {
             if (!_showSaveProfileDialog) { return; }
-
+            // ↓ Поглощаем все клики по основному окну
+            if (Mouse.IsOver(inRect))
+            {
+                // Блокируем все события вне dialogRect
+                var e = Event.current;
+                if (e.isMouse || e.isKey)
+                {
+                    // вычисляем dialogRect заново (до ContractedBy)
+                    const float dW = 420f;
+                    const float dH = 110f;
+                    var blocker = new Rect(
+                        inRect.center.x - (dW / 2f),
+                        inRect.center.y - (dH / 2f),
+                        dW, dH);
+                    if (!blocker.Contains(e.mousePosition))
+                    {
+                        e.Use(); // поглощаем клик вне диалога
+                    }
+                }
+            }
             const float dialogW = 420f;
             const float dialogH = 110f;
             var dialogRect = new Rect(
@@ -989,6 +1008,7 @@ namespace EquipmentManager.Windows
                 UiHelpers.DoGapLineHorizontal(new Rect(inRect.x, outerRect.yMax, inRect.width, UiHelpers.ElementGap));
                 DoAvailablePawns(availablePawnsRect);
             }
+			DoSaveProfileDialog(inRect);
         }
 
         private Rect GetLabeledButtonListItemRect(Rect rect, int index)
@@ -1025,4 +1045,48 @@ namespace EquipmentManager.Windows
             _availablePawnsScrollPosition.Set(0f, 0f);
         }
     }
+
+    internal class SaveProfileDialog : Window
+    {
+        private readonly Action<string> _onConfirm;
+        private string _name = string.Empty;
+
+        public SaveProfileDialog(Action<string> onConfirm)
+        {
+            _onConfirm = onConfirm;
+            forcePause = false;
+            doCloseX = true;
+            doCloseButton = false;
+            closeOnClickedOutside = true;
+            absorbInputAroundWindow = true; // ← блокирует клики снаружи
+        }
+
+        public override Vector2 InitialSize => new(420f, 150f);
+
+        public override void DoWindowContents(Rect inRect)
+        {
+            var labelRect = new Rect(inRect.x, inRect.y, inRect.width, UiHelpers.ListRowHeight);
+            Widgets.Label(labelRect, Strings.SaveProfileNamePrompt);
+
+            var inputRect = new Rect(inRect.x, labelRect.yMax + UiHelpers.ElementGap,
+                inRect.width, UiHelpers.ListRowHeight);
+            _name = Widgets.TextField(inputRect, _name);
+
+            var btnY = inputRect.yMax + UiHelpers.ElementGap;
+            var btnW = (inRect.width - UiHelpers.ButtonGap) / 2f;
+
+            if (Widgets.ButtonText(new Rect(inRect.x, btnY, btnW, UiHelpers.ButtonHeight),
+                    Strings.SaveProfileConfirm, active: !_name.NullOrEmpty()))
+            {
+                _onConfirm(_name);
+                Close();
+            }
+            if (Widgets.ButtonText(new Rect(inRect.x + btnW + UiHelpers.ButtonGap, btnY, btnW,
+                    UiHelpers.ButtonHeight), Strings.CancelDataImport))
+            {
+                Close();
+            }
+        }
+    }
 }
+
