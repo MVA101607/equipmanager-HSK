@@ -471,11 +471,21 @@ namespace EquipmentManager
 
             pawn.AssignedWeapons.Clear();
             pawn.AssignedAmmo.Clear();
-            pawn.PurgeExpiredReservations();  // истёкшие резервы — убрать; актуальные — сохранить
+            pawn.PurgeExpiredReservations();
 
             EquipmentManager.LogMessage(
                 $"[EM] ProcessPawnEquipment: {pawn.Pawn.LabelShortCap}" +
                 $" loadout={pawn.AssignedRole.Label}");
+
+            // Удалить устаревшие tool-слоты из PersonalLoadout ПЕРЕД новым циклом назначения.
+            // Weapon/ammo-слоты чистит SetPrimaryWeaponInPersonalLoadout при замене оружия.
+            var pawnRoleData = EquipmentManager.GetPawnRole(pawn.Pawn);
+            if (pawnRoleData != null)
+            {
+                pawnRoleData.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+                CEExtendedLoadoutHelper.RemoveToolSlotsFromPersonalLoadout(
+                    pawn.Pawn, pawnRoleData.ManagedPersonalLoadoutSlots);
+            }
 
             // Основное оружие
             switch (pawn.AssignedRole.PrimaryRuleType)
@@ -494,7 +504,7 @@ namespace EquipmentManager
             // Инструменты
             if (pawn.AssignedRole.ToolRuleId != null)
             {
-                var toolRule = EquipmentManager.GetToolRule((int)pawn.AssignedRole.ToolRuleId);
+                var toolRule = EquipmentManager.GetToolRule((int) pawn.AssignedRole.ToolRuleId);
                 if (toolRule != null)
                 {
                     switch (toolRule.EquipMode)
@@ -545,7 +555,6 @@ namespace EquipmentManager
 
             if (allCandidates.Count == 0) { return; }
 
-            // Выбрать пешку по кругу
             _pawnProcessingIndex %= allCandidates.Count;
             var pawn = allCandidates[_pawnProcessingIndex];
             _pawnProcessingIndex++;
@@ -554,11 +563,8 @@ namespace EquipmentManager
                 $"[EM] Queue tick: processing {pawn.Pawn.LabelShortCap}" +
                 $" (auto={pawn.AutoRole}, capable={pawn.ShouldUpdateEquipment})");
 
-            // Шаг 1: переназначение роли для auto-пешек
             if (pawn.AutoRole)
             {
-                // Пересчитать очки пешки по всем loadout-ам вручную,
-                // не трогая ShouldUpdateEquipment у остальных.
                 pawn.AvailableRoles.Clear();
                 foreach (var role in EquipmentManager.GetRoles())
                 {
@@ -579,11 +585,8 @@ namespace EquipmentManager
                         _ = role.IsAvailable(pawn.Pawn, true);
                     }
                 }
-                // Запомнить текущую роль чтобы обнаружить смену
-                var previousRole = pawn.AssignedRole;
 
-                // Конкурентный пересчёт ролей для всех auto-пешек.
-                // Это неизбежно: алгоритм учитывает приоритеты всей колонии.
+                var previousRole = pawn.AssignedRole;
                 pawn.AssignedRole = null;
                 UpdateRoles();
 
@@ -593,9 +596,12 @@ namespace EquipmentManager
                         $"[EM] {pawn.Pawn.LabelShortCap}: role changed" +
                         $" {previousRole?.Label ?? "None"} → {pawn.AssignedRole?.Label ?? "None"}");
                 }
+
+                // ── FIX: записать новую роль в GameComponent, чтобы UI обновился ──
+                EquipmentManager.SetPawnRole(pawn.Pawn, pawn.AssignedRole, automatic: true);
+                // ──────────────────────────────────────────────────────────────────
             }
 
-            // Шаг 2: поиск лучшего оружия (RetentionBonus встроен в Assign*-методы)
             pawn.ShouldUpdateEquipment = true;
             _ = ProcessPawnEquipment(pawn);
         }

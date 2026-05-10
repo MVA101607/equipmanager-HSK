@@ -7,25 +7,37 @@ using JetBrains.Annotations;
 using RimWorld;
 using Verse;
 
-// Явные псевдонимы, чтобы избежать неоднозначности между CombatExtended.Loadout
-// и любыми другими типами с тем же именем.
-using CELoadout = CombatExtended.Loadout;
+using CELoadout    = CombatExtended.Loadout;
 using CELoadoutSlot = CombatExtended.LoadoutSlot;
-using CEGenericDef = CombatExtended.LoadoutGenericDef;
+using CEGenericDef  = CombatExtended.LoadoutGenericDef;
 
 namespace EquipmentManager
 {
     internal static class CEExtendedLoadoutHelper
     {
-        // Сохранён для обратной совместимости с вызывающим кодом.
-        // Зависимости CE и ExtendedLoadout обязательны — всегда true.
+        // ── Схема ключей ManagedPersonalLoadoutSlots ──────────────────────────
+        // weapon:<defName>       — основное оружие (specific ThingDef)
+        // ammo:<defName>         — патроны specific (ThingDef)
+        // ammo-generic:<defName> — патроны generic  (LoadoutGenericDef)
+        // tool:<defName>         — инструмент       (ThingDef)
+        //
+        // Такое разделение позволяет избирательно чистить только нужную группу слотов:
+        //   • weapon+ammo  — при смене оружия (SetPrimaryWeaponInPersonalLoadout)
+        //   • tool         — в начале каждого ProcessPawnEquipment
+        // ─────────────────────────────────────────────────────────────────────
+
+        internal const string PrefixWeapon      = "weapon:";
+        internal const string PrefixAmmo        = "ammo:";
+        internal const string PrefixAmmoGeneric = "ammo-generic:";
+        internal const string PrefixTool        = "tool:";
+
         public static bool IsAvailable()
         {
             return true;
         }
 
         // CE создаёт LoadoutGenericDef с именем "GenericAmmo-{gun.defName}" при старте игры.
-        // Возвращает null если оружие не имеет CE ammoSet (ванильное или мод без CE ammo).
+        // Возвращает null если оружие не имеет CE ammoSet.
         public static CEGenericDef FindGenericAmmoDefForWeapon([NotNull] ThingDef weaponDef)
         {
             if (weaponDef == null) { throw new ArgumentNullException(nameof(weaponDef)); }
@@ -34,8 +46,10 @@ namespace EquipmentManager
                 as CEGenericDef;
         }
 
+        // ── Оружие ───────────────────────────────────────────────────────────
+
         // Назначить основное оружие в PersonalLoadout.
-        // Удаляет управляемые слоты прошлого цикла, добавляет новый specific-слот.
+        // Чистит weapon- и ammo-слоты прошлого цикла; tool-слоты не трогает.
         public static bool SetPrimaryWeaponInPersonalLoadout(
             [NotNull] Pawn pawn,
             [NotNull] ThingDef weaponDef,
@@ -47,12 +61,11 @@ namespace EquipmentManager
                 if (personalLoadout == null) { return false; }
 
                 managedSlotKeys ??= new HashSet<string>();
-                RemoveManagedSlots(personalLoadout, managedSlotKeys);
+                RemoveManagedSlotsByPrefix(personalLoadout, managedSlotKeys,
+                    PrefixWeapon, PrefixAmmo, PrefixAmmoGeneric);
 
                 personalLoadout.AddSlot(new CELoadoutSlot(weaponDef, 1));
-
-                managedSlotKeys.Clear();
-                _ = managedSlotKeys.Add($"thingdef:{weaponDef.defName}");
+                _ = managedSlotKeys.Add($"{PrefixWeapon}{weaponDef.defName}");
 
                 NotifyAll(pawn);
 
@@ -73,10 +86,10 @@ namespace EquipmentManager
             }
         }
 
-        // Назначить патроны в PersonalLoadout.
-        //   genericAmmoDef != null => generic-слот: пешка сама выбирает тип патрона калибра.
-        //   genericAmmoDef == null => specific-слот: конкретный ThingDef, количество count.
-        //   count = 0 при generic  => CE использует defaultCount из LoadoutGenericDef (= magazineSize).
+        // ── Патроны ──────────────────────────────────────────────────────────
+
+        // genericAmmoDef != null => generic-слот (пешка выбирает тип патрона сама).
+        // genericAmmoDef == null => specific-слот (конкретный ThingDef, количество count).
         public static bool SetAmmoInPersonalLoadout(
             [NotNull] Pawn pawn,
             [NotNull] ThingDef specificAmmoDef,
@@ -90,7 +103,7 @@ namespace EquipmentManager
                 var personalLoadout = GetPersonalLoadout(pawn);
                 if (personalLoadout == null) { return false; }
 
-                // Удаляем старые ammo-слоты (specific и generic) для этого калибра.
+                // Удаляем старые ammo-слоты для этого калибра/типа.
                 var toRemove = personalLoadout.OwnSlots
                     .Where(s => s != null &&
                         (s.thingDef == specificAmmoDef ||
@@ -102,14 +115,15 @@ namespace EquipmentManager
                     ? new CELoadoutSlot(genericAmmoDef, count)
                     : new CELoadoutSlot(specificAmmoDef, count);
                 personalLoadout.AddSlot(newSlot);
-                // Регистрируем слот как управляемый, чтобы при смене роли он был удалён.
+
                 if (managedSlotKeys != null)
                 {
                     var key = genericAmmoDef != null
-                        ? $"genericdef:{genericAmmoDef.defName}"
-                        : $"thingdef:{specificAmmoDef.defName}";
+                        ? $"{PrefixAmmoGeneric}{genericAmmoDef.defName}"
+                        : $"{PrefixAmmo}{specificAmmoDef.defName}";
                     _ = managedSlotKeys.Add(key);
                 }
+
                 NotifyAll(pawn);
                 return true;
             }
@@ -122,9 +136,10 @@ namespace EquipmentManager
             }
         }
 
+        // ── Инструменты ──────────────────────────────────────────────────────
+
         // Добавить инструмент в PersonalLoadout.
-        // Не удаляет другие слоты. Не дублирует если ThingDef уже есть.
-        // managedSlotKeys накапливает ключи для очистки при смене loadout.
+        // Не дублирует если ThingDef уже есть. Не трогает weapon/ammo-слоты.
         public static bool AddToolToPersonalLoadout(
             [NotNull] Pawn pawn,
             [NotNull] ThingDef toolDef,
@@ -136,9 +151,8 @@ namespace EquipmentManager
                 if (personalLoadout == null) { return false; }
 
                 managedSlotKeys ??= new HashSet<string>();
-                var key = $"thingdef:{toolDef.defName}";
+                var key = $"{PrefixTool}{toolDef.defName}";
 
-                // Не дублируем если слот уже есть
                 if (personalLoadout.OwnSlots.Any(s => s?.thingDef == toolDef))
                 {
                     _ = managedSlotKeys.Add(key);
@@ -160,12 +174,74 @@ namespace EquipmentManager
             }
         }
 
+        // Удалить все tool-слоты из PersonalLoadout и их ключи из набора.
+        // Вызывается в начале ProcessPawnEquipment перед новым циклом назначения.
+        public static void RemoveToolSlotsFromPersonalLoadout(
+            [NotNull] Pawn pawn,
+            [NotNull] HashSet<string> managedSlotKeys)
+        {
+            if (managedSlotKeys.Count == 0) { return; }
+            try
+            {
+                var personalLoadout = GetPersonalLoadout(pawn);
+                if (personalLoadout == null) { return; }
+                RemoveManagedSlotsByPrefix(personalLoadout, managedSlotKeys, PrefixTool);
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[EM] RemoveToolSlotsFromPersonalLoadout failed for " +
+                    pawn.LabelShortCap + ": " + ex.Message,
+                    pawn.thingIDNumber);
+            }
+        }
+
         // ── Вспомогательные методы ────────────────────────────────────────────
 
-        // GetLoadout(pawn, allowNull: false) — всегда создаёт Loadout_Multi если нет,
-        // и всегда возвращает объект (null только если allowNull=true и слотов 0).
-        // PersonalLoadout генерируется в конструкторе Loadout_Multi,
-        // но для старых сейвов back-compat вызывает GeneratePersonalLoadout в GetLoadout.
+        // Удаляет из personalLoadout слоты, чьи ключи начинаются с одного из prefixes,
+        // и одновременно убирает эти ключи из managedSlotKeys.
+        private static void RemoveManagedSlotsByPrefix(
+            CELoadout personalLoadout,
+            HashSet<string> managedSlotKeys,
+            params string[] prefixes)
+        {
+            var targetKeys = managedSlotKeys
+                .Where(k => prefixes.Any(p => k.StartsWith(p, StringComparison.Ordinal)))
+                .ToHashSet();
+            if (targetKeys.Count == 0) { return; }
+
+            var toRemove = personalLoadout.OwnSlots
+                .Where(slot =>
+                {
+                    if (slot == null) { return false; }
+                    // Строим все возможные ключи для этого слота и проверяем пересечение.
+                    foreach (var k in SlotKeys(slot))
+                    {
+                        if (targetKeys.Contains(k)) { return true; }
+                    }
+                    return false;
+                })
+                .ToList();
+
+            foreach (var s in toRemove) { personalLoadout.RemoveSlot(s); }
+            managedSlotKeys.ExceptWith(targetKeys);
+        }
+
+        // Возвращает все возможные строковые ключи для слота (по всем четырём префиксам).
+        // Для ThingDef-слота это три варианта (weapon/ammo/tool), для generic — один.
+        private static IEnumerable<string> SlotKeys(CELoadoutSlot slot)
+        {
+            if (slot.thingDef != null)
+            {
+                yield return $"{PrefixWeapon}{slot.thingDef.defName}";
+                yield return $"{PrefixAmmo}{slot.thingDef.defName}";
+                yield return $"{PrefixTool}{slot.thingDef.defName}";
+            }
+            else if (slot.genericDef != null)
+            {
+                yield return $"{PrefixAmmoGeneric}{slot.genericDef.defName}";
+            }
+        }
+
         private static CELoadout GetPersonalLoadout(Pawn pawn)
         {
             if (LoadoutMulti_Manager.GetLoadout(pawn, allowNull: false) is not Loadout_Multi multiLoadout)
@@ -178,7 +254,6 @@ namespace EquipmentManager
             var personal = multiLoadout.PersonalLoadout;
             if (personal == null)
             {
-                // back-compat: для пешек из старых сейвов PersonalLoadout мог не создаться
                 multiLoadout.GeneratePersonalLoadout(pawn);
                 multiLoadout.NotifyLoadoutChanged();
                 personal = multiLoadout.PersonalLoadout;
@@ -189,35 +264,14 @@ namespace EquipmentManager
                 Log.Error("[EM] CEExtendedLoadoutHelper: PersonalLoadout still null for " +
                     pawn.LabelShortCap);
             }
+
             return personal;
         }
 
-        private static void RemoveManagedSlots(CELoadout personalLoadout,
-            HashSet<string> managedSlotKeys)
-        {
-            if (managedSlotKeys.Count == 0) { return; }
-            var toRemove = personalLoadout.OwnSlots
-                .Where(slot =>
-                {
-                    if (slot == null) { return false; }
-                    var key = slot.thingDef != null
-                        ? $"thingdef:{slot.thingDef.defName}"
-                        : slot.genericDef != null
-                            ? $"genericdef:{slot.genericDef.defName}"
-                            : null;
-                    return key != null && managedSlotKeys.Contains(key);
-                })
-                .ToList();
-            foreach (var s in toRemove) { personalLoadout.RemoveSlot(s); }
-        }
-
-        // Уведомляем мультилоадаут пешки + все остальные для пересчёта агрегатора.
-        // Именно так делает TestLoadoutHelper.
         private static void NotifyAll(Pawn pawn)
         {
             var multiLoadout = LoadoutMulti_Manager.GetLoadout(pawn, allowNull: false) as Loadout_Multi;
             multiLoadout?.NotifyLoadoutChanged();
-
             foreach (var lm in LoadoutMulti_Manager.LoadoutsMulti)
             {
                 lm.NotifyLoadoutChanged();
