@@ -1,5 +1,9 @@
 # equipmanager-HSK
 
+[![Download](https://shields.io)](https://github.com)
+
+<img src="Manual_eng.png" width="600" alt="How it looks like">
+
 ## English
 A rework of the Equipment Manager mod by LordKuper / Michieru.
 SimpleSidearms integration has been removed. CE (Extended Loadout) integration has been added instead.

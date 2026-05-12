@@ -42,6 +42,7 @@
 	<EquipmentManager.Roles.PawnStatWeights>Pawn stat weights</EquipmentManager.Roles.PawnStatWeights>
 	<EquipmentManager.Roles.PawnStatLimits>Pawn stat limits</EquipmentManager.Roles.PawnStatLimits>
 	<EquipmentManager.Roles.PrimaryWeaponLabel>Primary weapon:</EquipmentManager.Roles.PrimaryWeaponLabel>
+	<EquipmentManager.Roles.SecondaryWeaponLabel>Secondary weapon</EquipmentManager.Roles.SecondaryWeaponLabel>
 	<EquipmentManager.Roles.PrimaryWeaponTypes.None>None</EquipmentManager.Roles.PrimaryWeaponTypes.None>
 	<EquipmentManager.Roles.PrimaryWeaponTypes.RangedWeapon>Ranged weapon</EquipmentManager.Roles.PrimaryWeaponTypes.RangedWeapon>
 	<EquipmentManager.Roles.PrimaryWeaponTypes.MeleeWeapon>Melee weapon</EquipmentManager.Roles.PrimaryWeaponTypes.MeleeWeapon>

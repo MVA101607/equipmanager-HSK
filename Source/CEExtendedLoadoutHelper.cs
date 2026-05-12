@@ -16,20 +16,27 @@ namespace EquipmentManager
     internal static class CEExtendedLoadoutHelper
     {
         // ── Схема ключей ManagedPersonalLoadoutSlots ──────────────────────────
-        // weapon:<defName>       — основное оружие (specific ThingDef)
-        // ammo:<defName>         — патроны specific (ThingDef)
-        // ammo-generic:<defName> — патроны generic  (LoadoutGenericDef)
-        // tool:<defName>         — инструмент       (ThingDef)
+        // weapon:<defName>              — основное оружие (specific ThingDef)
+        // ammo:<defName>               — патроны primary specific
+        // ammo-generic:<defName>       — патроны primary generic
+        // tool:<defName>               — инструмент
+        // weapon-secondary:<defName>   — вторичное оружие
+        // ammo-secondary:<defName>     — патроны secondary specific
+        // ammo-secondary-generic:<defN>— патроны secondary generic
         //
         // Такое разделение позволяет избирательно чистить только нужную группу слотов:
-        //   • weapon+ammo  — при смене оружия (SetPrimaryWeaponInPersonalLoadout)
-        //   • tool         — в начале каждого ProcessPawnEquipment
+        //   • weapon+ammo         — при смене primary (SetPrimaryWeaponInPersonalLoadout)
+        //   • weapon-secondary+ammo-secondary — при смене secondary
+        //   • tool                — в начале каждого ProcessPawnEquipment
         // ─────────────────────────────────────────────────────────────────────
 
-        internal const string PrefixWeapon      = "weapon:";
-        internal const string PrefixAmmo        = "ammo:";
-        internal const string PrefixAmmoGeneric = "ammo-generic:";
-        internal const string PrefixTool        = "tool:";
+        internal const string PrefixWeapon           = "weapon:";
+        internal const string PrefixAmmo             = "ammo:";
+        internal const string PrefixAmmoGeneric      = "ammo-generic:";
+        internal const string PrefixTool             = "tool:";
+        internal const string PrefixWeaponSecondary  = "weapon-secondary:";
+        internal const string PrefixAmmoSecondary    = "ammo-secondary:";
+        internal const string PrefixAmmoSecondaryGen = "ammo-secondary-generic:";
 
         public static bool IsAvailable()
         {
@@ -82,6 +89,92 @@ namespace EquipmentManager
                 Log.ErrorOnce("[EM] SetPrimaryWeaponInPersonalLoadout failed for " +
                     pawn.LabelShortCap + ": " + ex.Message,
                     pawn.thingIDNumber ^ weaponDef.shortHash);
+                return false;
+            }
+        }
+
+
+        // Назначить вторичное оружие в PersonalLoadout.
+        // Чистит только weapon-secondary- и ammo-secondary-слоты; primary не трогает.
+        public static bool SetSecondaryWeaponInPersonalLoadout(
+            [NotNull] Pawn pawn,
+            [NotNull] ThingDef weaponDef,
+            [NotNull] HashSet<string> managedSlotKeys)
+        {
+            try
+            {
+                var personalLoadout = GetPersonalLoadout(pawn);
+                if (personalLoadout == null) { return false; }
+
+                managedSlotKeys ??= new HashSet<string>();
+                RemoveManagedSlotsByPrefix(personalLoadout, managedSlotKeys,
+                    PrefixWeaponSecondary, PrefixAmmoSecondary, PrefixAmmoSecondaryGen);
+
+                personalLoadout.AddSlot(new CELoadoutSlot(weaponDef, 1));
+                _ = managedSlotKeys.Add($"{PrefixWeaponSecondary}{weaponDef.defName}");
+
+                NotifyAll(pawn);
+
+                Messages.Message(
+                    "EquipmentManager.SecondaryWeaponEquipped".Translate(
+                        pawn.Name.ToStringShort, weaponDef.LabelCap),
+                    MessageTypeDefOf.SilentInput,
+                    historical: false);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[EM] SetSecondaryWeaponInPersonalLoadout failed for " +
+                    pawn.LabelShortCap + ": " + ex.Message,
+                    pawn.thingIDNumber ^ weaponDef.shortHash ^ 0x53EC);
+                return false;
+            }
+        }
+
+        // Патроны для вторичного оружия — аналог SetAmmoInPersonalLoadout,
+        // но использует prefix ammo-secondary- и не трогает primary-патроны.
+        public static bool SetSecondaryAmmoInPersonalLoadout(
+            [NotNull] Pawn pawn,
+            [NotNull] ThingDef specificAmmoDef,
+            int count,
+            CEGenericDef genericAmmoDef = null,
+            HashSet<string> managedSlotKeys = null)
+        {
+            if (count <= 0 && genericAmmoDef == null) { return false; }
+            try
+            {
+                var personalLoadout = GetPersonalLoadout(pawn);
+                if (personalLoadout == null) { return false; }
+
+                var toRemove = personalLoadout.OwnSlots
+                    .Where(s => s != null &&
+                        (s.thingDef == specificAmmoDef ||
+                         (genericAmmoDef != null && s.genericDef == genericAmmoDef)))
+                    .ToList();
+                foreach (var s in toRemove) { personalLoadout.RemoveSlot(s); }
+
+                var newSlot = genericAmmoDef != null
+                    ? new CELoadoutSlot(genericAmmoDef, count)
+                    : new CELoadoutSlot(specificAmmoDef, count);
+                personalLoadout.AddSlot(newSlot);
+
+                if (managedSlotKeys != null)
+                {
+                    var key = genericAmmoDef != null
+                        ? $"{PrefixAmmoSecondaryGen}{genericAmmoDef.defName}"
+                        : $"{PrefixAmmoSecondary}{specificAmmoDef.defName}";
+                    _ = managedSlotKeys.Add(key);
+                }
+
+                NotifyAll(pawn);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[EM] SetSecondaryAmmoInPersonalLoadout failed for " +
+                    pawn.LabelShortCap + ": " + ex.Message,
+                    pawn.thingIDNumber ^ specificAmmoDef.shortHash ^ 0x53EC ^ count);
                 return false;
             }
         }
@@ -235,10 +328,13 @@ namespace EquipmentManager
                 yield return $"{PrefixWeapon}{slot.thingDef.defName}";
                 yield return $"{PrefixAmmo}{slot.thingDef.defName}";
                 yield return $"{PrefixTool}{slot.thingDef.defName}";
+                yield return $"{PrefixWeaponSecondary}{slot.thingDef.defName}";
+                yield return $"{PrefixAmmoSecondary}{slot.thingDef.defName}";
             }
             else if (slot.genericDef != null)
             {
                 yield return $"{PrefixAmmoGeneric}{slot.genericDef.defName}";
+                yield return $"{PrefixAmmoSecondaryGen}{slot.genericDef.defName}";
             }
         }
 

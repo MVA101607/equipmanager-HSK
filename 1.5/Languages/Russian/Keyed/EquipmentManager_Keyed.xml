@@ -42,6 +42,7 @@
 	<EquipmentManager.Roles.PawnStatWeights>Веса характеристик пешки</EquipmentManager.Roles.PawnStatWeights>
 	<EquipmentManager.Roles.PawnStatLimits>Ограничения характеристик пешки</EquipmentManager.Roles.PawnStatLimits>
 	<EquipmentManager.Roles.PrimaryWeaponLabel>Основное оружие:</EquipmentManager.Roles.PrimaryWeaponLabel>
+	<EquipmentManager.Roles.SecondaryWeaponLabel>Вторичное оружие</EquipmentManager.Roles.SecondaryWeaponLabel>
 	<EquipmentManager.Roles.PrimaryWeaponTypes.None>Нет</EquipmentManager.Roles.PrimaryWeaponTypes.None>
 	<EquipmentManager.Roles.PrimaryWeaponTypes.RangedWeapon>Дальнобойное оружие</EquipmentManager.Roles.PrimaryWeaponTypes.RangedWeapon>
 	<EquipmentManager.Roles.PrimaryWeaponTypes.MeleeWeapon>Оружие ближнего боя</EquipmentManager.Roles.PrimaryWeaponTypes.MeleeWeapon>

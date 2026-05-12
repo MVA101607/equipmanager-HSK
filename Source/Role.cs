@@ -27,6 +27,7 @@ namespace EquipmentManager
         private Dictionary<string, bool> _pawnTraits = new();
         private Dictionary<string, bool> _pawnWorkCapacities = new();
         private PrimaryWeaponType _primaryRuleType = PrimaryWeaponType.None;
+        private PrimaryWeaponType _secondaryRuleType = PrimaryWeaponType.None;
         private List<int> _rangedSidearmRules = new();
         private List<SkillLimit> _skillLimits = new();
         private List<SkillWeight> _skillWeights = new();
@@ -36,6 +37,8 @@ namespace EquipmentManager
         public string Label;
         public int? PrimaryMeleeWeaponRuleId;
         public int? PrimaryRangedWeaponRuleId;
+        public int? SecondaryMeleeWeaponRuleId;
+        public int? SecondaryRangedWeaponRuleId;
         public float Priority;
         public int? ToolRuleId;
 
@@ -77,6 +80,30 @@ namespace EquipmentManager
         }
 
         public int Id => _id;
+        public PrimaryWeaponType SecondaryRuleType
+        {
+            get => _secondaryRuleType;
+            set
+            {
+                _secondaryRuleType = value;
+                switch (value)
+                {
+                    case PrimaryWeaponType.None:
+                        SecondaryMeleeWeaponRuleId = null;
+                        SecondaryRangedWeaponRuleId = null;
+                        break;
+                    case PrimaryWeaponType.RangedWeapon:
+                        SecondaryMeleeWeaponRuleId = null;
+                        break;
+                    case PrimaryWeaponType.MeleeWeapon:
+                        SecondaryRangedWeaponRuleId = null;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(value), value, null);
+                }
+            }
+        }
+
 
         public List<int> MeleeSidearmRules
         {
@@ -209,6 +236,9 @@ namespace EquipmentManager
             Scribe_Values.Look(ref _primaryRuleType, nameof(PrimaryRuleType));
             Scribe_Values.Look(ref PrimaryRangedWeaponRuleId, nameof(PrimaryRangedWeaponRuleId));
             Scribe_Values.Look(ref PrimaryMeleeWeaponRuleId, nameof(PrimaryMeleeWeaponRuleId));
+            Scribe_Values.Look(ref _secondaryRuleType, nameof(SecondaryRuleType));
+            Scribe_Values.Look(ref SecondaryRangedWeaponRuleId, nameof(SecondaryRangedWeaponRuleId));
+            Scribe_Values.Look(ref SecondaryMeleeWeaponRuleId, nameof(SecondaryMeleeWeaponRuleId));
             Scribe_Collections.Look(ref _rangedSidearmRules, nameof(RangedSidearmRules));
             Scribe_Collections.Look(ref _meleeSidearmRules, nameof(MeleeSidearmRules));
             Scribe_Values.Look(ref ToolRuleId, nameof(ToolRuleId));

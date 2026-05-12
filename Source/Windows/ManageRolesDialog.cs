@@ -239,44 +239,6 @@ namespace EquipmentManager.Windows
             return dropUnassignedWeaponsRect.yMax - rect.yMin;
         }
 
-        private void DoMeleeSidearmRules(Rect rect)
-        {
-            var rulesRect = LabelInput.DoLabeledRect(rect, Strings.MeleeSidearmRulesLabel);
-            for (var i = 0; i < SelectedRole.MeleeSidearmRules.Count; i++)
-            {
-                var rule = SelectedRole.MeleeSidearmRules[i];
-                var ruleRect = GetLabeledButtonListItemRect(rulesRect, i);
-                var deleteButtonRect =
-                    new Rect(ruleRect.x, ruleRect.y, ruleRect.height, ruleRect.height).ContractedBy(4f);
-                if (Widgets.ButtonImageFitted(deleteButtonRect, Resources.Textures.Delete))
-                {
-                    _ = SelectedRole.MeleeSidearmRules.Remove(rule);
-                    break;
-                }
-                var ruleButtonRect = new Rect(deleteButtonRect.xMax + (UiHelpers.ElementGap / 2f), ruleRect.y,
-                    ruleRect.width - deleteButtonRect.width - (UiHelpers.ElementGap / 2f), ruleRect.height);
-                if (Widgets.ButtonText(ruleButtonRect, EquipmentManager.GetMeleeWeaponRule(rule).Label))
-                {
-                    Find.WindowStack.Add(new FloatMenu(EquipmentManager.GetMeleeWeaponRules()
-                        .Where(rwr => !SelectedRole.MeleeSidearmRules.Contains(rwr.Id)).Select(rwr =>
-                            new FloatMenuOption(rwr.Label, () =>
-                            {
-                                SelectedRole.MeleeSidearmRules.Add(rwr.Id);
-                                _ = SelectedRole.MeleeSidearmRules.Remove(rule);
-                            })).ToList()));
-                }
-            }
-            var newRule = EquipmentManager.GetMeleeWeaponRules()
-                .FirstOrDefault(rwr => !SelectedRole.MeleeSidearmRules.Contains(rwr.Id));
-            if (newRule != null)
-            {
-                var addButtonRect = GetLabeledButtonListItemRect(rulesRect, SelectedRole.MeleeSidearmRules.Count);
-                if (Widgets.ButtonText(addButtonRect, Resources.Strings.Add))
-                {
-                    SelectedRole.MeleeSidearmRules.Add(newRule.Id);
-                }
-            }
-        }
 
         private float DoPawnCapacities(Rect rect)
         {
@@ -868,44 +830,56 @@ namespace EquipmentManager.Windows
             }
         }
 
-        private void DoRangedSidearmRules(Rect rect)
+
+        private void DoSecondaryWeaponRule(Rect rect)
         {
-            var rulesRect = LabelInput.DoLabeledRect(rect, Strings.RangedSidearmRulesLabel);
-            for (var i = 0; i < SelectedRole.RangedSidearmRules.Count; i++)
+            var inputRect = LabelInput.DoLabeledRect(rect, Strings.SecondaryWeaponLabel);
+            var inputWidth = (inputRect.width - UiHelpers.ElementGap) / 2f;
+            var typeRect = new Rect(inputRect.x, inputRect.y, inputWidth, inputRect.height);
+            var ruleRect = new Rect(inputRect.x + inputWidth + UiHelpers.ElementGap, inputRect.y, inputWidth,
+                inputRect.height);
+            if (Widgets.ButtonText(typeRect, Strings.GetSecondaryWeaponTypeLabel(SelectedRole.SecondaryRuleType)))
             {
-                var rule = SelectedRole.RangedSidearmRules[i];
-                var ruleRect = GetLabeledButtonListItemRect(rulesRect, i);
-                var deleteButtonRect =
-                    new Rect(ruleRect.x, ruleRect.y, ruleRect.height, ruleRect.height).ContractedBy(4f);
-                if (Widgets.ButtonImageFitted(deleteButtonRect, Resources.Textures.Delete))
-                {
-                    _ = SelectedRole.RangedSidearmRules.Remove(rule);
-                    break;
-                }
-                var ruleButtonRect = new Rect(deleteButtonRect.xMax + (UiHelpers.ElementGap / 2f), ruleRect.y,
-                    ruleRect.width - deleteButtonRect.width - (UiHelpers.ElementGap / 2f), ruleRect.height);
-                if (Widgets.ButtonText(ruleButtonRect, EquipmentManager.GetRangedWeaponRule(rule).Label))
-                {
-                    Find.WindowStack.Add(new FloatMenu(EquipmentManager.GetRangedWeaponRules()
-                        .Where(rwr => !SelectedRole.RangedSidearmRules.Contains(rwr.Id)).Select(rwr =>
-                            new FloatMenuOption(rwr.Label, () =>
-                            {
-                                SelectedRole.RangedSidearmRules.Add(rwr.Id);
-                                _ = SelectedRole.RangedSidearmRules.Remove(rule);
-                            })).ToList()));
-                }
+                Find.WindowStack.Add(new FloatMenu(Enum.GetValues(typeof(Role.PrimaryWeaponType))
+                    .OfType<Role.PrimaryWeaponType>().Select(pwt =>
+                        new FloatMenuOption(Strings.GetSecondaryWeaponTypeLabel(pwt),
+                            () => SelectedRole.SecondaryRuleType = pwt)).ToList()));
             }
-            var newRule = EquipmentManager.GetRangedWeaponRules()
-                .FirstOrDefault(rwr => !SelectedRole.RangedSidearmRules.Contains(rwr.Id));
-            if (newRule != null)
+            switch (SelectedRole.SecondaryRuleType)
             {
-                var addButtonRect = GetLabeledButtonListItemRect(rulesRect, SelectedRole.RangedSidearmRules.Count);
-                if (Widgets.ButtonText(addButtonRect, Resources.Strings.Add))
-                {
-                    SelectedRole.RangedSidearmRules.Add(newRule.Id);
-                }
+                case Role.PrimaryWeaponType.None:
+                    break;
+                case Role.PrimaryWeaponType.RangedWeapon:
+                    if (Widgets.ButtonText(ruleRect,
+                            SelectedRole.SecondaryRangedWeaponRuleId == null
+                                ? Resources.Strings.WeaponRules.NoRuleSelected
+                                : EquipmentManager.GetRangedWeaponRule((int) SelectedRole.SecondaryRangedWeaponRuleId)
+                                    .Label))
+                    {
+                        Find.WindowStack.Add(new FloatMenu(EquipmentManager.GetRangedWeaponRules().Select(rule =>
+                                new FloatMenuOption(rule.Label,
+                                    () => SelectedRole.SecondaryRangedWeaponRuleId = rule.Id))
+                            .ToList()));
+                    }
+                    break;
+                case Role.PrimaryWeaponType.MeleeWeapon:
+                    if (Widgets.ButtonText(ruleRect,
+                            SelectedRole.SecondaryMeleeWeaponRuleId == null
+                                ? Resources.Strings.WeaponRules.NoRuleSelected
+                                : EquipmentManager.GetMeleeWeaponRule((int) SelectedRole.SecondaryMeleeWeaponRuleId)
+                                    .Label))
+                    {
+                        Find.WindowStack.Add(new FloatMenu(EquipmentManager.GetMeleeWeaponRules().Select(rule =>
+                                new FloatMenuOption(rule.Label,
+                                    () => SelectedRole.SecondaryMeleeWeaponRuleId = rule.Id))
+                            .ToList()));
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
+
 
         private float DoRules(Rect rect)
         {
@@ -920,18 +894,10 @@ namespace EquipmentManager.Windows
             var primaryWeaponRect = new Rect(rect.x, labelRect.yMax + UiHelpers.ElementGap, rect.width,
                 UiHelpers.ListRowHeight);
             DoPrimaryWeaponRule(primaryWeaponRect);
-            var rangedSidearmsRowCount =
-                (int) Math.Ceiling((SelectedRole.RangedSidearmRules.Count + 1f) / LabeledButtonListColumnCount);
-            var rangedSidearmsRect = new Rect(rect.x, primaryWeaponRect.yMax + UiHelpers.ElementGap, rect.width,
-                (UiHelpers.ButtonHeight * rangedSidearmsRowCount) +
-                (UiHelpers.ButtonGap * (rangedSidearmsRowCount - 1)));
-            DoRangedSidearmRules(rangedSidearmsRect);
-            var meleeSidearmsRowCount =
-                (int) Math.Ceiling((SelectedRole.MeleeSidearmRules.Count + 1f) / LabeledButtonListColumnCount);
-            var meleeSidearmsRect = new Rect(rect.x, rangedSidearmsRect.yMax + UiHelpers.ElementGap, rect.width,
-                (UiHelpers.ButtonHeight * meleeSidearmsRowCount) + (UiHelpers.ButtonGap * (meleeSidearmsRowCount - 1)));
-            DoMeleeSidearmRules(meleeSidearmsRect);
-            var toolRect = new Rect(rect.x, meleeSidearmsRect.yMax + UiHelpers.ElementGap, rect.width,
+            var secondaryWeaponRect = new Rect(rect.x, primaryWeaponRect.yMax + UiHelpers.ElementGap, rect.width,
+                UiHelpers.ListRowHeight);
+            DoSecondaryWeaponRule(secondaryWeaponRect);
+            var toolRect = new Rect(rect.x, secondaryWeaponRect.yMax + UiHelpers.ElementGap, rect.width,
                 UiHelpers.ListRowHeight);
             DoToolRule(toolRect);
             return toolRect.yMax - rect.yMin;

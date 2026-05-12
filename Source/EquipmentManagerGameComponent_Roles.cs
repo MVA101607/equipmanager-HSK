@@ -36,6 +36,9 @@ namespace EquipmentManager
             newRole.PrimaryRuleType = role.PrimaryRuleType;
             newRole.PrimaryMeleeWeaponRuleId = role.PrimaryMeleeWeaponRuleId;
             newRole.PrimaryRangedWeaponRuleId = role.PrimaryRangedWeaponRuleId;
+            newRole.SecondaryRuleType = role.SecondaryRuleType;
+            newRole.SecondaryMeleeWeaponRuleId = role.SecondaryMeleeWeaponRuleId;
+            newRole.SecondaryRangedWeaponRuleId = role.SecondaryRangedWeaponRuleId;
             newRole.RangedSidearmRules.AddRange(role.RangedSidearmRules);
             newRole.MeleeSidearmRules.AddRange(role.MeleeSidearmRules);
             newRole.ToolRuleId = role.ToolRuleId;

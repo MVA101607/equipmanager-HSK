@@ -102,6 +102,8 @@ namespace EquipmentManager
 
                 internal static readonly string PrimaryWeaponLabel =
                     $"EquipmentManager.Roles.{nameof(PrimaryWeaponLabel)}".Translate();
+                internal static readonly string SecondaryWeaponLabel =
+                    $"EquipmentManager.Roles.{nameof(SecondaryWeaponLabel)}".Translate();
 
                 internal static readonly string PriorityLabel =
                     $"EquipmentManager.Roles.{nameof(PriorityLabel)}".Translate();
@@ -126,6 +128,10 @@ namespace EquipmentManager
                 internal static string GetPrimaryWeaponTypeLabel(Role.PrimaryWeaponType primaryWeaponType)
                 {
                     return $"EquipmentManager.Roles.PrimaryWeaponTypes.{primaryWeaponType}".Translate();
+                }
+                internal static string GetSecondaryWeaponTypeLabel(Role.PrimaryWeaponType weaponType)
+                {
+                    return $"EquipmentManager.Roles.PrimaryWeaponTypes.{weaponType}".Translate();
                 }
 
                 internal static class Default

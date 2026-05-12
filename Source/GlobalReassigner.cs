@@ -8,23 +8,33 @@ namespace EquipmentManager
     // Глобальное переназначение ролей и снаряжения для всей колонии.
     // Не трогает пешек, у которых роль выставлена игроком вручную
     // (PawnRole.Automatic == false).
+    //
+    // Алгоритм распределения ролей (пропорциональный):
+    //   1. Считаем сумму приоритетов всех активных ролей — это 100%.
+    //   2. Вычисляем целевое количество пешек для каждой роли методом
+    //      Хэмилтона (largest remainder), чтобы сумма была ровно N пешек.
+    //   3. Пешкам, подходящим только под одну роль, она назначается безусловно.
+    //   4. «Универсальные» пешки (подходят под несколько ролей) сортируются
+    //      от наименее гибких к наиболее и назначаются туда, где дефицит
+    //      (target - assigned) максимален; при равном дефиците — роль с
+    //      наивысшим приоритетом.
+    //   5. Если ни одна роль не подходит — пешка получает null (нет роли).
     internal static class GlobalReassigner
     {
         private static EquipmentManagerGameComponent EquipmentManager =>
             Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
-        // Кэшируем StatDef'ы один раз, чтобы избежать поиска при каждом вызове.
         private static StatDef _shootingAccuracyPawn;
         private static StatDef ShootingAccuracyPawn =>
             _shootingAccuracyPawn ??= DefDatabase<StatDef>.GetNamedSilentFail("ShootingAccuracyPawn");
 
-        // Урон в ближнем бою без оружия. Если игра не предоставляет MeleeDPS,
-        // используем MeleeHitChance как fallback (как указано в задаче).
         private static StatDef _meleeDps;
         private static StatDef MeleeDpsStat =>
             _meleeDps ??= DefDatabase<StatDef>.GetNamedSilentFail("MeleeDPS")
                        ?? DefDatabase<StatDef>.GetNamedSilentFail("MeleeHitChance");
 
+        // ─── Внешний вход: кнопка Refresh / DebugAction ──────────────────────
+        // Делает полный цикл: назнач��ние ролей + выдача снаряжения всем.
         public static void GlobalReassignAll(Map map)
         {
             if (map == null) { return; }
@@ -33,7 +43,6 @@ namespace EquipmentManager
             var mapComp = map.GetComponent<EquipmentManagerMapComponent>();
             if (mapComp == null) { return; }
 
-            // 1) Все взрослые поселенцы колонии, которых ведёт мод.
             var allColonists = map.mapPawns.FreeColonistsSpawned
                 .Where(p => p.Faction == Faction.OfPlayer
                             && !p.HasExtraHomeFaction()
@@ -44,61 +53,31 @@ namespace EquipmentManager
                 .ToList();
             if (allColonists.Count == 0) { return; }
 
-            // Разделение по способу назначения роли:
-            //   • вручную (PawnRole.Automatic == false) — не трогаем,
-            //     просто обновляем им снаряжение;
-            //   • автоматически (или роль ещё не назначена) — переназначаем.
-            var manualPawns = new List<Pawn>();
-            var autoPawns   = new List<Pawn>();
-            foreach (var p in allColonists)
-            {
-                var pr = em.GetPawnRole(p);
-                if (pr != null && !pr.Automatic) { manualPawns.Add(p); }
-                else                              { autoPawns.Add(p); }
-            }
+            var autoPawns   = allColonists.Where(p => em.GetPawnRole(p)?.Automatic != false).ToList();
+            var manualPawns = allColonists.Except(autoPawns).ToList();
 
-            // 2) Шаг 1 — переназначение ролей для авто-пешек по приоритету.
-            ReassignRolesByPriority(autoPawns);
+            // Шаг 1: пропорциональное распределение ролей для авто-пешек.
+            ReassignProportional(autoPawns, em);
 
-            // 3) Шаги 2 и 3 — оружие и инструменты.
-            // ForceUpdateForPawn для AutoRole-пешек запускает конкурентный
-            // алгоритм UpdateRoles(), который переопределит наши решения.
-            // Чтобы наш приоритетный выбор «прилип», временно помечаем
-            // только что назначенные роли как manual (Automatic = false),
-            // прогоняем ForceUpdateForPawn, затем восстанавливаем флаг.
-            //
-            // Сама логика снаряжения (поиск, скоринг, резервирование,
-            // PersonalLoadout, инструменты) остаётся за существующим
-            // ForceUpdateForPawn — никаких новых механизмов не вводим.
-
+            // Шаг 2: временно фиксируем авто-роли как manual, чтобы
+            // ForceUpdateForPawn не пересчитал их при выдаче снаряжения.
             var revertToAuto = new List<Pawn>(autoPawns.Count);
             foreach (var p in autoPawns)
             {
                 var pr = em.GetPawnRole(p);
                 if (pr == null) { continue; }
-                if (pr.Automatic)
-                {
-                    pr.Automatic = false;       // временно «manual» — чтобы ForceUpdateForPawn не пересчитал роль
-                    revertToAuto.Add(p);
-                }
+                if (pr.Automatic) { pr.Automatic = false; revertToAuto.Add(p); }
             }
 
             try
             {
-                // Обработка по группам ролей в порядке убывания приоритета;
-                // внутри роли — по релевантному стату (лучшая пешка первой,
-                // получает лучшее оружие первой за счёт встроенной системы
-                // резервирования _pawnCache.ReservedWeapons / AssignedWeapons).
-                var ordered = OrderedForEquipmentAssignment(allColonists, em);
-                foreach (var p in ordered)
+                foreach (var p in OrderedForEquipment(allColonists, em))
                 {
                     mapComp.ForceUpdateForPawn(p);
                 }
             }
             finally
             {
-                // Восстанавливаем Automatic-флаг — иначе пешки навсегда
-                // потеряют авто-режим назначения роли.
                 foreach (var p in revertToAuto)
                 {
                     var pr = em.GetPawnRole(p);
@@ -107,63 +86,117 @@ namespace EquipmentManager
             }
         }
 
-        // ─── Шаг 1: распределение ролей по приоритету ────────────────────────
-        private static void ReassignRolesByPriority(List<Pawn> autoPawns)
+        // ─── Пропорциональное распределение ролей ────────────────────────────
+        // Вызывается:
+        //   • GlobalReassignAll()         — кнопка Refresh
+        //   • EquipmentManagerMapComponent.UpdateRoles() — ежечасный тик
+        //   • ForceUpdateForPawn()        — принудительное обновление одной пешки
+        //
+        // autoPawns — список авто-пешек (Automatic == true или роль ещё не назначена).
+        // Метод записывает результат через em.SetPawnRole(automatic:true).
+        public static void ReassignProportional(
+            List<Pawn> autoPawns,
+            EquipmentManagerGameComponent em)
         {
-            var em = EquipmentManager;
+            if (autoPawns == null || autoPawns.Count == 0) { return; }
 
-            // Перебираем роли в порядке убывания Priority; первая роль,
-            // условиям которой пешка соответствует, и есть лучшая.
-            var rolesByPriority = em.GetRoles()
+            var activeRoles = em.GetRoles()
                 .Where(r => r.Priority > 0f)
                 .OrderByDescending(r => r.Priority)
                 .ToList();
 
+            if (activeRoles.Count == 0)
+            {
+                foreach (var p in autoPawns) { em.SetPawnRole(p, null, automatic: true); }
+                return;
+            }
+
+            // Для каждой пешки — список подходящих ролей.
+            var eligible = autoPawns.ToDictionary(
+                p => p,
+                p => activeRoles.Where(r => r.IsAvailable(p)).ToList());
+
+            // ── Целевые квоты: метод Хэмилтона ──────────────────────────────
+            var totalPriority = activeRoles.Sum(r => r.Priority);
+            var   totalPawns    = autoPawns.Count;
+
+            var exact   = activeRoles.ToDictionary(r => r,
+                r => r.Priority / totalPriority * totalPawns);
+            var targets = activeRoles.ToDictionary(r => r,
+                r => (int)System.Math.Floor(exact[r]));
+
+            // Распределяем остаток по наибольшим дробным частям.
+            var remainder = totalPawns - targets.Values.Sum();
+            foreach (var r in activeRoles
+                         .OrderByDescending(r => exact[r] - System.Math.Floor(exact[r]))
+                         .Take(remainder))
+            {
+                targets[r]++;
+            }
+
+            var assigned = activeRoles.ToDictionary(r => r, _ => 0);
+            var result   = new Dictionary<Pawn, Role>(autoPawns.Count);
+
+            // ── Шаг A: пешки с единственной подходящей ролью ────────────────
+            var contested = new List<Pawn>();
             foreach (var pawn in autoPawns)
             {
-                Role bestRole = null;
-                foreach (var role in rolesByPriority)
+                var el = eligible[pawn];
+                if (el.Count == 0)
                 {
-                    if (role.IsAvailable(pawn))
+                    result[pawn] = null;
+                }
+                else if (el.Count == 1)
+                {
+                    result[pawn] = el[0];
+                    assigned[el[0]]++;
+                }
+                else
+                {
+                    contested.Add(pawn);
+                }
+            }
+
+            // ── Шаг Б: «универсальные» пешки ────────────────────────────────
+            // Сортировка: сначала те, у кого меньше вариантов ролей.
+            contested.Sort((a, b) => eligible[a].Count.CompareTo(eligible[b].Count));
+
+            foreach (var pawn in contested)
+            {
+                Role best         = null;
+                var  bestDeficit  = int.MinValue;
+                var bestPriority = float.MinValue;
+
+                foreach (var role in eligible[pawn])
+                {
+                    var deficit = targets[role] - assigned[role];
+                    if (deficit > bestDeficit ||
+                        (deficit == bestDeficit && role.Priority > bestPriority))
                     {
-                        bestRole = role;
-                        break;
+                        best          = role;
+                        bestDeficit   = deficit;
+                        bestPriority  = role.Priority;
                     }
                 }
-                em.SetPawnRole(pawn, bestRole, automatic: true);
-            }
-        }
 
-        // ─── Сортировка пешек внутри роли ────────────────────────────────────
-        // Лучшая (по релевантному стату) — первой.
-        private static IEnumerable<Pawn> SortPawnsForRole(IEnumerable<Pawn> pawns, Role role)
-        {
-            if (role == null) { return pawns; }
-            switch (role.PrimaryRuleType)
+                result[pawn] = best;
+                if (best != null) { assigned[best]++; }
+            }
+
+            // Применяем.
+            foreach (var p in autoPawns)
             {
-                case Role.PrimaryWeaponType.RangedWeapon:
-                {
-                    var stat = ShootingAccuracyPawn;
-                    return stat == null
-                        ? pawns
-                        : pawns.OrderByDescending(p => p.GetStatValue(stat));
-                }
-                case Role.PrimaryWeaponType.MeleeWeapon:
-                {
-                    var stat = MeleeDpsStat;
-                    return stat == null
-                        ? pawns
-                        : pawns.OrderByDescending(p => p.GetStatValue(stat));
-                }
-                default:
-                    return pawns;
+                _ = result.TryGetValue(p, out var role);
+                em.SetPawnRole(p, role, automatic: true);
             }
         }
 
-        // Все пешки, упорядоченные «лучшая роль → лучшая пешка»: внешняя
-        // сортировка по убыванию Priority роли, внутренняя — по статy.
-        private static IEnumerable<Pawn> OrderedForEquipmentAssignment(
-            IEnumerable<Pawn> pawns, EquipmentManagerGameComponent em)
+        // ─── Сортировка пешек для выдачи снаряжения ──────────────────────────
+        // Порядок: убывание Priority роли → убывание релевантного стата пешки.
+        // Гарантирует, что лучшая пешка роли получает лучшее оружие первой.
+        public static IEnumerable<Pawn> OrderedForEquipment(
+            IEnumerable<Pawn> pawns,
+            EquipmentManagerGameComponent em)
         {
             var groups = pawns
                 .Select(p => new { Pawn = p, Role = em.GetRole(p) })
@@ -172,10 +205,31 @@ namespace EquipmentManager
 
             foreach (var g in groups)
             {
-                foreach (var p in SortPawnsForRole(g.Select(x => x.Pawn), g.Key))
+                foreach (var p in SortByRoleStat(g.Select(x => x.Pawn), g.Key))
                 {
                     yield return p;
                 }
+            }
+        }
+
+        private static IEnumerable<Pawn> SortByRoleStat(IEnumerable<Pawn> pawns, Role role)
+        {
+            if (role == null) { return pawns; }
+            switch (role.PrimaryRuleType)
+            {
+                case Role.PrimaryWeaponType.RangedWeapon:
+                {
+                    var stat = ShootingAccuracyPawn;
+                    return stat == null ? pawns
+                        : pawns.OrderByDescending(p => p.GetStatValue(stat));
+                }
+                case Role.PrimaryWeaponType.MeleeWeapon:
+                {
+                    var stat = MeleeDpsStat;
+                    return stat == null ? pawns
+                        : pawns.OrderByDescending(p => p.GetStatValue(stat));
+                }
+                default: return pawns;
             }
         }
     }

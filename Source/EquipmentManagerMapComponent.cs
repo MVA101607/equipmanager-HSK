@@ -1,9 +1,10 @@
+using JetBrains.Annotations;
+using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
-using RimWorld;
 using Verse;
+using Verse.AI;
 
 namespace EquipmentManager
 {
@@ -68,6 +69,27 @@ namespace EquipmentManager
             return 0f;
         }
 
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Поставить задание «подобрать конкретный экземпляр оружия» в очередь.
+        // requestQueueing=true — не прерывает текущую работу пешки.
+        // ─────────────────────────────────────────────────────────────────────
+        private static void EnqueuePickupJob(Pawn pawn, Thing weapon)
+        {
+            if (weapon == null || pawn == null) { return; }
+            // Уже несёт — ничего делать не надо
+            if (pawn.equipment?.AllEquipmentListForReading.Contains(weapon) == true ||
+                pawn.inventory?.innerContainer.Contains(weapon) == true) { return; }
+            // Очередь переполнена — пропускаем (негласный лимит ≤ 3 авто-заданий)
+            if (pawn.jobs?.jobQueue != null && pawn.jobs.jobQueue.Count > 5) { return; }
+            // Пешка не может дотянуться или зарезервировать предмет
+            if (!pawn.CanReach(weapon, PathEndMode.Touch, pawn.NormalMaxDanger())) { return; }
+            if (!pawn.CanReserve(weapon)) { return; }
+            var job = JobMaker.MakeJob(JobDefOf.TakeInventory, weapon);
+            job.count = 1;
+            _ = pawn.jobs.TryTakeOrderedJob(job, requestQueueing: true);
+        }
+
         // ─────────────────────────────────────────────────────────────────────
         // Назначение дальнего основного оружия
         // ─────────────────────────────────────────────────────────────────────
@@ -117,6 +139,7 @@ namespace EquipmentManager
             }
 
             UpdateAmmo(pawn, bestWeapon, rule);
+            EnqueuePickupJob(pawn.Pawn, bestWeapon);
             return true;
         }
 
@@ -166,7 +189,151 @@ namespace EquipmentManager
                 _ = CEExtendedLoadoutHelper.SetPrimaryWeaponInPersonalLoadout(
                     pawn.Pawn, bestWeapon.def, pawnRole.ManagedPersonalLoadoutSlots);
             }
+            EnqueuePickupJob(pawn.Pawn, bestWeapon);
             return true;
+        }
+
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Назначение дальнего вторичного оружия
+        // ─────────────────────────────────────────────────────────────────────
+        private bool AssignSecondaryRangedWeapon(PawnCache pawn)
+        {
+            if (pawn.AssignedRole.SecondaryRangedWeaponRuleId == null) { return false; }
+            var rule = EquipmentManager.GetRangedWeaponRule(
+                (int)pawn.AssignedRole.SecondaryRangedWeaponRuleId);
+            if (rule == null) { return false; }
+
+            EquipmentManager.LogMessage(
+                $"[EM] AssignSecondaryRangedWeapon for {pawn.Pawn.LabelShortCap}");
+
+            var availableWeapons = rule.GetCurrentlyAvailableItems(map, _updateTime).ToList();
+            _ = availableWeapons.RemoveAll(thing =>
+                _pawnCache.Any(pc => pc != pawn &&
+                    (pc.AssignedWeapons.ContainsKey(thing) ||
+                     pc.ReservedWeapons.ContainsKey(thing) ||
+                     pc.Pawn.inventory?.innerContainer.Contains(thing) == true ||
+                     pc.Pawn.equipment?.AllEquipmentListForReading.Contains(thing) == true)));
+            _ = availableWeapons.RemoveAll(thing =>
+                !EquipmentUtility.CanEquip(thing, pawn.Pawn) ||
+                (pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap != null &&
+                    !pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap[thing.Position]));
+            if (availableWeapons.Count == 0) { return false; }
+
+            var bestWeapon = availableWeapons
+                .OrderByDescending(thing => rule.GetThingScore(thing, _updateTime))
+                .ThenBy(thing => thing.GetHashCode())
+                .FirstOrDefault();
+            if (bestWeapon == null) { return false; }
+
+            var currentScore = GetCurrentWeaponScore(pawn, rule);
+            var bestScore    = rule.GetThingScore(bestWeapon, _updateTime);
+            if (currentScore > 0f && bestScore < currentScore * rule.RetentionBonus) { return false; }
+
+            pawn.AssignedWeapons[bestWeapon] = "secondary";
+            pawn.ReserveWeapon(bestWeapon);
+
+            var pawnRole = EquipmentManager.GetPawnRole(pawn.Pawn);
+            if (pawnRole != null)
+            {
+                pawnRole.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+                _ = CEExtendedLoadoutHelper.SetSecondaryWeaponInPersonalLoadout(
+                    pawn.Pawn, bestWeapon.def, pawnRole.ManagedPersonalLoadoutSlots);
+            }
+
+            UpdateSecondaryAmmo(pawn, bestWeapon, rule);
+            EnqueuePickupJob(pawn.Pawn, bestWeapon);
+            return true;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Назначение ближнего вторичного оружия
+        // ─────────────────────────────────────────────────────────────────────
+        private bool AssignSecondaryMeleeWeapon(PawnCache pawn)
+        {
+            if (pawn.AssignedRole.SecondaryMeleeWeaponRuleId == null) { return false; }
+            var rule = EquipmentManager.GetMeleeWeaponRule(
+                (int)pawn.AssignedRole.SecondaryMeleeWeaponRuleId);
+            if (rule == null) { return false; }
+
+            EquipmentManager.LogMessage(
+                $"[EM] AssignSecondaryMeleeWeapon for {pawn.Pawn.LabelShortCap}");
+
+            var availableWeapons = rule.GetCurrentlyAvailableItems(map, _updateTime).ToList();
+            _ = availableWeapons.RemoveAll(thing =>
+                _pawnCache.Any(pc => pc != pawn &&
+                    (pc.AssignedWeapons.ContainsKey(thing) ||
+                     pc.ReservedWeapons.ContainsKey(thing) ||
+                     pc.Pawn.inventory?.innerContainer.Contains(thing) == true ||
+                     pc.Pawn.equipment?.AllEquipmentListForReading.Contains(thing) == true)));
+            _ = availableWeapons.RemoveAll(thing =>
+                !EquipmentUtility.CanEquip(thing, pawn.Pawn) ||
+                (pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap != null &&
+                    !pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap[thing.Position]));
+            if (availableWeapons.Count == 0) { return false; }
+
+            var bestWeapon = availableWeapons
+                .OrderByDescending(thing => rule.GetThingScore(thing, _updateTime))
+                .ThenBy(thing => thing.GetHashCode())
+                .FirstOrDefault();
+            if (bestWeapon == null) { return false; }
+
+            var currentScore = GetCurrentWeaponScore(pawn, rule);
+            var bestScore    = rule.GetThingScore(bestWeapon, _updateTime);
+            if (currentScore > 0f && bestScore < currentScore * rule.RetentionBonus) { return false; }
+
+            pawn.AssignedWeapons[bestWeapon] = "secondary";
+            pawn.ReserveWeapon(bestWeapon);
+
+            var pawnRole = EquipmentManager.GetPawnRole(pawn.Pawn);
+            if (pawnRole != null)
+            {
+                pawnRole.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+                _ = CEExtendedLoadoutHelper.SetSecondaryWeaponInPersonalLoadout(
+                    pawn.Pawn, bestWeapon.def, pawnRole.ManagedPersonalLoadoutSlots);
+            }
+
+            EnqueuePickupJob(pawn.Pawn, bestWeapon);
+            return true;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Патроны для вторичного ranged-оружия
+        // ─────────────────────────────────────────────────────────────────────
+        private void UpdateSecondaryAmmo(PawnCache pawn, Thing weapon, RangedWeaponRule rule)
+        {
+            if (!CombatExtendedHelper.EnableAmmoSystem) { return; }
+
+            var weaponCache = EquipmentManager.GetRangedWeaponCache(weapon, _updateTime);
+
+            if (weaponCache.IsAmmo)
+            {
+                var pr = EquipmentManager.GetPawnRole(pawn.Pawn);
+                pr.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+                _ = CEExtendedLoadoutHelper.SetSecondaryAmmoInPersonalLoadout(
+                    pawn.Pawn, weapon.def, 5,
+                    managedSlotKeys: pr.ManagedPersonalLoadoutSlots);
+                return;
+            }
+
+            var ammoDefs  = weaponCache.AmmoTypes.ToList();
+            if (ammoDefs.Count == 0) { return; }
+
+            var magSize     = weaponCache.MagSize;
+            var targetCount = magSize > 0 ? magSize * 5 : rule.AmmoCount;
+
+            var genericDef  = CEExtendedLoadoutHelper.FindGenericAmmoDefForWeapon(weapon.def);
+            var pr2         = EquipmentManager.GetPawnRole(pawn.Pawn);
+            pr2.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
+
+            _ = genericDef != null
+                ? CEExtendedLoadoutHelper.SetSecondaryAmmoInPersonalLoadout(
+                    pawn.Pawn, ammoDefs[0], targetCount,
+                    genericAmmoDef: genericDef,
+                    managedSlotKeys: pr2.ManagedPersonalLoadoutSlots)
+                : CEExtendedLoadoutHelper.SetSecondaryAmmoInPersonalLoadout(
+                    pawn.Pawn, ammoDefs[0], targetCount,
+                    managedSlotKeys: pr2.ManagedPersonalLoadoutSlots);
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -363,59 +530,36 @@ namespace EquipmentManager
         // ─────────────────────────────────────────────────────────────────────
         private void UpdateRoles()
         {
-            // Auto-loadout pawns must be re-evaluated every hourly pass.
-            // If we keep their previous AssignedRole, they never enter the
-            // auto-assignment branch below because it only assigns when AssignedRole == null.
-            foreach (var pawn in _pawnCache.Where(pc => pc.AutoRole))
+            // Сбрасываем AssignedRole у авто-пешек перед переназначением.
+            foreach (var pc in _pawnCache.Where(pc => pc.AutoRole))
             {
-                pawn.AssignedRole = null;
+                pc.AssignedRole = null;
             }
 
-            foreach (var role in EquipmentManager.GetRoles()
-                         .Where(l => l.Priority > 0)
-                         .OrderByDescending(l =>
-                             l.PassionLimits.Count + l.PawnCapacityLimits.Count +
-                             l.PawnCapacityWeights.Count + l.PawnTraits.Count +
-                             l.PawnWorkCapacities.Count + l.SkillLimits.Count +
-                             l.SkillWeights.Count + l.StatLimits.Count + l.StatWeights.Count)
-                         .ThenByDescending(l => l.Priority))
+            // Собираем авто-пешки и запускаем пропорциональный алгоритм.
+            var autoPawns = _pawnCache
+                .Where(pc => pc.AutoRole)
+                .Select(pc => pc.Pawn)
+                .ToList();
+
+            GlobalReassigner.ReassignProportional(autoPawns, EquipmentManager);
+
+            // Синхронизируем AssignedRole в кэше с результатом GameComponent.
+            foreach (var pc in _pawnCache.Where(pc => pc.AutoRole))
             {
-                var availablePawns = _pawnCache.Where(pc => pc.IsAvailable(role)).ToList();
-                if (availablePawns.Count == 0) { continue; }
-
-                var prioritySum = availablePawns.Sum(p =>
-                    p.AvailableRoles.Keys.Sum(l => l.Priority));
-                var avgPriority = prioritySum / availablePawns.Count;
-                if (avgPriority <= 0f) { continue; }
-
-                var targetCount = (int)Math.Ceiling(
-                    availablePawns.Count * (role.Priority / avgPriority));
-                var assignedCount = availablePawns.Count(pc => pc.AssignedRole == role);
-
-                while (assignedCount < targetCount)
-                {
-                    var pawn = availablePawns
-                        .Where(pc => pc.AssignedRole == null && pc.AutoRole)
-                        .OrderByDescending(pc => pc.AvailableRoles[role])
-                        .ThenBy(pc => pc.Pawn.GetHashCode())
-                        .FirstOrDefault();
-                    if (pawn == null) { break; }
-                    pawn.AssignedRole = role;
-                    assignedCount++;
-                }
+                var pawnRole = EquipmentManager.GetPawnRole(pc.Pawn);
+                pc.AssignedRole = EquipmentManager.GetRole(pawnRole?.RoleId);
             }
 
-            foreach (var pawn in _pawnCache.Where(pc => pc.AssignedRole == null || !pc.ShouldUpdateEquipment))
+            // Очищаем снаряжение пешкам без роли или не требующим обновления.
+            foreach (var pc in _pawnCache.Where(
+                pc => pc.AssignedRole == null || !pc.ShouldUpdateEquipment))
             {
-                pawn.AssignedWeapons.Clear();
-                pawn.AssignedAmmo.Clear();
+                pc.AssignedWeapons.Clear();
+                pc.AssignedAmmo.Clear();
             }
-
-         //   EquipmentManager.LogMessage("[EM] Roles: " +
-           //     string.Join(", ", _pawnCache
-             //       .Where(pc => pc.AssignedRole != null)
-               //     .Select(pc => $"{pc.Pawn.LabelShortCap}={pc.AssignedRole.Label}")));
         }
+
 
         // ─────────────────────────────────────────────────────────────────────
         // Обновление кэша пешек
@@ -495,6 +639,20 @@ namespace EquipmentManager
                     break;
                 case Role.PrimaryWeaponType.MeleeWeapon:
                     _ = AssignPrimaryMeleeWeapon(pawn);
+                    break;
+                case Role.PrimaryWeaponType.None:
+                default:
+                    break;
+            }
+
+            // Вторичное оружие
+            switch (pawn.AssignedRole.SecondaryRuleType)
+            {
+                case Role.PrimaryWeaponType.RangedWeapon:
+                    _ = AssignSecondaryRangedWeapon(pawn);
+                    break;
+                case Role.PrimaryWeaponType.MeleeWeapon:
+                    _ = AssignSecondaryMeleeWeapon(pawn);
                     break;
                 case Role.PrimaryWeaponType.None:
                 default:
