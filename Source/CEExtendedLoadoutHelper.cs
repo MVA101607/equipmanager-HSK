@@ -79,6 +79,7 @@ namespace EquipmentManager
                 Messages.Message(
                     "EquipmentManager.WeaponEquipped".Translate(
                         pawn.Name.ToStringShort, weaponDef.LabelCap),
+                    new LookTargets(pawn),
                     MessageTypeDefOf.SilentInput,
                     historical: false);
 
@@ -118,6 +119,7 @@ namespace EquipmentManager
                 Messages.Message(
                     "EquipmentManager.SecondaryWeaponEquipped".Translate(
                         pawn.Name.ToStringShort, weaponDef.LabelCap),
+                    new LookTargets(pawn),
                     MessageTypeDefOf.SilentInput,
                     historical: false);
 

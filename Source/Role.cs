@@ -56,7 +56,9 @@ namespace EquipmentManager
             Dictionary<string, bool> pawnWorkCapacities, bool dropUnassignedWeapons, List<PassionLimit> passionLimits,
             List<PawnCapacityLimit> pawnCapacityLimits, List<PawnCapacityWeight> pawnCapacityWeights,
             List<SkillLimit> skillLimits, List<SkillWeight> skillWeights, List<StatLimit> statLimits,
-            List<StatWeight> statWeights)
+            List<StatWeight> statWeights,
+            PrimaryWeaponType secondaryRuleType = PrimaryWeaponType.None,
+            int? secondaryRangedWeaponRuleId = null, int? secondaryMeleeWeaponRuleId = null)
         {
             _id = id;
             Label = label;
@@ -66,6 +68,9 @@ namespace EquipmentManager
             PrimaryMeleeWeaponRuleId = primaryMeleeWeaponRuleId;
             _rangedSidearmRules = rangedSidearmRules;
             _meleeSidearmRules = meleeSidearmRules;
+            _secondaryRuleType = secondaryRuleType;
+            SecondaryRangedWeaponRuleId = secondaryRangedWeaponRuleId;
+            SecondaryMeleeWeaponRuleId = secondaryMeleeWeaponRuleId;
             ToolRuleId = toolRuleId;
             _pawnTraits = pawnTraits;
             _pawnWorkCapacities = pawnWorkCapacities;

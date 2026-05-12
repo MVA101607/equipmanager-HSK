@@ -226,6 +226,9 @@ namespace EquipmentManager
             int? primaryMeleeWeaponRuleId = null;
             var rangedSidearmRules = new List<int>();
             var meleeSidearmRules = new List<int>();
+            var secondaryRuleType = Role.PrimaryWeaponType.None;
+            int? secondaryRangedWeaponRuleId = null;
+            int? secondaryMeleeWeaponRuleId = null;
             int? toolRuleId = null;
             var pawnTraits = new Dictionary<string, bool>();
             var pawnWorkCapacities = new Dictionary<string, bool>();
@@ -269,6 +272,15 @@ namespace EquipmentManager
                         break;
                     case "MeleeSidearmRules":
                         ReadIntList(xmlReader, meleeSidearmRules);
+                        break;
+                    case "SecondaryRuleType":
+                        _ = Enum.TryParse(xmlReader.ReadElementContentAsString(), out secondaryRuleType);
+                        break;
+                    case "SecondaryRangedWeaponRuleId":
+                        secondaryRangedWeaponRuleId = xmlReader.ReadElementContentAsInt();
+                        break;
+                    case "SecondaryMeleeWeaponRuleId":
+                        secondaryMeleeWeaponRuleId = xmlReader.ReadElementContentAsInt();
                         break;
                     case "ToolRuleId":
                         toolRuleId = xmlReader.ReadElementContentAsInt();
@@ -316,7 +328,8 @@ namespace EquipmentManager
             target.Add(new Role(id, label, priority, primaryRuleType, primaryRangedWeaponRuleId,
                 primaryMeleeWeaponRuleId, rangedSidearmRules, meleeSidearmRules, toolRuleId, pawnTraits,
                 pawnWorkCapacities, dropUnassignedWeapons, passionLimits, pawnCapacityLimits, pawnCapacityWeights,
-                skillLimits, skillWeights, statLimits, statWeights));
+                skillLimits, skillWeights, statLimits, statWeights,
+                secondaryRuleType, secondaryRangedWeaponRuleId, secondaryMeleeWeaponRuleId));
         }
 
         // ─── ToolRule / Melee / Ranged / WorkType ───────────────────────────────

@@ -1,6 +1,6 @@
-# equipmanager-HSK
+# EquipManager-HSK
 
-[Download](https://github.com/MVA101607/equipmanager-HSK/releases/latest/download/EquipManager-HSK.zip)
+[Download Latest Release](https://github.com/MVA101607/equipmanager-HSK/releases/latest/download/EquipManager-HSK.zip)
 
 <img src="Manual_eng.png" width="600" alt="How it looks like">
 
