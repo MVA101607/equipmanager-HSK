@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
 using Verse;
+using Verse.AI.Group;
 
 namespace EquipmentManager
 {
@@ -85,8 +86,25 @@ namespace EquipmentManager
         {
             PurgeExpiredReservations();
 
+            // Пешка считается «в бою» если на карте есть активные враги
+            // (GenHostility) либо её lord ведёт боевое задание.
+            // В таком состоянии ежечасное обновление снаряжения пропускается:
+            // пешка не должна бросать укрытие ради смены оружия.
+            var isInCombat =
+                (Pawn.Map != null &&
+                 GenHostility.AnyHostileActiveThreatToPlayer(
+                     Pawn.Map, countDormantPawnsAsHostile: false)) ||
+                Pawn.GetLord()?.LordJob is LordJob_AssaultColony
+                                          or LordJob_Siege
+                                          or LordJob_StageThenAttack
+                                          or LordJob_SleepThenAssaultColony
+                                          or LordJob_DefendAndExpandHive
+                                          or LordJob_MechanoidDefendBase
+                                          or LordJob_MechanoidsDefend
+                                          or LordJob_FormAndSendCaravan;
             var capable = !Pawn.Dead && !Pawn.Downed && !Pawn.InMentalState &&
                           !Pawn.InContainerEnclosed && !Pawn.Drafted &&
+                          !isInCombat &&
                           !HealthAIUtility.ShouldSeekMedicalRest(Pawn);
             var pawnRole = EquipmentManager.GetPawnRole(Pawn);
             AutoRole = pawnRole?.Automatic ?? false;

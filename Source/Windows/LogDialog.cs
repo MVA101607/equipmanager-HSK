@@ -1,4 +1,6 @@
-﻿using System.Text;
+using System;
+using System.Reflection;
+using System.Text;
 using EquipmentManager.CustomWidgets;
 using UnityEngine;
 using Verse;
@@ -9,6 +11,39 @@ namespace EquipmentManager.Windows
     {
         private static Vector2 _scrollPosition;
         private float _listingViewHeight;
+
+        // Время сборки DLL — получаем один раз через атрибут сборки.
+        private static readonly string _buildTime = GetBuildTime();
+
+        private static string GetBuildTime()
+        {
+            try
+            {
+                var asm = Assembly.GetExecutingAssembly();
+                // .NET вшивает дату компиляции в последние байты PE-заголовка (устарело в .NET 5+),
+                // поэтому читаем LinkerTimestampUtc из AssemblyInformationalVersionAttribute
+                // либо падаем обратно на дату последней записи файла сборки.
+                var infoAttr = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                if (infoAttr != null && infoAttr.InformationalVersion.Contains("+"))
+                {
+                    // "1.0.0+2024-05-13T20:00:00" — кастомный формат через MSBuild
+                    var ts = infoAttr.InformationalVersion.Split('+')[1];
+                    if (DateTime.TryParse(ts, out var dt))
+                    {
+                        return dt.ToString("yyyy-MM-dd HH:mm");
+                    }
+                }
+                // Fallback: дата последней записи файла DLL
+                var path = asm.Location;
+                if (!string.IsNullOrEmpty(path))
+                {
+                    var fileDate = System.IO.File.GetLastWriteTime(path);
+                    return fileDate.ToString("yyyy-MM-dd HH:mm");
+                }
+            }
+            catch { }
+            return "unknown";
+        }
 
         public LogDialog()
         {
@@ -50,7 +85,10 @@ namespace EquipmentManager.Windows
                 EquipmentManager.ClearLog();
                 _scrollPosition = Vector2.zero;
             }
+            // Строка с временем сборки DLL
             Text.Anchor = TextAnchor.MiddleLeft;
+            _ = widgetRow.Label($"  Build: {_buildTime}");
+            Text.Anchor = TextAnchor.UpperLeft;
             var outRect = inRect;
             outRect.yMin += 26f;
             Widgets.DrawBoxSolidWithOutline(outRect, new Color(1f, 1f, 1f, 0.05f), new Color(1f, 1f, 1f, 0.4f));

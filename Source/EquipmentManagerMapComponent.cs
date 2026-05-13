@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
 
 namespace EquipmentManager
 {
@@ -82,6 +83,11 @@ namespace EquipmentManager
                 pawn.inventory?.innerContainer.Contains(weapon) == true) { return; }
             // Очередь переполнена — пропускаем (негласный лимит ≤ 3 авто-заданий)
             if (pawn.jobs?.jobQueue != null && pawn.jobs.jobQueue.Count > 5) { return; }
+            // Оружие должно лежать в разрешённой области пешки.
+            // Если область ограничена и оружие за её пределами — не выдаём задание,
+            // чтобы пешка не выбегала из убежища во время нападения.
+            var allowedArea = pawn.playerSettings?.EffectiveAreaRestrictionInPawnCurrentMap;
+            if (allowedArea != null && !allowedArea[weapon.Position]) { return; }
             // Пешка не может дотянуться или зарезервировать предмет
             if (!pawn.CanReach(weapon, PathEndMode.Touch, pawn.NormalMaxDanger())) { return; }
             if (!pawn.CanReserve(weapon)) { return; }
@@ -506,6 +512,19 @@ namespace EquipmentManager
                 $" day={_updateTime.Day} hour={_updateTime.Hour:N1} ==================");
 
             UpdatePawnCache();
+
+            // Не обновляем снаряжение если на карте бой или формируется караван.
+            // ProcessPawnQueue обрабатывает одну пешку за тик, но UpdateRoles
+            // затрагивает ВСЕХ — поэтому блокируем оба на уровне тика.
+            if (map.mapPawns.FreeColonistsSpawned.Any() &&
+                (GenHostility.AnyHostileActiveThreatToPlayer(map, countDormantPawnsAsHostile: false) ||
+                 IsCaravanFormingOnMap(map)))
+            {
+                EquipmentManager.LogMessage(
+                    "[EM] Hourly tick: skipped — combat or caravan forming");
+                return;
+            }
+
             UpdateRoles();
             ProcessPawnQueue();
             RemoveUnassignedWeapons();
@@ -696,6 +715,17 @@ namespace EquipmentManager
         }
 
         // ─────────────────────────────────────────────────────────────────────
+        // Возвращает true если на карте в данный момент идёт формирование
+        // каравана (присутствует lord с LordJob_FormAndSendCaravan).
+        // ─────────────────────────────────────────────────────────────────────
+        private static bool IsCaravanFormingOnMap(Map map)
+        {
+            if (map == null) { return false; }
+            return map.lordManager?.lords
+                .Any(l => l.LordJob is LordJob_FormAndSendCaravan) ?? false;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
         // Почасовая очередь: каждый игровой час обрабатывается одна пешка.
         //
         // Для каждой пешки в свой час:
@@ -720,6 +750,30 @@ namespace EquipmentManager
             EquipmentManager.LogMessage(
                 $"[EM] Queue tick: processing {pawn.Pawn.LabelShortCap}" +
                 $" (auto={pawn.AutoRole}, capable={pawn.ShouldUpdateEquipment})");
+
+            // Пропускаем пешку, которая находится в активном бою:
+            // обновление снаряжения посреди боя может заставить её покинуть позицию.
+            /*    if (pawn.Pawn.Map != null &&
+                    GenHostility.AnyHostileActiveThreatToPlayer(
+                        pawn.Pawn.Map, countDormantPawnsAsHostile: false))
+            */
+            if (pawn.Pawn.Drafted)
+            {
+                EquipmentManager.LogMessage(
+                    $"[EM] Queue tick: skipping {pawn.Pawn.LabelShortCap} — combat active");
+                return;
+            }
+
+            // Пропускаем пешку, если на карте идёт формирование каравана.
+            // Предметы, назначенные в инвентарь каравана, не должны быть
+            // перехвачены менеджером снаряжения, а сами пешки не должны
+            // получать новые задания на подбор снаряжения во время сборов.
+            if (IsCaravanFormingOnMap(pawn.Pawn.Map))
+            {
+                EquipmentManager.LogMessage(
+                    $"[EM] Queue tick: skipping {pawn.Pawn.LabelShortCap} — caravan forming");
+                return;
+            }
 
             if (pawn.AutoRole)
             {
@@ -760,7 +814,8 @@ namespace EquipmentManager
                 // ──────────────────────────────────────────────────────────────────
             }
 
-            pawn.ShouldUpdateEquipment = true;
+            // Не форсируем ShouldUpdateEquipment — он уже корректно
+            // установлен в PawnCache.Update() с учётом боя и каравана.
             _ = ProcessPawnEquipment(pawn);
         }
 
