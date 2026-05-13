@@ -19,26 +19,20 @@ namespace EquipmentManager.Windows
         {
             try
             {
-                var asm = Assembly.GetExecutingAssembly();
-                // .NET вшивает дату компиляции в последние байты PE-заголовка (устарело в .NET 5+),
-                // поэтому читаем LinkerTimestampUtc из AssemblyInformationalVersionAttribute
-                // либо падаем обратно на дату последней записи файла сборки.
-                var infoAttr = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                if (infoAttr != null && infoAttr.InformationalVersion.Contains("+"))
+                // MSBuild записывает дату сборки в AssemblyInformationalVersion
+                // в формате "1.0.0+yyyy-MM-dd HH:mm" через .csproj:
+                //   <AssemblyInformationalVersion>
+                //     1.0.0+$([System.DateTime]::Now.ToString("yyyy-MM-dd HH:mm"))
+                //   </AssemblyInformationalVersion>
+                var infoAttr = Assembly.GetExecutingAssembly()
+                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                if (infoAttr != null)
                 {
-                    // "1.0.0+2024-05-13T20:00:00" — кастомный формат через MSBuild
-                    var ts = infoAttr.InformationalVersion.Split('+')[1];
-                    if (DateTime.TryParse(ts, out var dt))
+                    var parts = infoAttr.InformationalVersion.Split('+');
+                    if (parts.Length >= 2 && !string.IsNullOrWhiteSpace(parts[1]))
                     {
-                        return dt.ToString("yyyy-MM-dd HH:mm");
+                        return parts[1];
                     }
-                }
-                // Fallback: дата последней записи файла DLL
-                var path = asm.Location;
-                if (!string.IsNullOrEmpty(path))
-                {
-                    var fileDate = System.IO.File.GetLastWriteTime(path);
-                    return fileDate.ToString("yyyy-MM-dd HH:mm");
                 }
             }
             catch { }

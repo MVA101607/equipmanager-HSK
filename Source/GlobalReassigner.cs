@@ -232,5 +232,60 @@ namespace EquipmentManager
                 default: return pawns;
             }
         }
+        // ─── Назначение роли одной авто-пешке (часовой тик) ─────────────────
+        // Если пешке подходит только одна роль — назначаем её.
+        // Если несколько — считаем дефицит по квотам Хэмилтона и выбираем
+        // роль с максимальным дефицитом (target - current).
+        // totalColonists — полное число колонистов на карте (из _pawnCache.Count).
+        // currentCounts  — сколько пешек уже имеет каждую роль (все, не только авто).
+        public static Role AssignRoleForSinglePawn(
+            Pawn pawn,
+            EquipmentManagerGameComponent em,
+            int totalColonists,
+            Dictionary<int, int> currentCounts)
+        {
+            var activeRoles = em.GetRoles()
+                .Where(r => r.Priority > 0f)
+                .OrderByDescending(r => r.Priority)
+                .ToList();
+
+            if (activeRoles.Count == 0) { return null; }
+
+            // Роли, которым пешка подходит
+            var eligible = activeRoles.Where(r => r.IsAvailable(pawn)).ToList();
+            if (eligible.Count == 0) { return null; }
+            if (eligible.Count == 1) { return eligible[0]; }
+
+            // Целевые квоты методом Хэмилтона по всем колонистам
+            var totalPriority = activeRoles.Sum(r => r.Priority);
+            var exact   = activeRoles.ToDictionary(r => r,
+                r => r.Priority / totalPriority * totalColonists);
+            var targets = activeRoles.ToDictionary(r => r,
+                r => (int)System.Math.Floor(exact[r]));
+            var remainder = totalColonists - targets.Values.Sum();
+            foreach (var r in activeRoles
+                         .OrderByDescending(r => exact[r] - System.Math.Floor(exact[r]))
+                         .Take(remainder))
+            { targets[r]++; }
+
+            // Выбираем eligible-роль с максимальным дефицитом
+            Role best = null;
+            var bestDeficit  = int.MinValue;
+            var bestPriority = float.MinValue;
+            foreach (var role in eligible)
+            {
+                _ = currentCounts.TryGetValue(role.Id, out var current);
+                var deficit = targets[role] - current;
+                if (deficit > bestDeficit ||
+                    (deficit == bestDeficit && role.Priority > bestPriority))
+                {
+                    best         = role;
+                    bestDeficit  = deficit;
+                    bestPriority = role.Priority;
+                }
+            }
+            return best;
+        }
+
     }
 }

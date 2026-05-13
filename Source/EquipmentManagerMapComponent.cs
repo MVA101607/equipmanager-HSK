@@ -512,20 +512,6 @@ namespace EquipmentManager
                 $" day={_updateTime.Day} hour={_updateTime.Hour:N1} ==================");
 
             UpdatePawnCache();
-
-            // Не обновляем снаряжение если на карте бой или формируется караван.
-            // ProcessPawnQueue обрабатывает одну пешку за тик, но UpdateRoles
-            // затрагивает ВСЕХ — поэтому блокируем оба на уровне тика.
-            if (map.mapPawns.FreeColonistsSpawned.Any() &&
-                (GenHostility.AnyHostileActiveThreatToPlayer(map, countDormantPawnsAsHostile: false) ||
-                 IsCaravanFormingOnMap(map)))
-            {
-                EquipmentManager.LogMessage(
-                    "[EM] Hourly tick: skipped — combat or caravan forming");
-                return;
-            }
-
-            UpdateRoles();
             ProcessPawnQueue();
             RemoveUnassignedWeapons();
 
@@ -747,27 +733,15 @@ namespace EquipmentManager
             var pawn = allCandidates[_pawnProcessingIndex];
             _pawnProcessingIndex++;
 
-            EquipmentManager.LogMessage(
-                $"[EM] Queue tick: processing {pawn.Pawn.LabelShortCap}" +
-                $" (auto={pawn.AutoRole}, capable={pawn.ShouldUpdateEquipment})");
-
-            // Пропускаем пешку, которая находится в активном бою:
-            // обновление снаряжения посреди боя может заставить её покинуть позицию.
-            /*    if (pawn.Pawn.Map != null &&
-                    GenHostility.AnyHostileActiveThreatToPlayer(
-                        pawn.Pawn.Map, countDormantPawnsAsHostile: false))
-            */
+            // Пропускаем призванных (в бою) пешек
             if (pawn.Pawn.Drafted)
             {
                 EquipmentManager.LogMessage(
-                    $"[EM] Queue tick: skipping {pawn.Pawn.LabelShortCap} — combat active");
+                    $"[EM] Queue tick: skipping {pawn.Pawn.LabelShortCap} — drafted");
                 return;
             }
 
-            // Пропускаем пешку, если на карте идёт формирование каравана.
-            // Предметы, назначенные в инвентарь каравана, не должны быть
-            // перехвачены менеджером снаряжения, а сами пешки не должны
-            // получать новые задания на подбор снаряжения во время сборов.
+            // Пропускаем если формируется караван
             if (IsCaravanFormingOnMap(pawn.Pawn.Map))
             {
                 EquipmentManager.LogMessage(
@@ -775,51 +749,43 @@ namespace EquipmentManager
                 return;
             }
 
+            EquipmentManager.LogMessage(
+                $"[EM] Queue tick: processing {pawn.Pawn.LabelShortCap}" +
+                $" (auto={pawn.AutoRole}, capable={pawn.ShouldUpdateEquipment})");
+
             if (pawn.AutoRole)
             {
-                pawn.AvailableRoles.Clear();
-                foreach (var role in EquipmentManager.GetRoles())
+                // Считаем текущее распределение ролей по всем пешкам кэша
+                var currentCounts = new Dictionary<int, int>();
+                foreach (var pc in _pawnCache)
                 {
-                    if (role.IsAvailable(pawn.Pawn))
-                    {
-                        pawn.AvailableRoles.Add(role, role.GetScore(pawn.Pawn));
-                    }
-                }
-
-                if (pawn.AvailableRoles.Count == 0)
-                {
-                    var noRoleMsg = "EquipmentManager.NoRoleAvailable".Translate(pawn.Pawn.LabelShortCap);
-                    Messages.Message(noRoleMsg, pawn.Pawn, MessageTypeDefOf.RejectInput, historical: false);
-                    EquipmentManager.LogMessage(
-                        $"[EM] ForceUpdateForPawn: {pawn.Pawn.LabelShortCap} — no roles match!");
-                    foreach (var role in EquipmentManager.GetRoles())
-                    {
-                        _ = role.IsAvailable(pawn.Pawn, true);
-                    }
+                    var rid = EquipmentManager.GetPawnRole(pc.Pawn)?.RoleId;
+                    if (rid == null) { continue; }
+                    _ = currentCounts.TryGetValue(rid.Value, out var cnt);
+                    currentCounts[rid.Value] = cnt + 1;
                 }
 
                 var previousRole = pawn.AssignedRole;
-                pawn.AssignedRole = null;
-                UpdateRoles();
+                var newRole = GlobalReassigner.AssignRoleForSinglePawn(
+                    pawn.Pawn, EquipmentManager, _pawnCache.Count, currentCounts);
 
-                if (pawn.AssignedRole != previousRole)
+                if (newRole?.Id != previousRole?.Id)
                 {
                     EquipmentManager.LogMessage(
                         $"[EM] {pawn.Pawn.LabelShortCap}: role changed" +
-                        $" {previousRole?.Label ?? "None"} → {pawn.AssignedRole?.Label ?? "None"}");
+                        $" {previousRole?.Label ?? "None"} → {newRole?.Label ?? "None"}");
+                    pawn.AssignedRole = newRole;
+                    EquipmentManager.SetPawnRole(pawn.Pawn, newRole, automatic: true);
+                    // Сбрасываем снаряжение только этой пешке
+                    pawn.AssignedWeapons.Clear();
+                    pawn.AssignedAmmo.Clear();
                 }
-
-                // ── FIX: записать новую роль в GameComponent, чтобы UI обновился ──
-                EquipmentManager.SetPawnRole(pawn.Pawn, pawn.AssignedRole, automatic: true);
-                // ──────────────────────────────────────────────────────────────────
             }
 
-            // Не форсируем ShouldUpdateEquipment — он уже корректно
-            // установлен в PawnCache.Update() с учётом боя и каравана.
             _ = ProcessPawnEquipment(pawn);
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+                // ─────────────────────────────────────────────────────────────────────
         // Принудительное обновление всех пешек (отладка / DebugActions)
         // ─────────────────────────────────────────────────────────────────────
         public void ForceUpdate()
