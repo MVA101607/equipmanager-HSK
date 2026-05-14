@@ -18,10 +18,14 @@ namespace EquipmentManager.Windows
 
         private static string GetBuildTime()
         {
-            var attribute = typeof(LogDialog).Assembly  // ← сборка мода
-                .GetCustomAttributes<AssemblyMetadataAttribute>()  // ← GetCustomAttributes (множественное число)
-                .FirstOrDefault(a => a.Key == "CompileDate");      // ← фильтр по ключу
-            return attribute?.Value ?? "unknown";
+            try
+            {
+                var attribute = typeof(LogDialog).Assembly
+                    .GetCustomAttributes<AssemblyMetadataAttribute>()
+                    .FirstOrDefault(a => a.Key == "BuildTime");
+                return attribute?.Value ?? "unknown";
+            }
+            catch { return "unknown"; }
         }
 
         public LogDialog()
