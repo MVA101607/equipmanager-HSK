@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Text;
+using System.Linq;
 using EquipmentManager.CustomWidgets;
 using UnityEngine;
 using Verse;
@@ -17,26 +18,10 @@ namespace EquipmentManager.Windows
 
         private static string GetBuildTime()
         {
-            try
-            {
-                // MSBuild записывает дату сборки в AssemblyInformationalVersion
-                // в формате "1.0.0+yyyy-MM-dd HH:mm" через .csproj:
-                //   <AssemblyInformationalVersion>
-                //     1.0.0+$([System.DateTime]::Now.ToString("yyyy-MM-dd HH:mm"))
-                //   </AssemblyInformationalVersion>
-                var infoAttr = Assembly.GetExecutingAssembly()
-                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                if (infoAttr != null)
-                {
-                    var parts = infoAttr.InformationalVersion.Split('+');
-                    if (parts.Length >= 2 && !string.IsNullOrWhiteSpace(parts[1]))
-                    {
-                        return parts[1];
-                    }
-                }
-            }
-            catch { }
-            return "unknown";
+            var attribute = typeof(LogDialog).Assembly  // ← сборка мода
+                .GetCustomAttributes<AssemblyMetadataAttribute>()  // ← GetCustomAttributes (множественное число)
+                .FirstOrDefault(a => a.Key == "CompileDate");      // ← фильтр по ключу
+            return attribute?.Value ?? "unknown";
         }
 
         public LogDialog()

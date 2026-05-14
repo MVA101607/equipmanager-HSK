@@ -12,12 +12,24 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <AssemblyInformationalVersion>1.0.0+$([System.DateTime]::Now.ToString("yyyy-MM-dd HH:mm"))</AssemblyInformationalVersion>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
     <LangVersion>10</LangVersion>
   </PropertyGroup>
+  <!-- Этот блок создает константу с датой перед компиляцией -->
+  <Target Name="AddCompileVariable" BeforeTargets="BeforeCompile">
+    <PropertyGroup>
+      <CompileTime>$([System.DateTime]::Now.ToString("yyyy-MM-dd HH:mm:ss"))</CompileTime>
+    </PropertyGroup>
+    <!-- Записываем дату в свойства сборки -->
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>CompileDate</_Parameter1>
+        <_Parameter2>$(CompileTime)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
