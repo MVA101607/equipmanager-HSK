@@ -326,19 +326,26 @@ namespace EquipmentManager
             if (ammoDefs.Count == 0) { return; }
 
             var magSize     = weaponCache.MagSize;
-            var targetCount = magSize > 0 ? magSize * 5 : rule.AmmoCount;
+            var magazines   = rule.AmmoCount > 0 ? rule.AmmoCount : 5;
+            var targetCount = magSize > 1 ? magSize * magazines : magazines * 30;
 
-            var genericDef  = CEExtendedLoadoutHelper.FindGenericAmmoDefForWeapon(weapon.def);
-            var pr2         = EquipmentManager.GetPawnRole(pawn.Pawn);
+            var filteredSec    = FilterAmmoByPreference(ammoDefs, rule.AmmoTypePreference);
+            var candidatesSec  = filteredSec.Count > 0 ? filteredSec : ammoDefs;
+            var genericDef     = CEExtendedLoadoutHelper.FindGenericAmmoDefForWeapon(weapon.def);
+            var useGenericSec  = genericDef != null && rule.AmmoTypePreference == AmmoTypePreference.Any;
+            var preferredSec   = candidatesSec.OrderByDescending(d => d.BaseMarketValue).FirstOrDefault();
+            if (preferredSec == null) { return; }
+
+            var pr2 = EquipmentManager.GetPawnRole(pawn.Pawn);
             pr2.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
 
-            _ = genericDef != null
+            _ = useGenericSec
                 ? CEExtendedLoadoutHelper.SetSecondaryAmmoInPersonalLoadout(
-                    pawn.Pawn, ammoDefs[0], targetCount,
+                    pawn.Pawn, preferredSec, targetCount,
                     genericAmmoDef: genericDef,
                     managedSlotKeys: pr2.ManagedPersonalLoadoutSlots)
                 : CEExtendedLoadoutHelper.SetSecondaryAmmoInPersonalLoadout(
-                    pawn.Pawn, ammoDefs[0], targetCount,
+                    pawn.Pawn, preferredSec, targetCount,
                     managedSlotKeys: pr2.ManagedPersonalLoadoutSlots);
         }
 
@@ -371,14 +378,20 @@ namespace EquipmentManager
             var ammoDefs = weaponCache.AmmoTypes.ToList();
             if (ammoDefs.Count == 0) { return; }
 
-            var magSize       = weaponCache.MagSize;
-            var targetCount   = magSize > 0 ? magSize * 5 : rule.AmmoCount;
+            var magSize     = weaponCache.MagSize;
+            var magazines   = rule.AmmoCount > 0 ? rule.AmmoCount : 5;
+            // magSize > 1: нормальное оружие. magSize <= 1: луки/арбалеты (1 стрела на выстрел).
+            var targetCount = magSize > 1 ? magSize * magazines : magazines * 30;
+
+            // Фильтруем по предпочтению типа патрона. При несовпадении — откат на Any.
+            var filtered = FilterAmmoByPreference(ammoDefs, rule.AmmoTypePreference);
+            var candidateDefs = filtered.Count > 0 ? filtered : ammoDefs;
 
             // Ищем generic ammo def для этого оружия ("GenericAmmo-{gun.defName}").
-            // Если есть — передаём его: пешка сама выберет лучший патрон калибра.
-            // Если нет  — fallback на конкретный ThingDef (самый дорогой).
+            // Any + genericDef → generic-слот (пешка сама выберет). Конкретный тип → specific-слот.
             var genericAmmoDef = CEExtendedLoadoutHelper.FindGenericAmmoDefForWeapon(weapon.def);
-            var preferredAmmoDef = ammoDefs
+            var useGeneric = genericAmmoDef != null && rule.AmmoTypePreference == AmmoTypePreference.Any;
+            var preferredAmmoDef = candidateDefs
                 .OrderByDescending(def => def.BaseMarketValue)
                 .FirstOrDefault();
             if (preferredAmmoDef == null) { return; }
@@ -390,9 +403,40 @@ namespace EquipmentManager
 
             var pr2 = EquipmentManager.GetPawnRole(pawn.Pawn);
             pr2.ManagedPersonalLoadoutSlots ??= new HashSet<string>();
-            _ = CEExtendedLoadoutHelper.SetAmmoInPersonalLoadout(
-                pawn.Pawn, preferredAmmoDef, targetCount, genericAmmoDef,
-                managedSlotKeys: pr2.ManagedPersonalLoadoutSlots);
+            _ = useGeneric
+                ? CEExtendedLoadoutHelper.SetAmmoInPersonalLoadout(
+                    pawn.Pawn, preferredAmmoDef, targetCount, genericAmmoDef,
+                    managedSlotKeys: pr2.ManagedPersonalLoadoutSlots)
+                : CEExtendedLoadoutHelper.SetAmmoInPersonalLoadout(
+                    pawn.Pawn, preferredAmmoDef, targetCount,
+                    managedSlotKeys: pr2.ManagedPersonalLoadoutSlots);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Хелпер фильтрации патронов по типу
+        // ─────────────────────────────────────────────────────────────────────
+        private static List<ThingDef> FilterAmmoByPreference(
+            List<ThingDef> ammoDefs, AmmoTypePreference preference)
+        {
+            if (preference == AmmoTypePreference.Any) { return ammoDefs; }
+            var keyword = preference switch
+            {
+                AmmoTypePreference.FMJ      => "_FMJ",
+                AmmoTypePreference.AP       => "_AP",
+                AmmoTypePreference.HP       => "_HP",
+                AmmoTypePreference.HE       => "_HE",
+                AmmoTypePreference.Stone    => "_Stone",
+                AmmoTypePreference.Steel    => "_Steel",
+                AmmoTypePreference.Plasteel => "_Plasteel",
+                AmmoTypePreference.Venom    => "_Venom",
+                AmmoTypePreference.Flame    => "_Flame",
+                _                           => null
+            };
+            if (keyword == null) { return ammoDefs; }
+            var result = ammoDefs
+                .Where(def => def.defName.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+            return result.Count > 0 ? result : ammoDefs;
         }
 
         // ─────────────────────────────────────────────────────────────────────

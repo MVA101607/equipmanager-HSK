@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Verse;
 
 namespace EquipmentManager
@@ -291,6 +291,12 @@ namespace EquipmentManager
 
                     internal static readonly string RetentionBonusTooltip =
                         $"EquipmentManager.WeaponRules.RangedWeapons.{nameof(RetentionBonusTooltip)}".Translate();
+
+                    internal static readonly string AmmoType =
+                        $"EquipmentManager.WeaponRules.RangedWeapons.{nameof(AmmoType)}".Translate();
+
+                    internal static readonly string AmmoTypeTooltip =
+                        $"EquipmentManager.WeaponRules.RangedWeapons.{nameof(AmmoTypeTooltip)}".Translate();
 
                     internal static readonly string Explosive =
                         $"EquipmentManager.WeaponRules.RangedWeapons.{nameof(Explosive)}".Translate();

@@ -105,8 +105,8 @@
 
 	<!-- ── 远程武器 ───────────────────────────────────────────────────────────── -->
 	<EquipmentManager.WeaponRules.RangedWeapons.Title>远程武器</EquipmentManager.WeaponRules.RangedWeapons.Title>
-	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>弹药数量</EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>
-	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>每把由该规则装备的武器在背包中携带的目标弹药数量</EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>
+  <EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>弹匣数</EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>
+  <EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>分配给角色装备的弹匣数量。实际弹药数 = 弹匣数 x 弹匣容量。</EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>
 	<EquipmentManager.WeaponRules.RangedWeapons.RetentionBonus>保留加成</EquipmentManager.WeaponRules.RangedWeapons.RetentionBonus>
 	<EquipmentManager.WeaponRules.RangedWeapons.RetentionBonusTooltip>角色已持有远程武器的评分倍率。地图上的武器评分必须超过（当前评分×加成）才会触发切换。1.00=始终切换到更好的武器，1.25=仅在性能提升25%时切换（推荐用于HSK）</EquipmentManager.WeaponRules.RangedWeapons.RetentionBonusTooltip>
 	<EquipmentManager.WeaponRules.RangedWeapons.Explosive>爆炸性</EquipmentManager.WeaponRules.RangedWeapons.Explosive>
@@ -148,4 +148,7 @@
 	<EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>按远距离（≤40格）瞄准效率加权的实际DPS。若武器无法覆盖该距离则为零。</EquipmentManager.Stats.EM_RangedWeapons_DpsaLong.Description>
 	<EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Label>瞄准效率</EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Label>
 	<EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Description>武器瞄准镜质量。数值越高，瞄准误差越小。替代原版精度统计。</EquipmentManager.Stats.EM_RangedWeapons_SightsEfficiency.Description>
+  <EquipmentManager.WeaponRules.RangedWeapons.AmmoType>弹药类型</EquipmentManager.WeaponRules.RangedWeapons.AmmoType>
+  <EquipmentManager.WeaponRules.RangedWeapons.AmmoTypeTooltip>首选弹药类型。Any = CE通用槽（角色自动选择最佳类型）。其他选项选择特定类型，找不到时回退到Any。</EquipmentManager.WeaponRules.RangedWeapons.AmmoTypeTooltip>
+  <EquipmentManager.Magazines>弹匣</EquipmentManager.Magazines>
 </LanguageData>

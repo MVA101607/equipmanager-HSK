@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <EquipmentManagerProfile>
 	<WorkTypeRules>
 		<li>
@@ -950,6 +950,15 @@
 		</li>
 	</RangedWeaponRules>
 	<Loadouts>
+		<li>
+			<Id>-1</Id>
+			<Label>OFF</Label>
+			<Priority>0</Priority>
+			<IsDisabled>true</IsDisabled>
+			<DropUnassignedWeapons>false</DropUnassignedWeapons>
+			<PrimaryRuleType>None</PrimaryRuleType>
+			<SecondaryRuleType>None</SecondaryRuleType>
+		</li>
 		<li>
 			<Id>1</Id>
 			<Label>Assault</Label>

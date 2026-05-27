@@ -156,4 +156,23 @@
 	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>Уровень технологий</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>
 	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>Уровень технологий оружия ближнего боя.</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>
 	<EquipmentManager.NoRoleAvailable>Ни одна военная профессия не подходит для {0}. Подробнее в журнале Equipment Manager.</EquipmentManager.NoRoleAvailable>
+
+	<!-- Тип патронов dropdown -->
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>Магазины</EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>Количество магазинов в разгрузке пешки. Реальное кол-во = магазины × ёмкость магазина (30 для луков/арбалетов).</EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoType>Тип патронов</EquipmentManager.WeaponRules.RangedWeapons.AmmoType>
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoTypeTooltip>Предпочтительный тип патронов. «Любые» — generic-слот CE (пешка выбирает лучший доступный). При отсутствии выбранного типа — откат на «Любые».</EquipmentManager.WeaponRules.RangedWeapons.AmmoTypeTooltip>
+	<EquipmentManager.Magazines>маг.</EquipmentManager.Magazines>
+	<EquipmentManager.AmmoGroup.General>Общие</EquipmentManager.AmmoGroup.General>
+	<EquipmentManager.AmmoGroup.Firearms>Огнестрельное</EquipmentManager.AmmoGroup.Firearms>
+	<EquipmentManager.AmmoGroup.PrimitiveWeapons>Стрелы / Болты</EquipmentManager.AmmoGroup.PrimitiveWeapons>
+	<EquipmentManager.AmmoType.Any>Любые</EquipmentManager.AmmoType.Any>
+	<EquipmentManager.AmmoType.Stone>Каменные</EquipmentManager.AmmoType.Stone>
+	<EquipmentManager.AmmoType.Steel>Стальные</EquipmentManager.AmmoType.Steel>
+	<EquipmentManager.AmmoType.Plasteel>Пластиловые</EquipmentManager.AmmoType.Plasteel>
+	<EquipmentManager.AmmoType.Venom>Ядовитые</EquipmentManager.AmmoType.Venom>
+	<EquipmentManager.AmmoType.Flame>Огненные</EquipmentManager.AmmoType.Flame>
+	<!-- Роли: правило OFF -->
+	<EquipmentManager.Roles.OFF>ОТКЛ — Без управления</EquipmentManager.Roles.OFF>
+	<EquipmentManager.Roles.OFFTooltip>Пешка исключена из автоматического управления снаряжением. Назначается только вручную.</EquipmentManager.Roles.OFFTooltip>
 </LanguageData>

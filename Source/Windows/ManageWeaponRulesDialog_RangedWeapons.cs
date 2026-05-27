@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EquipmentManager.CustomWidgets;
@@ -94,6 +94,20 @@ namespace EquipmentManager.Windows
                 }, Strings.RangedWeapons.ManualCast, Strings.RangedWeapons.ManualCastTooltip);
         }
 
+        private static string AmmoTypePrefLabel(AmmoTypePreference t)
+        {
+            return t switch
+            {
+                AmmoTypePreference.Any => "EquipmentManager.AmmoType.Any".Translate(),
+                AmmoTypePreference.Stone => "EquipmentManager.AmmoType.Stone".Translate(),
+                AmmoTypePreference.Steel => "EquipmentManager.AmmoType.Steel".Translate(),
+                AmmoTypePreference.Plasteel => "EquipmentManager.AmmoType.Plasteel".Translate(),
+                AmmoTypePreference.Venom => "EquipmentManager.AmmoType.Venom".Translate(),
+                AmmoTypePreference.Flame => "EquipmentManager.AmmoType.Flame".Translate(),
+                _ => t.ToString()
+            };
+        }
+
         private void DoRuleSettings_RangedWeapons(Rect rect)
         {
             var font = Text.Font;
@@ -113,18 +127,70 @@ namespace EquipmentManager.Windows
                 $"x{SelectedRangedWeaponRule.RetentionBonus:F2}", roundTo: 0.05f);
             currentY += UiHelpers.ListRowHeight + UiHelpers.ElementGap;
             if (!CombatExtendedHelper.EnableAmmoSystem) { return; }
+            // Слайдер: количество магазинов (0..30)
             var ammoCountRect = LabelInput.DoLabeledRect(
                 new Rect(rect.x, currentY, rect.width, UiHelpers.ListRowHeight),
                 Strings.RangedWeapons.AmmoCount, Strings.RangedWeapons.AmmoCountTooltip);
             SelectedRangedWeaponRule.AmmoCount = (int) Widgets.HorizontalSlider(ammoCountRect,
-                SelectedRangedWeaponRule.AmmoCount, 0f, 1000f, true,
-                $"{SelectedRangedWeaponRule.AmmoCount:N0}", roundTo: 10f);
+                SelectedRangedWeaponRule.AmmoCount, 0f, 30f, true,
+                $"{SelectedRangedWeaponRule.AmmoCount} {"EquipmentManager.Magazines".Translate()}",
+                roundTo: 1f);
+            // Dropdown типа патрона — смещён на 1.5 строки, занимает правую четверть
+            currentY += (1.5f * UiHelpers.ListRowHeight) + UiHelpers.ElementGap;
+            var ammoTypeLabelRect = new Rect(
+                rect.x + (rect.width * 0.5f),
+                currentY,
+                rect.width * 0.25f,
+                UiHelpers.ListRowHeight);
+            TooltipHandler.TipRegion(ammoTypeLabelRect,
+                "EquipmentManager.WeaponRules.RangedWeapons.AmmoTypeTooltip".Translate());
+            Widgets.Label(ammoTypeLabelRect,
+                "EquipmentManager.WeaponRules.RangedWeapons.AmmoType".Translate());
+            var ammoTypeButtonRect = new Rect(
+                rect.x + (rect.width * 0.75f),
+                currentY,
+                rect.width * 0.25f,
+                UiHelpers.ListRowHeight);
+            if (Widgets.ButtonText(ammoTypeButtonRect,
+                AmmoTypePrefLabel(SelectedRangedWeaponRule.AmmoTypePreference)))
+            {
+                var options = new System.Collections.Generic.List<FloatMenuOption>
+                {
+                    new("— " + "EquipmentManager.AmmoGroup.General".Translate() + " —",
+                        null) { Disabled = true },
+                    new(AmmoTypePrefLabel(AmmoTypePreference.Any),
+                        () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.Any),
+                    new("— " + "EquipmentManager.AmmoGroup.Firearms".Translate() + " —",
+                        null) { Disabled = true },
+                    new(AmmoTypePrefLabel(AmmoTypePreference.FMJ),
+                        () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.FMJ),
+                    new(AmmoTypePrefLabel(AmmoTypePreference.AP),
+                        () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.AP),
+                    new(AmmoTypePrefLabel(AmmoTypePreference.HP),
+                        () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.HP),
+                    new(AmmoTypePrefLabel(AmmoTypePreference.HE),
+                        () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.HE),
+                    new("— " + "EquipmentManager.AmmoGroup.PrimitiveWeapons".Translate() + " —",
+                        null) { Disabled = true },
+                    new(AmmoTypePrefLabel(AmmoTypePreference.Stone),
+                        () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.Stone),
+                    new(AmmoTypePrefLabel(AmmoTypePreference.Steel),
+                        () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.Steel),
+                    new(AmmoTypePrefLabel(AmmoTypePreference.Plasteel),
+                        () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.Plasteel),
+                    new(AmmoTypePrefLabel(AmmoTypePreference.Venom),
+                        () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.Venom),
+                    new(AmmoTypePrefLabel(AmmoTypePreference.Flame),
+                        () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.Flame),
+                };
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
         }
 
         private void DoTab_RangedWeapons(Rect rect)
         {
             // RetentionBonus — всегда 1 строка; AmmoCount — только с CE
-            var ruleSettingsCount = 1 + (CombatExtendedHelper.EnableAmmoSystem ? 1 : 0);
+            var ruleSettingsCount = 1 + (CombatExtendedHelper.EnableAmmoSystem ? 2 : 0);
             const int itemPropertiesCount = 2;
             GetWeaponRuleTabRects(rect, ruleSettingsCount, itemPropertiesCount, out var buttonRowRect,
                 out var labelRect, out var equipModeRect, out var ruleSettingsRect, out var itemPropertiesRect,

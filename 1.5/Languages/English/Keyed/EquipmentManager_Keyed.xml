@@ -165,4 +165,23 @@
 	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>Tech level</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Label>
 	<EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>Weapon's tech level.</EquipmentManager.Stats.EM_MeleeWeapons_TechLevel.Description>
 	<EquipmentManager.NoRoleAvailable>No role fits {0}. Check Log in Equipment Manager.</EquipmentManager.NoRoleAvailable>
+
+	<!-- Ammo type dropdown -->
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>Magazines</EquipmentManager.WeaponRules.RangedWeapons.AmmoCount>
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>Number of magazines to assign in pawn loadout. Actual count = magazines × mag size (30 for bows/crossbows).</EquipmentManager.WeaponRules.RangedWeapons.AmmoCountTooltip>
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoType>Ammo type</EquipmentManager.WeaponRules.RangedWeapons.AmmoType>
+	<EquipmentManager.WeaponRules.RangedWeapons.AmmoTypeTooltip>Preferred ammo type. "Any" uses the CE generic slot (pawn picks best available). Falls back to Any if the type is not found for this weapon.</EquipmentManager.WeaponRules.RangedWeapons.AmmoTypeTooltip>
+	<EquipmentManager.Magazines>mag.</EquipmentManager.Magazines>
+	<EquipmentManager.AmmoGroup.General>General</EquipmentManager.AmmoGroup.General>
+	<EquipmentManager.AmmoGroup.Firearms>Firearms</EquipmentManager.AmmoGroup.Firearms>
+	<EquipmentManager.AmmoGroup.PrimitiveWeapons>Arrows / Bolts</EquipmentManager.AmmoGroup.PrimitiveWeapons>
+	<EquipmentManager.AmmoType.Any>Any</EquipmentManager.AmmoType.Any>
+	<EquipmentManager.AmmoType.Stone>Stone</EquipmentManager.AmmoType.Stone>
+	<EquipmentManager.AmmoType.Steel>Steel</EquipmentManager.AmmoType.Steel>
+	<EquipmentManager.AmmoType.Plasteel>Plasteel</EquipmentManager.AmmoType.Plasteel>
+	<EquipmentManager.AmmoType.Venom>Venom</EquipmentManager.AmmoType.Venom>
+	<EquipmentManager.AmmoType.Flame>Flame</EquipmentManager.AmmoType.Flame>
+	<!-- Roles: OFF rule -->
+	<EquipmentManager.Roles.OFF>OFF — Unmanaged</EquipmentManager.Roles.OFF>
+	<EquipmentManager.Roles.OFFTooltip>This pawn is excluded from automatic equipment management. Assigned manually only.</EquipmentManager.Roles.OFFTooltip>
 </LanguageData>

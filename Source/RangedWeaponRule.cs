@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -12,6 +12,7 @@ namespace EquipmentManager
     {
         private static HashSet<ThingDef> _allRelevantThings;
         private int _ammoCount;
+        private AmmoTypePreference _ammoTypePreference = AmmoTypePreference.Any;
         private float _retentionBonus = 1.25f;
         private bool? _explosive;
         private bool? _manualCast;
@@ -24,13 +25,14 @@ namespace EquipmentManager
         public RangedWeaponRule(int id, string label, bool isProtected, List<StatWeight> statWeights,
             List<StatLimit> statLimits, HashSet<string> whitelistedItemsDefNames,
             HashSet<string> blacklistedItemsDefNames, WeaponEquipMode equipMode, bool? explosive, bool? manualCast,
-            int ammoCount, float retentionBonus = 1.25f) : base(id, label, isProtected, statWeights, statLimits, whitelistedItemsDefNames,
+            int ammoCount, AmmoTypePreference ammoTypePreference = AmmoTypePreference.Any, float retentionBonus = 1.25f) : base(id, label, isProtected, statWeights, statLimits, whitelistedItemsDefNames,
             blacklistedItemsDefNames)
         {
             EquipMode = equipMode;
             _explosive = explosive;
             _manualCast = manualCast;
             _ammoCount = ammoCount;
+            _ammoTypePreference = ammoTypePreference;
             _retentionBonus = retentionBonus;
         }
 
@@ -51,6 +53,12 @@ namespace EquipmentManager
         {
             get => CombatExtendedHelper.EnableAmmoSystem ? _ammoCount : 0;
             set => _ammoCount = CombatExtendedHelper.EnableAmmoSystem ? value : 0;
+        }
+
+        public AmmoTypePreference AmmoTypePreference
+        {
+            get => _ammoTypePreference;
+            set => _ammoTypePreference = value;
         }
 
         /// <summary>
@@ -89,7 +97,7 @@ namespace EquipmentManager
                             false) {Weight = 0.5f}
                     })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist),
-                    AmmoCount = 100
+                    AmmoCount = 5
                 },
                 // ── 1. Быстрый старт (малое время прицеливания) ───────────────────
                 new RangedWeaponRule(1, false)
@@ -114,7 +122,7 @@ namespace EquipmentManager
                             {Weight = 0.5f}
                     })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist),
-                    AmmoCount = 50
+                    AmmoCount = 3
                 },
                 // ── 2. Высокая скорострельность (большой магазин) ─────────────────
                 new RangedWeaponRule(2, false)
@@ -142,7 +150,7 @@ namespace EquipmentManager
                             false) {Weight = 0.5f}
                     })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist),
-                    AmmoCount = 200
+                    AmmoCount = 5
                 },
                 // ── 3. Дальний бой — тяжёлый урон ─────────────────────────────────
                 new RangedWeaponRule(3, false)
@@ -170,7 +178,7 @@ namespace EquipmentManager
                             false) {Weight = 0.5f}
                     })),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist),
-                    AmmoCount = 30
+                    AmmoCount = 3
                 }
             };
 
@@ -201,6 +209,7 @@ namespace EquipmentManager
             Scribe_Values.Look(ref _explosive, nameof(Explosive));
             Scribe_Values.Look(ref _manualCast, nameof(ManualCast));
             Scribe_Values.Look(ref _ammoCount, nameof(AmmoCount));
+            Scribe_Values.Look(ref _ammoTypePreference, nameof(AmmoTypePreference));
             Scribe_Values.Look(ref _retentionBonus, nameof(RetentionBonus), 1.25f);
         }
 

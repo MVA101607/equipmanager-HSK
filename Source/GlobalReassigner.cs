@@ -101,7 +101,7 @@ namespace EquipmentManager
             if (autoPawns == null || autoPawns.Count == 0) { return; }
 
             var activeRoles = em.GetRoles()
-                .Where(r => r.Priority > 0f)
+                .Where(r => r.Priority > 0f && !r.IsDisabled)
                 .OrderByDescending(r => r.Priority)
                 .ToList();
 
@@ -244,8 +244,8 @@ namespace EquipmentManager
             int totalColonists,
             Dictionary<int, int> currentCounts)
         {
-            var activeRoles = em.GetRoles()
-                .Where(r => r.Priority > 0f)
+            var activeRoles = em.GetRoles().Where(r => !r.IsDisabled)
+                .Where(r => r.Priority > 0f && !r.IsDisabled)
                 .OrderByDescending(r => r.Priority)
                 .ToList();
 

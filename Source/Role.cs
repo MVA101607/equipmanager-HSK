@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -34,6 +34,7 @@ namespace EquipmentManager
         private List<StatLimit> _statLimits = new();
         private List<StatWeight> _statWeights = new();
         public bool DropUnassignedWeapons = true;
+        public bool IsDisabled = false;
         public string Label;
         public int? PrimaryMeleeWeaponRuleId;
         public int? PrimaryRangedWeaponRuleId;
@@ -250,6 +251,7 @@ namespace EquipmentManager
             Scribe_Collections.Look(ref _pawnTraits, nameof(PawnTraits));
             Scribe_Collections.Look(ref _pawnWorkCapacities, nameof(PawnWorkCapacities));
             Scribe_Values.Look(ref DropUnassignedWeapons, nameof(DropUnassignedWeapons));
+            Scribe_Values.Look(ref IsDisabled, nameof(IsDisabled));
             Scribe_Collections.Look(ref _passionLimits, nameof(PassionLimits), LookMode.Deep);
             Scribe_Collections.Look(ref _pawnCapacityLimits, nameof(PawnCapacityLimits), LookMode.Deep);
             Scribe_Collections.Look(ref _pawnCapacityWeights, nameof(PawnCapacityWeights), LookMode.Deep);
