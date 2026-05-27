@@ -233,6 +233,7 @@ namespace EquipmentManager
             var pawnTraits = new Dictionary<string, bool>();
             var pawnWorkCapacities = new Dictionary<string, bool>();
             var dropUnassignedWeapons = true;
+            var isDisabled = false;
             var passionLimits = new List<PassionLimit>();
             var pawnCapacityLimits = new List<PawnCapacityLimit>();
             var pawnCapacityWeights = new List<PawnCapacityWeight>();
@@ -298,6 +299,9 @@ namespace EquipmentManager
                     case "DropUnassignedWeapons":
                         dropUnassignedWeapons = bool.Parse(xmlReader.ReadElementContentAsString());
                         break;
+                    case "IsDisabled":
+                        isDisabled = bool.Parse(xmlReader.ReadElementContentAsString());
+                        break;
                     case "PassionLimits":
                         ReadList(xmlReader, passionLimits, ReadPassionLimit);
                         break;
@@ -325,11 +329,15 @@ namespace EquipmentManager
                         break;
                 }
             }
-            target.Add(new Role(id, label, priority, primaryRuleType, primaryRangedWeaponRuleId,
+            var role = new Role(id, label, priority, primaryRuleType, primaryRangedWeaponRuleId,
                 primaryMeleeWeaponRuleId, rangedSidearmRules, meleeSidearmRules, toolRuleId, pawnTraits,
                 pawnWorkCapacities, dropUnassignedWeapons, passionLimits, pawnCapacityLimits, pawnCapacityWeights,
                 skillLimits, skillWeights, statLimits, statWeights,
-                secondaryRuleType, secondaryRangedWeaponRuleId, secondaryMeleeWeaponRuleId));
+                secondaryRuleType, secondaryRangedWeaponRuleId, secondaryMeleeWeaponRuleId)
+            {
+                IsDisabled = isDisabled
+            };
+            target.Add(role);
         }
 
         // ─── ToolRule / Melee / Ranged / WorkType ───────────────────────────────

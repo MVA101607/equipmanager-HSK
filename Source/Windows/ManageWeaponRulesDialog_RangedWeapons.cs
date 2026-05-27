@@ -183,7 +183,7 @@ namespace EquipmentManager.Windows
                     new(AmmoTypePrefLabel(AmmoTypePreference.Flame),
                         () => SelectedRangedWeaponRule.AmmoTypePreference = AmmoTypePreference.Flame),
                 };
-                Find.WindowStack.Add(new FloatMenu(options));
+                Find.WindowStack.Add(new FloatMenu(options, null, false));
             }
         }
 
