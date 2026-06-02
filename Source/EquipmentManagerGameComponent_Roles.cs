@@ -85,6 +85,7 @@ namespace EquipmentManager
 
         public void DeleteRole(Role role)
         {
+            if (role == null || role.IsSystemRole) { return; }
             _pawnRoles ??= new List<PawnRole>();
             foreach (var pawnRole in _pawnRoles.Where(pr => pr.RoleId == role.Id))
             {
@@ -97,9 +98,18 @@ namespace EquipmentManager
         private void ExposeData_Roles()
         {
             // XML-теги "Loadouts" и "PawnLoadouts" сохранены для совместимости с существующими сейвами
-            if (Scribe.mode == LoadSaveMode.Saving) { _ = _pawnRoles?.RemoveAll(pr => pr.Pawn?.Destroyed ?? true); }
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                _ = _pawnRoles?.RemoveAll(pr => pr.Pawn?.Destroyed ?? true);
+                // Системные роли не пишем в сейв — они всегда генерируются из кода
+                _ = _roles?.RemoveAll(r => Role.IsSystemId(r.Id));
+            }
             Scribe_Collections.Look(ref _roles, "Loadouts", LookMode.Deep);
             Scribe_Collections.Look(ref _pawnRoles, "PawnLoadouts", LookMode.Deep);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                EnsureSystemRoles();
+            }
         }
 
         public Role GetRole(int? id)
@@ -116,7 +126,58 @@ namespace EquipmentManager
 
         public IEnumerable<Role> GetRoles()
         {
-            return _roles ??= new List<Role>(Role.DefaultRoles);
+            _roles ??= new List<Role>(Role.DefaultRoles);
+            // Системные роли всегда первыми — независимо от сейва
+            return Role.SystemRoles.Concat(_roles);
+        }
+
+        // ── Вспомогательные методы для системных ролей ──────────────────────
+
+        /// <summary>Назначить пешке роль "OFF" — мод перестаёт её обрабатывать.</summary>
+        public void SetPawnRoleOff(Pawn pawn)
+        {
+            SetPawnRole(pawn, GetRole(Role.SystemIdOff), automatic: false);
+        }
+
+        /// <summary>Вернуть пешку под автоматическое управление модом.</summary>
+        public void SetPawnRoleAuto(Pawn pawn)
+        {
+            SetPawnRole(pawn, GetRole(Role.SystemIdAuto), automatic: true);
+        }
+
+        /// <summary>
+        /// Истина, если пешка находится в состоянии "Авто" (мод назначит роль при следующем тике).
+        /// Это: явная роль Авто (-2) ИЛИ RoleId == null при Automatic == true.
+        /// </summary>
+        public bool IsPawnRoleAuto(Pawn pawn)
+        {
+            var pr = GetPawnRole(pawn);
+            if (pr == null) { return true; }
+            return pr.Automatic && (pr.RoleId == null || pr.RoleId == Role.SystemIdAuto);
+        }
+
+        /// <summary>Истина, если пешка выключена из обработки (роль OFF).</summary>
+        public bool IsPawnRoleOff(Pawn pawn)
+        {
+            var pr = GetPawnRole(pawn);
+            return pr != null && !pr.Automatic && pr.RoleId == Role.SystemIdOff;
+        }
+
+        /// <summary>
+        /// Удаляет системные Id из _roles (миграция со старых версий)
+        /// и гарантирует, что авто-пешки с RoleId == SystemIdAuto
+        /// сохраняют Automatic = true.
+        /// </summary>
+        private void EnsureSystemRoles()
+        {
+            if (_roles == null) { return; }
+            _ = _roles.RemoveAll(r => Role.IsSystemId(r.Id));
+            if (_pawnRoles == null) { return; }
+            foreach (var pr in _pawnRoles)
+            {
+                if (pr.RoleId == Role.SystemIdAuto) { pr.Automatic = true; }
+                if (pr.RoleId == Role.SystemIdOff)  { pr.Automatic = false; }
+            }
         }
 
         public PawnRole GetPawnRole([NotNull] Pawn pawn)

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LanguageData>
+	<EquipmentManager.Roles.Default.Off>OFF</EquipmentManager.Roles.Default.Off>
+	<EquipmentManager.Roles.Default.Auto>Auto</EquipmentManager.Roles.Default.Auto>
 	<EquipmentManager.Roles.ProfilesListHeader>Saved Profiles</EquipmentManager.Roles.ProfilesListHeader>
 	<EquipmentManager.Roles.SaveProfile>Save Profile</EquipmentManager.Roles.SaveProfile>
 	<EquipmentManager.Roles.SaveProfileNamePrompt>Enter profile name:</EquipmentManager.Roles.SaveProfileNamePrompt>

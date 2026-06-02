@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LanguageData>
+	<EquipmentManager.Roles.Default.Off>ВЫКЛ</EquipmentManager.Roles.Default.Off>
+	<EquipmentManager.Roles.Default.Auto>Авто</EquipmentManager.Roles.Default.Auto>
 	<EquipmentManager.Roles.ProfilesListHeader>Сохранённые профили</EquipmentManager.Roles.ProfilesListHeader>
 	<EquipmentManager.Roles.SaveProfile>Сохранить профиль</EquipmentManager.Roles.SaveProfile>
 	<EquipmentManager.Roles.SaveProfileNamePrompt>Введите имя профиля:</EquipmentManager.Roles.SaveProfileNamePrompt>

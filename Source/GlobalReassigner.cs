@@ -53,7 +53,12 @@ namespace EquipmentManager
                 .ToList();
             if (allColonists.Count == 0) { return; }
 
-            var autoPawns   = allColonists.Where(p => em.GetPawnRole(p)?.Automatic != false).ToList();
+            // Авто-пешки: Automatic==true ИЛИ явная роль Авто (-2).
+            // OFF-пешки (Automatic==false, RoleId==-1) полностью исключаем.
+            var autoPawns   = allColonists
+                .Where(p => !em.IsPawnRoleOff(p))
+                .Where(p => em.IsPawnRoleAuto(p))
+                .ToList();
             var manualPawns = allColonists.Except(autoPawns).ToList();
 
             // Шаг 1: пропорциональное распределение ролей для авто-пешек.

@@ -145,6 +145,14 @@ namespace EquipmentManager
                     internal static readonly string NoRole =
                         $"EquipmentManager.Roles.Default.{nameof(NoRole)}".Translate();
 
+                    /// <summary>Метка системной роли "ВЫКЛ" (Id=-1).</summary>
+                    internal static readonly string Off =
+                        $"EquipmentManager.Roles.Default.{nameof(Off)}".Translate();
+
+                    /// <summary>Метка системной роли "Авто" (Id=-2).</summary>
+                    internal static readonly string Auto =
+                        $"EquipmentManager.Roles.Default.{nameof(Auto)}".Translate();
+
                     internal static readonly string Pacifist =
                         $"EquipmentManager.Roles.Default.{nameof(Pacifist)}".Translate();
 

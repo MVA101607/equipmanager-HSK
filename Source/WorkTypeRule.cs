@@ -53,9 +53,7 @@ namespace EquipmentManager
             {
                 if (_allRelevantThings == null || _allRelevantThings.Count == 0)
                 {
-                    _allRelevantThings = new HashSet<ThingDef>(DefDatabase<ThingDef>.AllDefs.Where(def =>
-                        def.IsWeapon && !def.destroyOnDrop &&
-                        (def.statBases != null || def.equippedStatOffsets != null)));
+                    _allRelevantThings = new HashSet<ThingDef>(ToolRule.AllRelevantThings);
                 }
                 return _allRelevantThings;
             }
