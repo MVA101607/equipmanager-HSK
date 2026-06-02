@@ -139,21 +139,13 @@ namespace EquipmentManager
             SetPawnRole(pawn, GetRole(Role.SystemIdOff), automatic: false);
         }
 
-        /// <summary>Вернуть пешку под автоматическое управление модом.</summary>
-        public void SetPawnRoleAuto(Pawn pawn)
-        {
-            SetPawnRole(pawn, GetRole(Role.SystemIdAuto), automatic: true);
-        }
 
-        /// <summary>
-        /// Истина, если пешка находится в состоянии "Авто" (мод назначит роль при следующем тике).
-        /// Это: явная роль Авто (-2) ИЛИ RoleId == null при Automatic == true.
-        /// </summary>
+        /// <summary>Истина, если пешка под авто-управлением модом (RoleId == null + Automatic == true).</summary>
         public bool IsPawnRoleAuto(Pawn pawn)
         {
             var pr = GetPawnRole(pawn);
             if (pr == null) { return true; }
-            return pr.Automatic && (pr.RoleId == null || pr.RoleId == Role.SystemIdAuto);
+            return pr.Automatic && pr.RoleId == null;
         }
 
         /// <summary>Истина, если пешка выключена из обработки (роль OFF).</summary>
@@ -163,20 +155,14 @@ namespace EquipmentManager
             return pr != null && !pr.Automatic && pr.RoleId == Role.SystemIdOff;
         }
 
-        /// <summary>
-        /// Удаляет системные Id из _roles (миграция со старых версий)
-        /// и гарантирует, что авто-пешки с RoleId == SystemIdAuto
-        /// сохраняют Automatic = true.
-        /// </summary>
         private void EnsureSystemRoles()
         {
             if (_roles == null) { return; }
             _ = _roles.RemoveAll(r => Role.IsSystemId(r.Id));
             if (_pawnRoles == null) { return; }
-            foreach (var pr in _pawnRoles)
+            foreach (var pr in _pawnRoles.Where(pr => pr.RoleId == Role.SystemIdOff))
             {
-                if (pr.RoleId == Role.SystemIdAuto) { pr.Automatic = true; }
-                if (pr.RoleId == Role.SystemIdOff)  { pr.Automatic = false; }
+                pr.Automatic = false;
             }
         }
 

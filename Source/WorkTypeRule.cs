@@ -53,6 +53,9 @@ namespace EquipmentManager
             {
                 if (_allRelevantThings == null || _allRelevantThings.Count == 0)
                 {
+                    // Используем тот же пул что и ToolRule — включает HSK-инструменты
+                    // у которых нет рабочих статов в statBases/equippedStatOffsets,
+                    // но есть def.tools (ближнее оружие / инструменты).
                     _allRelevantThings = new HashSet<ThingDef>(ToolRule.AllRelevantThings);
                 }
                 return _allRelevantThings;
@@ -144,9 +147,17 @@ namespace EquipmentManager
         {
             var items = new List<ThingDef>();
             items.AddRange(AllRelevantThings.Where(def =>
+                // Вариант 1: предмет имеет хотя бы один стат из текущих весов правила
                 (def.statBases ?? new List<StatModifier>())
-                .Union(def.equippedStatOffsets ?? new List<StatModifier>())
-                .Any(sm => _statWeights.Any(statDef => statDef.StatDef == sm.stat))));
+                    .Union(def.equippedStatOffsets ?? new List<StatModifier>())
+                    .Any(sm => _statWeights.Any(sw => sw.StatDef == sm.stat))
+                ||
+                // Вариант 2: у правила нет весов — показываем все релевантные предметы
+                !_statWeights.Any(sw => sw.StatDef != null)
+                ||
+                // Вариант 3: HSK-инструмент (ближнее оружие с def.tools) — показываем всегда,
+                // чтобы игрок мог увидеть и оценить вручную
+                (!def.IsRangedWeapon && def.tools != null && def.tools.Count > 0)));
             items.SortByDescending(GetThingDefScore);
             return items;
         }

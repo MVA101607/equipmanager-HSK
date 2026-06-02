@@ -9,16 +9,12 @@ namespace EquipmentManager
 {
     internal class Role : IExposable
     {
-        // ── Системные Id ──────────────────────────────────────────────────────
-        // Зарезервированы; никогда не сохраняются в сейв / профиль.
-        //   -1  OFF   — пешка исключена из обработки модом (Automatic=false)
-        //   -2  Auto  — пешка отдана моду; при следующем тике получит роль автоматически
-        public const int SystemIdOff  = -1;
-        public const int SystemIdAuto = -2;
+        // OFF (Id=-1): пешка исключена из обработки модом (Automatic=false)
+        public const int SystemIdOff = -1;
 
         public static bool IsSystemId(int id)
         {
-            return id is SystemIdOff or SystemIdAuto;
+            return id == SystemIdOff;
         }
 
         public enum PrimaryWeaponType
@@ -31,22 +27,14 @@ namespace EquipmentManager
         /// <summary>
         /// Системные роли: всегда присутствуют в любой игре, не зависят от сейва или профиля.
         /// </summary>
+        /// <summary>OFF (Id=-1): пешки с этой ролью полностью игнорируются модом.</summary>
         public static IEnumerable<Role> SystemRoles => new[]
         {
-            // OFF: мод полностью игнорирует эту пешку (Automatic хранится как false в PawnRole)
             new Role(SystemIdOff)
             {
                 Label                = Resources.Strings.Roles.Default.Off,
                 Priority             = 0f,
                 IsDisabled           = true,
-                DropUnassignedWeapons = false
-            },
-            // Авто: мод берёт пешку под управление и назначит роль при следующем тике
-            new Role(SystemIdAuto)
-            {
-                Label                = Resources.Strings.Roles.Default.Auto,
-                Priority             = 0f,
-                IsDisabled           = true,   // не участвует в пропорциональном распределении
                 DropUnassignedWeapons = false
             }
         };
@@ -122,7 +110,7 @@ namespace EquipmentManager
         }
 
         public int Id => _id;
-        /// <summary>Истина для системных ролей OFF и Авто — их нельзя изменить или удалить.</summary>
+        /// <summary>Истина для системной роли OFF — её нельзя изменить или удалить.</summary>
         public bool IsSystemRole => IsSystemId(_id);
         public PrimaryWeaponType SecondaryRuleType
         {
