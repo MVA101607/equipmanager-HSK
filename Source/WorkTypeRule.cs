@@ -117,6 +117,36 @@ namespace EquipmentManager
 
         public string WorkTypeDefName => _workTypeDefName;
 
+        /// <summary>
+        /// Статы, которые реально участвуют в UI данного типа работы
+        /// (те самые, для которых показаны бегунки).
+        /// </summary>
+        private IEnumerable<StatDef> ActiveStats =>
+            _statWeights.Where(sw => sw.StatDef != null).Select(sw => sw.StatDef);
+
+        /// <summary>
+        /// Для ThingDef используем public API через отклонение от defaultBaseValue,
+        /// потому что прямой StatHelper.GetStatValue(ThingDef, ...) в репо private.
+        /// У предмета должен быть хотя бы один важный бонус строго больше 1.
+        /// </summary>
+        private bool HasRelevantBonusAboveOne(ThingDef def)
+        {
+            if (def == null) { return false; }
+            Initialize();
+            var stats = ActiveStats.ToList();
+            if (!stats.Any()) { return false; }
+            return stats.Any(stat => (StatHelper.GetStatValueDeviation(def, stat) + stat.defaultBaseValue) > 1f);
+        }
+
+        private bool HasRelevantBonusAboveOne(Thing thing)
+        {
+            if (thing == null) { return false; }
+            Initialize();
+            var stats = ActiveStats.ToList();
+            if (!stats.Any()) { return false; }
+            return stats.Any(stat => StatHelper.GetStatValue(thing, stat) > 1f);
+        }
+
         public void ExposeData()
         {
             Scribe_Values.Look(ref _workTypeDefName, nameof(WorkTypeDefName));
@@ -137,6 +167,7 @@ namespace EquipmentManager
             {
                 var comp = thing.TryGetComp<CompForbiddable>();
                 if (comp != null && comp.Forbidden) { continue; }
+                if (!HasRelevantBonusAboveOne(thing)) { continue; }
                 items.Add(thing);
             }
             items.SortByDescending(GetThingScore);
@@ -145,19 +176,9 @@ namespace EquipmentManager
 
         public IEnumerable<ThingDef> GetGloballyAvailableItems()
         {
+            Initialize();
             var items = new List<ThingDef>();
-            items.AddRange(AllRelevantThings.Where(def =>
-                // Вариант 1: предмет имеет хотя бы один стат из текущих весов правила
-                (def.statBases ?? new List<StatModifier>())
-                    .Union(def.equippedStatOffsets ?? new List<StatModifier>())
-                    .Any(sm => _statWeights.Any(sw => sw.StatDef == sm.stat))
-                ||
-                // Вариант 2: у правила нет весов — показываем все релевантные предметы
-                !_statWeights.Any(sw => sw.StatDef != null)
-                ||
-                // Вариант 3: HSK-инструмент (ближнее оружие с def.tools) — показываем всегда,
-                // чтобы игрок мог увидеть и оценить вручную
-                (!def.IsRangedWeapon && def.tools != null && def.tools.Count > 0)));
+            items.AddRange(AllRelevantThings.Where(def => HasRelevantBonusAboveOne(def)));
             items.SortByDescending(GetThingDefScore);
             return items;
         }
