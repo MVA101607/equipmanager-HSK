@@ -167,7 +167,6 @@ namespace EquipmentManager
             {
                 var comp = thing.TryGetComp<CompForbiddable>();
                 if (comp != null && comp.Forbidden) { continue; }
-                if (!HasRelevantBonusAboveOne(thing)) { continue; }
                 items.Add(thing);
             }
             items.SortByDescending(GetThingScore);
@@ -176,9 +175,8 @@ namespace EquipmentManager
 
         public IEnumerable<ThingDef> GetGloballyAvailableItems()
         {
-            Initialize();
             var items = new List<ThingDef>();
-            items.AddRange(AllRelevantThings.Where(def => HasRelevantBonusAboveOne(def)));
+            items.AddRange(AllRelevantThings);
             items.SortByDescending(GetThingDefScore);
             return items;
         }

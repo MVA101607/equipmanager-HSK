@@ -75,15 +75,32 @@ namespace EquipmentManager.Windows
         {
             var stringBuilder = new StringBuilder();
             _ = stringBuilder.AppendLine(def.LabelCap);
-            var stats = rule.GetStatWeights().Where(sw => sw.StatDef != null).Select(sw => sw.StatDef).ToHashSet();
-            if (!stats.Any()) { return stringBuilder.ToString(); }
-            _ = stringBuilder.AppendLine();
+
+            // Создаем виртуальный экземпляр предмета (с материалом по умолчанию), чтобы у него отработали все расчеты инфокарты
             var thing = def.MadeFromStuff
                 ? ThingMaker.MakeThing(def, GenStuff.DefaultStuffFor(def))
                 : ThingMaker.MakeThing(def);
-            foreach (var stat in stats)
+
+            // МЕТОД 1: Прямое чтение строк инфокарты (SpecialDisplayStats)
+            _ = stringBuilder.AppendLine();
+            _ = stringBuilder.AppendLine("--- Строки из инфокарты (SpecialDisplayStats) ---");
+            try
             {
-                _ = stringBuilder.AppendLine($"- {stat.LabelCap} = {StatHelper.GetStatValue(thing, stat):N2}");
+                var specialStats = thing.SpecialDisplayStats();
+                if (specialStats != null)
+                {
+                    foreach (var entry in specialStats)
+                    {
+                        if (entry != null && !entry.ValueString.NullOrEmpty())
+                        {
+                            _ = stringBuilder.AppendLine($"- {entry.LabelCap}: {entry.ValueString}");
+                        }
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                _ = stringBuilder.AppendLine($"[Ошибка инфокарты: {ex.Message}]");
             }
             return stringBuilder.ToString();
         }
@@ -92,13 +109,29 @@ namespace EquipmentManager.Windows
         {
             var stringBuilder = new StringBuilder();
             _ = stringBuilder.AppendLine(thing.LabelCapNoCount);
-            var stats = rule.GetStatWeights().Where(sw => sw.StatDef != null).Select(sw => sw.StatDef).ToHashSet();
-            if (!stats.Any()) { return stringBuilder.ToString(); }
+
+            // МЕТОД 1: Прямое чтение строк инфокарты для существующего на карте предмета
             _ = stringBuilder.AppendLine();
-            foreach (var stat in stats)
+            _ = stringBuilder.AppendLine("--- Строки из инфокарты (SpecialDisplayStats) ---");
+            try
             {
-                _ = stringBuilder.AppendLine($"- {stat.LabelCap} = {StatHelper.GetStatValue(thing, stat):N2}");
+                var specialStats = thing.SpecialDisplayStats();
+                if (specialStats != null)
+                {
+                    foreach (var entry in specialStats)
+                    {
+                        if (entry != null && !entry.ValueString.NullOrEmpty())
+                        {
+                            _ = stringBuilder.AppendLine($"- {entry.LabelCap}: {entry.ValueString}");
+                        }
+                    }
+                }
             }
+            catch (System.Exception ex)
+            {
+                _ = stringBuilder.AppendLine($"[Ошибка инфокарты: {ex.Message}]");
+            }
+
             return stringBuilder.ToString();
         }
 
