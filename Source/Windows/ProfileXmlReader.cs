@@ -43,8 +43,6 @@ namespace EquipmentManager
                 }
                 var section = root.SelectSingleNode("WorkTypeRules");
                 if (section != null) { ReadWorkTypeRulesData(profilePath, new XmlNodeReader(section), data.WorkTypeRules); }
-                section = root.SelectSingleNode("ToolRules");
-                if (section != null) { ReadToolRulesData(profilePath, new XmlNodeReader(section), data.ToolRules); }
                 section = root.SelectSingleNode("MeleeWeaponRules");
                 if (section != null) { ReadMeleeWeaponRulesData(profilePath, new XmlNodeReader(section), data.MeleeWeaponRules); }
                 section = root.SelectSingleNode("RangedWeaponRules");
@@ -102,8 +100,6 @@ namespace EquipmentManager
                             var liRoot = liDoc.DocumentElement;
                             var sgSection = liRoot?.SelectSingleNode("WorkTypeRules");
                             if (sgSection != null) { ReadWorkTypeRulesData(savedGameFile, new XmlNodeReader(sgSection), data.WorkTypeRules); }
-                            sgSection = liRoot?.SelectSingleNode("ToolRules");
-                            if (sgSection != null) { ReadToolRulesData(savedGameFile, new XmlNodeReader(sgSection), data.ToolRules); }
                             sgSection = liRoot?.SelectSingleNode("MeleeWeaponRules");
                             if (sgSection != null) { ReadMeleeWeaponRulesData(savedGameFile, new XmlNodeReader(sgSection), data.MeleeWeaponRules); }
                             sgSection = liRoot?.SelectSingleNode("RangedWeaponRules");
@@ -158,22 +154,6 @@ namespace EquipmentManager
             {
                 Log.Warning(
                     $"Equipment Manager: Could not find 'WorkTypeRules' node in the file {sourceFile}");
-            }
-        }
-
-        public static void ReadToolRulesData(string sourceFile, XmlReader xmlReader, List<ToolRule> target)
-        {
-            if (xmlReader.ReadToFollowing("ToolRules"))
-            {
-                var node = xmlReader.ReadSubtree();
-                if (node.ReadToDescendant("li"))
-                {
-                    do { ReadToolRuleData(node.ReadSubtree(), target); } while (node.ReadToNextSibling("li"));
-                }
-            }
-            else
-            {
-                Log.Warning($"Equipment Manager: Could not find 'ToolRules' node in the file {sourceFile}");
             }
         }
 
@@ -340,65 +320,7 @@ namespace EquipmentManager
             target.Add(role);
         }
 
-        // ─── ToolRule / Melee / Ranged / WorkType ───────────────────────────────
-
-        private static void ReadToolRuleData(XmlReader xmlReader, List<ToolRule> target)
-        {
-            if (!xmlReader.ReadToFollowing("li") || !xmlReader.Read()) { return; }
-            var id = 0;
-            var label = string.Empty;
-            var isProtected = false;
-            var statWeights = new List<StatWeight>();
-            var statLimits = new List<StatLimit>();
-            var whitelistedItemsDefNames = new HashSet<string>();
-            var blacklistedItemsDefNames = new HashSet<string>();
-            var equipMode = ItemRule.ToolEquipMode.OneForEveryAssignedWorkType;
-            bool? ranged = null;
-            while (true)
-            {
-                if (xmlReader.NodeType != XmlNodeType.Element || xmlReader.IsEmptyElement)
-                {
-                    if (!xmlReader.Read()) { break; }
-                    continue;
-                }
-                switch (xmlReader.Name)
-                {
-                    case "Id":
-                        id = xmlReader.ReadElementContentAsInt();
-                        break;
-                    case "Label":
-                        label = xmlReader.ReadElementContentAsString();
-                        break;
-                    case "Protected":
-                        isProtected = bool.Parse(xmlReader.ReadElementContentAsString());
-                        break;
-                    case "StatWeights":
-                        ReadList(xmlReader, statWeights, ReadStatWeight);
-                        break;
-                    case "StatLimits":
-                        ReadList(xmlReader, statLimits, ReadStatLimit);
-                        break;
-                    case "WhitelistedItemsDefNames":
-                        ReadStringSet(xmlReader, whitelistedItemsDefNames);
-                        break;
-                    case "BlacklistedItemsDefNames":
-                        ReadStringSet(xmlReader, blacklistedItemsDefNames);
-                        break;
-                    case "EquipMode":
-                        _ = Enum.TryParse(xmlReader.ReadElementContentAsString(), out equipMode);
-                        break;
-                    case "Ranged":
-                        ranged = bool.Parse(xmlReader.ReadElementContentAsString());
-                        break;
-                    default:
-                        Log.Warning($"Equipment Manager: Unknown ToolRule property '{xmlReader.Name}'");
-                        if (!xmlReader.Read()) { break; }
-                        break;
-                }
-            }
-            target.Add(new ToolRule(id, label, isProtected, statWeights, statLimits, whitelistedItemsDefNames,
-                blacklistedItemsDefNames, equipMode, ranged));
-        }
+        // ───  Melee / Ranged / WorkType ───────────────────────────────
 
         private static void ReadMeleeWeaponRuleData(XmlReader xmlReader, List<MeleeWeaponRule> target)
         {

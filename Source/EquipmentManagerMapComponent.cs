@@ -440,54 +440,11 @@ namespace EquipmentManager
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        // Инструменты — BestOne: один лучший для всех worktypes
-        // ─────────────────────────────────────────────────────────────────────
-        private void AssignBestTool(PawnCache pawn, ToolRule rule)
-        {
-            var workTypes = WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
-                .Where(wt => !pawn.Pawn.WorkTypeIsDisabled(wt)).ToList();
-            var available = GetFilteredToolCandidates(pawn, rule, workTypes);
-            if (available.Count == 0) { return; }
-
-            var best = available
-                .OrderByDescending(t => rule.GetThingScore(t, workTypes, _updateTime))
-                .ThenBy(t => t.GetHashCode())
-                .FirstOrDefault();
-            if (best == null) { return; }
-            if (pawn.AssignedWeapons.Keys.Any(t => t.def == best.def)) { return; }
-
-            pawn.AssignedWeapons.Add(best, "tool");
-            AddToolSlot(pawn, best.def);
-        }
-
-        // ─────────────────────────────────────────────────────────────────────
-        // Инструменты — AllAvailable: все подходящие без дублей по ThingDef
-        // ─────────────────────────────────────────────────────────────────────
-        private void AssignAllTools(PawnCache pawn, ToolRule rule)
-        {
-            var workTypes = WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
-                .Where(wt => !pawn.Pawn.WorkTypeIsDisabled(wt)).ToList();
-            var available = GetFilteredToolCandidates(pawn, rule, workTypes);
-
-            foreach (var weapon in available.Where(w =>
-                pawn.AssignedWeapons.Keys.All(t => t.def != w.def)))
-            {
-                pawn.AssignedWeapons.Add(weapon, "tool");
-                AddToolSlot(pawn, weapon.def);
-            }
-        }
-
-        // ─────────────────────────────────────────────────────────────────────
         // Инструменты — OneForEveryWorkType / OneForEveryAssignedWorkType
         // ─────────────────────────────────────────────────────────────────────
-        private void AssignToolsForWorkTypes(PawnCache pawn, ToolRule rule,
+        private void AssignToolsForWorkTypes(PawnCache pawn, 
             List<WorkTypeDef> workTypes)
         {
-            if (rule is null)
-            {
-                throw new ArgumentNullException(nameof(rule));
-            }
-
             foreach (var workType in workTypes)
             {
                 var workTypeRule = EquipmentManager.GetWorkTypeRules()
@@ -507,24 +464,6 @@ namespace EquipmentManager
                 pawn.AssignedWeapons.Add(best, $"tool_{workType.defName}");
                 AddToolSlot(pawn, best.def);
             }
-        }
-
-        // Общий фильтр кандидатов для всех методов инструментов.
-        private List<Thing> GetFilteredToolCandidates(PawnCache pawn, ToolRule rule,
-            List<WorkTypeDef> workTypes)
-        {
-            var candidates = rule.GetCurrentlyAvailableItems(map, workTypes, _updateTime).ToList();
-            _ = candidates.RemoveAll(t =>
-                _pawnCache.Any(pc => pc != pawn && pc.AssignedWeapons.ContainsKey(t)));
-            _ = candidates.RemoveAll(t =>
-                !EquipmentUtility.CanEquip(t, pawn.Pawn) ||
-                (pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap != null &&
-                    !pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap[t.Position]));
-            if (pawn.Pawn.story.traits.HasTrait(TraitDefOf.Brawler))
-            {
-                _ = candidates.RemoveAll(t => t.def.IsRangedWeapon);
-            }
-            return candidates;
         }
 
         // Добавляет tool-слот в PersonalLoadout через CEExtendedLoadoutHelper.
@@ -717,37 +656,13 @@ namespace EquipmentManager
             }
 
             // Инструменты
-            if (pawn.AssignedRole.ToolRuleId != null)
-            {
-                var toolRule = EquipmentManager.GetToolRule((int) pawn.AssignedRole.ToolRuleId);
-                if (toolRule != null)
-                {
-                    switch (toolRule.EquipMode)
-                    {
-                        case ItemRule.ToolEquipMode.BestOne:
-                            AssignBestTool(pawn, toolRule);
-                            break;
-                        case ItemRule.ToolEquipMode.AllAvailable:
-                            AssignAllTools(pawn, toolRule);
-                            break;
-                        case ItemRule.ToolEquipMode.OneForEveryWorkType:
-                            AssignToolsForWorkTypes(pawn, toolRule,
-                                WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
-                                    .Where(wt => wt.visible && !pawn.Pawn.WorkTypeIsDisabled(wt))
-                                    .ToList());
-                            break;
-                        case ItemRule.ToolEquipMode.OneForEveryAssignedWorkType:
-                            AssignToolsForWorkTypes(pawn, toolRule,
-                                WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
-                                    .Where(wt => wt.visible &&
-                                                 pawn.Pawn.workSettings.WorkIsActive(wt))
-                                    .ToList());
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-            }
+
+            AssignToolsForWorkTypes(pawn,
+                WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
+                    .Where(wt => wt.visible && pawn.Pawn.workSettings.WorkIsActive(wt))
+                    .ToList());
+                
+            
 
             return true;
         }

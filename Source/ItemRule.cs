@@ -194,14 +194,6 @@ namespace EquipmentManager
                          .Where(def => def != null)) { _ = _blacklistedItems.Add(def); }
         }
 
-        internal enum ToolEquipMode
-        {
-            OneForEveryWorkType,
-            OneForEveryAssignedWorkType,
-            BestOne,
-            AllAvailable
-        }
-
         internal enum WeaponEquipMode
         {
             BestOne,

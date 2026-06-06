@@ -899,21 +899,14 @@ namespace EquipmentManager.Windows
             DoSecondaryWeaponRule(secondaryWeaponRect);
             var toolRect = new Rect(rect.x, secondaryWeaponRect.yMax + UiHelpers.ElementGap, rect.width,
                 UiHelpers.ListRowHeight);
-            DoToolRule(toolRect);
+            DoToolRule();
             return toolRect.yMax - rect.yMin;
         }
 
-        private void DoToolRule(Rect rect)
+        private void DoToolRule()
         {
-            var inputRect = LabelInput.DoLabeledRect(rect, Strings.ToolsLabel);
-            if (Widgets.ButtonText(inputRect,
-                    SelectedRole.ToolRuleId == null
-                        ? Resources.Strings.WeaponRules.NoRuleSelected
-                        : EquipmentManager.GetToolRule((int) SelectedRole.ToolRuleId).Label))
-            {
-                Find.WindowStack.Add(new FloatMenu(EquipmentManager.GetToolRules().Select(rule =>
-                    new FloatMenuOption(rule.Label, () => SelectedRole.ToolRuleId = rule.Id)).ToList()));
-            }
+            // Оставлено пустым намеренно: строка под инструменты убрана из UI,
+            // но высота rect сохраняет вертикальный отступ для остального интерфейса.
         }
 
         public override void DoWindowContents(Rect inRect)

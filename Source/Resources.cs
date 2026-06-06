@@ -240,11 +240,6 @@ namespace EquipmentManager
                 internal static readonly string WhitelistedItemsTooltip =
                     $"EquipmentManager.WeaponRules.{nameof(WhitelistedItemsTooltip)}".Translate();
 
-                internal static string GetToolEquipModeLabel(ItemRule.ToolEquipMode equipMode)
-                {
-                    return $"EquipmentManager.WeaponRules.ToolEquipModes.{equipMode}".Translate();
-                }
-
                 internal static string GetWeaponEquipModeLabel(ItemRule.WeaponEquipMode equipMode)
                 {
                     return $"EquipmentManager.WeaponRules.WeaponEquipModes.{equipMode}".Translate();

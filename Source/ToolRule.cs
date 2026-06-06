@@ -12,7 +12,7 @@ namespace EquipmentManager
     {
         private static HashSet<ThingDef> _allRelevantThings;
         private bool? _ranged;
-        public ToolEquipMode EquipMode = ToolEquipMode.OneForEveryAssignedWorkType;
+
         public ToolRule(int id, bool isProtected) : base(id, isProtected) { }
 
         [UsedImplicitly]
@@ -20,10 +20,9 @@ namespace EquipmentManager
 
         public ToolRule(int id, string label, bool isProtected, List<StatWeight> statWeights,
             List<StatLimit> statLimits, HashSet<string> whitelistedItemsDefNames,
-            HashSet<string> blacklistedItemsDefNames, ToolEquipMode equipMode, bool? ranged) : base(id, label,
+            HashSet<string> blacklistedItemsDefNames, bool? ranged) : base(id, label,
             isProtected, statWeights, statLimits, whitelistedItemsDefNames, blacklistedItemsDefNames)
         {
-            EquipMode = equipMode;
             _ranged = ranged;
         }
 
@@ -63,14 +62,12 @@ namespace EquipmentManager
                 new ToolRule(0, true)
                 {
                     Label = Strings.Default.AssignedWorkTypes,
-                    EquipMode = ToolEquipMode.OneForEveryAssignedWorkType,
                     StatWeights = new List<StatWeight>(DefaultStatWeights),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist)
                 },
                 new ToolRule(1, true)
                 {
                     Label = Strings.Default.AllWorkTypes,
-                    EquipMode = ToolEquipMode.OneForEveryWorkType,
                     StatWeights = new List<StatWeight>(DefaultStatWeights),
                     BlacklistedItemsDefNames = new HashSet<string>(DefaultBlacklist)
                 }
@@ -92,7 +89,6 @@ namespace EquipmentManager
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Values.Look(ref EquipMode, nameof(EquipMode));
             Scribe_Values.Look(ref _ranged, nameof(Ranged));
         }
 

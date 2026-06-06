@@ -361,9 +361,6 @@ namespace EquipmentManager.Windows
                 case DialogTab.RangedWeapons:
                     DoTab_RangedWeapons(activeTabRect);
                     break;
-                case DialogTab.Tools:
-                    DoTab_Tools(activeTabRect);
-                    break;
                 case DialogTab.WorkTypes:
                     DoTab_WorkTypes(activeTabRect);
                     break;
@@ -426,12 +423,6 @@ namespace EquipmentManager.Windows
                 UpdateAvailableItems_RangedWeapons();
                 ResetScrollPositions();
             }, () => _currentTab == DialogTab.RangedWeapons));
-            _tabs.Add(new TabRecord(Strings.Tools.Title, () =>
-            {
-                _currentTab = DialogTab.Tools;
-                UpdateAvailableItems_Tools();
-                ResetScrollPositions();
-            }, () => _currentTab == DialogTab.Tools));
             _tabs.Add(new TabRecord(Strings.WorkTypes.Title, () =>
             {
                 _currentTab = DialogTab.WorkTypes;
@@ -446,7 +437,6 @@ namespace EquipmentManager.Windows
             base.PreClose();
             PreClose_MeleeWeapons();
             PreClose_RangedWeapons();
-            PreClose_Tools();
         }
 
         public override void PreOpen()
@@ -455,7 +445,6 @@ namespace EquipmentManager.Windows
             if (!_initialized) { Initialize(); }
             UpdateAvailableItems_MeleeWeapons();
             UpdateAvailableItems_RangedWeapons();
-            UpdateAvailableItems_Tools();
             UpdateAvailableItems_WorkTypes();
         }
 
@@ -473,7 +462,6 @@ namespace EquipmentManager.Windows
         {
             MeleeWeapons,
             RangedWeapons,
-            Tools,
             WorkTypes
         }
     }
