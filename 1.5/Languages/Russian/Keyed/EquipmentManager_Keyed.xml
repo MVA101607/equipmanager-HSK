@@ -2,6 +2,7 @@
 
 <LanguageData>
 	<EquipmentManager.Roles.Default.Off>ВЫКЛ</EquipmentManager.Roles.Default.Off>
+	<EquipmentManager.ToolAssigned>{0} выбрал(а) {1} для работы {2}</EquipmentManager.ToolAssigned>
 	<EquipmentManager.Roles.Default.Auto>Авто</EquipmentManager.Roles.Default.Auto>
 	<EquipmentManager.Roles.ProfilesListHeader>Сохранённые профили</EquipmentManager.Roles.ProfilesListHeader>
 	<EquipmentManager.Roles.SaveProfile>Сохранить профиль</EquipmentManager.Roles.SaveProfile>

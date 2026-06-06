@@ -96,7 +96,7 @@ namespace EquipmentManager.Windows
             foreach (var sw in matched)
             {
                 var val = specialStats[sw.StatDef.LabelCap];
-                _ = sb.AppendLine($"- {sw.StatDef.LabelCap} = {val:N3}  weight:{sw.Weight:N1}");
+                _ = sb.AppendLine($"- {sw.StatDef.LabelCap} = {val:N3}");
             }
 
             return sb.ToString();

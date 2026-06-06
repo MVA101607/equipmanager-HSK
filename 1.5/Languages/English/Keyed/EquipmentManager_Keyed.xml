@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LanguageData>
+	<EquipmentManager.ToolAssigned>{0}: assigned tool {1} for work: {2}</EquipmentManager.ToolAssigned>
 	<EquipmentManager.Roles.Default.Off>OFF</EquipmentManager.Roles.Default.Off>
 	<EquipmentManager.Roles.Default.Auto>Auto</EquipmentManager.Roles.Default.Auto>
 	<EquipmentManager.Roles.ProfilesListHeader>Saved Profiles</EquipmentManager.Roles.ProfilesListHeader>

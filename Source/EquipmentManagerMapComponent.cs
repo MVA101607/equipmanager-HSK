@@ -461,8 +461,19 @@ namespace EquipmentManager
                     .FirstOrDefault(t => pawn.AssignedWeapons.Keys.All(a => a.def != t.def));
 
                 if (best == null) { continue; }
+                if (pawn.AssignedWeapons.Keys.Any(t => t.def == best.def)) { continue; }
+
                 pawn.AssignedWeapons.Add(best, $"tool_{workType.defName}");
                 AddToolSlot(pawn, best.def);
+                EnqueuePickupJob(pawn.Pawn, best);
+
+                // Интерактивное сообщение вверху-слева
+                var msg = "EquipmentManager.ToolAssigned".Translate(
+                    pawn.Pawn.LabelShortCap,
+                    best.LabelCapNoCount,
+                    workType.labelShort ?? workType.label); // «Колонист X: назначен инструмент Y для работы Z»
+                Messages.Message(msg, pawn.Pawn, MessageTypeDefOf.SilentInput, historical: false);
+                break;
             }
         }
 
