@@ -62,6 +62,9 @@ namespace EquipmentManager
             }
         }
 
+        /// <summary>Публичный доступ к пулу инструментов для WorkTypeToolCache.</summary>
+        public static IEnumerable<ThingDef> AllRelevantThingsPublic => AllRelevantThings;
+
         public static IEnumerable<WorkTypeRule> DefaultRules
         {
             get
@@ -160,40 +163,12 @@ namespace EquipmentManager
 
         public IEnumerable<Thing> GetCurrentlyAvailableItemsSorted(Map map)
         {
-            var items = new List<Thing>();
-            var globalItemDefs = new HashSet<ThingDef>(GetGloballyAvailableItems());
-            foreach (var thing in map?.listerThings?.ThingsInGroup(ThingRequestGroup.Weapon).Where(thing =>
-                         globalItemDefs.Contains(thing.def)) ?? Array.Empty<Thing>())
-            {
-                var comp = thing.TryGetComp<CompForbiddable>();
-                if (comp != null && comp.Forbidden) { continue; }
-                items.Add(thing);
-            }
-            items.SortByDescending(GetThingScore);
-            return items;
+            return WorkTypeToolCache.GetSortedOnMap(this, map);
         }
 
         public IEnumerable<ThingDef> GetGloballyAvailableItems()
         {
-            var items = new List<ThingDef>();
-            var activeStatLabels = ActiveStats
-                .Select(s => s.LabelCap.ToString())
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var def in AllRelevantThings)
-            {
-                // Стандартная проверка (statBases / equippedStatOffsets)
-                var hasStandardStat = ActiveStats.Any(stat =>
-                    Math.Abs(StatHelper.GetStatValueDeviation(def, stat)) > 0.001f);
-
-                // HSK-проверка через SpecialDisplayStats
-                var hasSpecialStat = !hasStandardStat &&
-                    activeStatLabels.Any(label => GetSpecialStatsForDef(def).ContainsKey(label));
-
-                if (hasStandardStat || hasSpecialStat) { items.Add(def); }
-            }
-            items.SortByDescending(GetThingDefScore);
-            return items;
+            return WorkTypeToolCache.GetGloballyAvailable(this);
         }
 
         public IReadOnlyList<StatWeight> GetStatWeights()
@@ -207,7 +182,7 @@ namespace EquipmentManager
         private static readonly Dictionary<ThingDef, Dictionary<string, float>> _specialStatsCache =
             new();
 
-        private static Dictionary<string, float> GetSpecialStatsForDef(ThingDef def)
+        internal static Dictionary<string, float> GetSpecialStatsForDef(ThingDef def)
         {
             if (_specialStatsCache.TryGetValue(def, out var cached)) { return cached; }
             var result = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
@@ -234,15 +209,6 @@ namespace EquipmentManager
             }
             _specialStatsCache[def] = result;
             return result;
-        }
-
-        public float GetThingDefScore([NotNull] ThingDef def)
-        {
-            return def == null
-                ? throw new ArgumentNullException(nameof(def))
-                : _statWeights.Where(statWeight => statWeight.StatDef != null).Sum(statWeight =>
-                    EquipmentManager.NormalizeStatValue(statWeight.StatDef,
-                        StatHelper.GetStatValueDeviation(def, statWeight.StatDef)) * statWeight.Weight);
         }
 
         public float GetThingScore([NotNull] Thing thing)
@@ -353,6 +319,7 @@ namespace EquipmentManager
         {
             _allRelevantThings = null;
             _specialStatsCache.Clear();
+            WorkTypeToolCache.InvalidateAll();
         }
     }
 }

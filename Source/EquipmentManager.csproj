@@ -112,6 +112,7 @@
     <Compile Include="EquipmentManagerMod.cs" />
     <Compile Include="ItemCache.cs" />
     <Compile Include="ItemRule.cs" />
+    <Compile Include="Patches\ThingSpawnPatch.cs" />
     <Compile Include="Role.cs" />
     <Compile Include="PassionLimit.cs" />
     <Compile Include="PawnCache.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="Windows\ManageWeaponRulesDialog_WorkTypes.cs" />
     <Compile Include="Windows\RolesProfileManager.cs" />
     <Compile Include="WorkTypeRule.cs" />
+    <Compile Include="WorkTypeToolCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

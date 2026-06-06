@@ -59,43 +59,47 @@ namespace EquipmentManager.Windows
                 DoRuleStatWeights(statsRect, StatHelper.WorkTypeStatDefs, SelectedWorkTypeRule.GetStatWeights(), def =>
                 {
                     SelectedWorkTypeRule.SetStatWeight(def, 0f);
+                    WorkTypeToolCache.InvalidateAll();
                     UpdateAvailableItems_WorkTypes();
                 }, statDefName =>
                 {
                     SelectedWorkTypeRule.DeleteStatWeight(statDefName);
+                    WorkTypeToolCache.InvalidateAll();
                     UpdateAvailableItems_WorkTypes();
                 });
                 UiHelpers.DoGapLineHorizontal(new Rect(rect.x, statsRect.yMax, rect.width, UiHelpers.ElementGap));
                 DoAvailableItems(availableItemsRect, _globallyAvailableWorkTypes, def => { },
                     def => GetWorkTypeDefTooltip(def, SelectedWorkTypeRule), _currentlyAvailableWorkTypes, thing => { },
-                    thing => GetWorkTypeTooltip(thing, SelectedWorkTypeRule), UpdateAvailableItems_WorkTypes);
+                    thing => GetWorkTypeTooltip(thing, SelectedWorkTypeRule), () =>
+                    {
+                        WorkTypeToolCache.InvalidateOnMap();
+                        UpdateAvailableItems_WorkTypes();
+                    });
             }
         }
 
         private string GetWorkTypeDefTooltip(ThingDef def, WorkTypeRule rule)
         {
-            var stringBuilder = new StringBuilder();
-            _ = stringBuilder.AppendLine(def.LabelCap);
+            var sb = new StringBuilder();
+            _ = sb.AppendLine(def.LabelCap);
 
             var statWeights = rule.GetStatWeights().Where(sw => sw.StatDef != null).ToList();
-            if (!statWeights.Any()) { return stringBuilder.ToString(); }
+            if (!statWeights.Any()) { return sb.ToString(); }
 
-            var time = RimworldTime.GetMapTime(Find.CurrentMap);
-            var cache = EquipmentManager.GetToolDefCache(def, time);
-            var workTypeDefs = WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder.ToList();
+            var specialStats = WorkTypeRule.GetSpecialStatsForDef(def);
+            var matched = statWeights
+                .Where(sw => specialStats.ContainsKey(sw.StatDef.LabelCap))
+                .ToList();
+            if (!matched.Any()) { return sb.ToString(); }
 
-            _ = stringBuilder.AppendLine();
-            foreach (var sw in statWeights)
+            _ = sb.AppendLine();
+            foreach (var sw in matched)
             {
-                var value = cache.GetStatValue(sw.StatDef, workTypeDefs);
-                _ = stringBuilder.AppendLine($"- {sw.StatDef.LabelCap} = {value:N2}  (weight: {sw.Weight:N1})");
+                var val = specialStats[sw.StatDef.LabelCap];
+                _ = sb.AppendLine($"- {sw.StatDef.LabelCap} = {val:N3}  weight:{sw.Weight:N1}");
             }
 
-            var score = rule.GetThingDefScore(def);
-            _ = stringBuilder.AppendLine();
-            _ = stringBuilder.AppendLine($"Score: {score:N3}");
-
-            return stringBuilder.ToString();
+            return sb.ToString();
         }
 
         private string GetWorkTypeTooltip(Thing thing, WorkTypeRule rule)
@@ -106,7 +110,6 @@ namespace EquipmentManager.Windows
             var statWeights = rule.GetStatWeights().Where(sw => sw.StatDef != null).ToList();
             if (!statWeights.Any()) { return sb.ToString(); }
 
-            // Читаем SpecialDisplayStats в словарь
             var specialStats = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
             try
             {
@@ -121,16 +124,19 @@ namespace EquipmentManager.Windows
             }
             catch { /* игнорируем */ }
 
+            var matched = statWeights
+                .Where(sw => specialStats.ContainsKey(sw.StatDef.LabelCap))
+                .ToList();
+            if (!matched.Any()) { return sb.ToString(); }
+
             _ = sb.AppendLine();
-            foreach (var sw in statWeights)
+            foreach (var sw in matched)
             {
-                _ = specialStats.TryGetValue(sw.StatDef.LabelCap, out var val);
+                var val = specialStats[sw.StatDef.LabelCap];
                 _ = sb.AppendLine($"- {sw.StatDef.LabelCap} = {val:N3}  weight:{sw.Weight:N1}");
             }
-
             _ = sb.AppendLine();
             _ = sb.AppendLine($"Score: {rule.GetThingScore(thing):N3}");
-
             return sb.ToString();
         }
 

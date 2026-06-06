@@ -483,19 +483,27 @@ namespace EquipmentManager
         private void AssignToolsForWorkTypes(PawnCache pawn, ToolRule rule,
             List<WorkTypeDef> workTypes)
         {
-            var available = GetFilteredToolCandidates(pawn, rule, workTypes);
-            if (available.Count == 0) { return; }
+            if (rule is null)
+            {
+                throw new ArgumentNullException(nameof(rule));
+            }
 
-            // Кэшируем результат CanPickup заранее — один раз, не N×M.
             foreach (var workType in workTypes)
             {
-                var best = available
-                    .OrderByDescending(t => rule.GetThingScore(t, new[] { workType }, _updateTime))
-                    .ThenBy(t => t.GetHashCode())
-                    .FirstOrDefault();
-                if (best == null) { continue; }
-                if (pawn.AssignedWeapons.Keys.Any(t => t.def == best.def)) { continue; }
+                var workTypeRule = EquipmentManager.GetWorkTypeRules()
+                    .FirstOrDefault(r => r.WorkTypeDefName == workType.defName);
+                if (workTypeRule == null) { continue; }
 
+                // Берём готовый отсортированный кэш — первый подходящий = лучший
+                var best = WorkTypeToolCache.GetSortedOnMap(workTypeRule, map)
+                    .Where(t => !_pawnCache.Any(pc => pc != pawn && pc.AssignedWeapons.ContainsKey(t)))
+                    .Where(t => EquipmentUtility.CanEquip(t, pawn.Pawn))
+                    .Where(t => pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap == null ||
+                                pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap[t.Position])
+                    .Where(t => !pawn.Pawn.story.traits.HasTrait(TraitDefOf.Brawler) || !t.def.IsRangedWeapon)
+                    .FirstOrDefault(t => pawn.AssignedWeapons.Keys.All(a => a.def != t.def));
+
+                if (best == null) { continue; }
                 pawn.AssignedWeapons.Add(best, $"tool_{workType.defName}");
                 AddToolSlot(pawn, best.def);
             }
