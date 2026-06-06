@@ -176,7 +176,22 @@ namespace EquipmentManager
         public IEnumerable<ThingDef> GetGloballyAvailableItems()
         {
             var items = new List<ThingDef>();
-            items.AddRange(AllRelevantThings);
+            var activeStatLabels = ActiveStats
+                .Select(s => s.LabelCap.ToString())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var def in AllRelevantThings)
+            {
+                // Стандартная проверка (statBases / equippedStatOffsets)
+                var hasStandardStat = ActiveStats.Any(stat =>
+                    Math.Abs(StatHelper.GetStatValueDeviation(def, stat)) > 0.001f);
+
+                // HSK-проверка через SpecialDisplayStats
+                var hasSpecialStat = !hasStandardStat &&
+                    activeStatLabels.Any(label => GetSpecialStatsForDef(def).ContainsKey(label));
+
+                if (hasStandardStat || hasSpecialStat) { items.Add(def); }
+            }
             items.SortByDescending(GetThingDefScore);
             return items;
         }
@@ -187,7 +202,41 @@ namespace EquipmentManager
             return _statWeights;
         }
 
-        private float GetThingDefScore([NotNull] ThingDef def)
+        // Кэш: ThingDef → (label в нижнем регистре → значение)
+        // Строится лениво при первом вызове GetSpecialStatsForDef.
+        private static readonly Dictionary<ThingDef, Dictionary<string, float>> _specialStatsCache =
+            new();
+
+        private static Dictionary<string, float> GetSpecialStatsForDef(ThingDef def)
+        {
+            if (_specialStatsCache.TryGetValue(def, out var cached)) { return cached; }
+            var result = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                var thing = def.MadeFromStuff
+                    ? ThingMaker.MakeThing(def, GenStuff.DefaultStuffFor(def))
+                    : ThingMaker.MakeThing(def);
+                foreach (var entry in thing.SpecialDisplayStats() ?? Enumerable.Empty<StatDrawEntry>())
+                {
+                    if (entry == null || entry.LabelCap.NullOrEmpty()) { continue; }
+                    // Пробуем распарсить числовое значение из ValueString (например "120%" → 1.2, "1.5x" → 1.5)
+                    var raw = entry.ValueString?.Replace("%", "").Replace("x", "").Trim();
+                    if (float.TryParse(raw, System.Globalization.NumberStyles.Float,
+                            System.Globalization.CultureInfo.InvariantCulture, out var val))
+                    {
+                        result[entry.LabelCap] = val;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"EquipmentManager: SpecialDisplayStats failed for {def.defName}: {ex.Message}");
+            }
+            _specialStatsCache[def] = result;
+            return result;
+        }
+
+        public float GetThingDefScore([NotNull] ThingDef def)
         {
             return def == null
                 ? throw new ArgumentNullException(nameof(def))
@@ -198,11 +247,33 @@ namespace EquipmentManager
 
         public float GetThingScore([NotNull] Thing thing)
         {
-            return thing == null
-                ? throw new ArgumentNullException(nameof(thing))
-                : _statWeights.Where(statWeight => statWeight.StatDef != null).Sum(statWeight =>
-                    EquipmentManager.NormalizeStatValue(statWeight.StatDef,
-                        StatHelper.GetStatValueDeviation(thing, statWeight.StatDef)) * statWeight.Weight);
+            if (thing == null) { throw new ArgumentNullException(nameof(thing)); }
+
+            var specialStats = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                foreach (var entry in thing.SpecialDisplayStats() ?? Enumerable.Empty<StatDrawEntry>())
+                {
+                    if (entry == null || entry.LabelCap.NullOrEmpty()) { continue; }
+                    var raw = entry.ValueString?.Replace("%", "").Replace("x", "").Trim();
+                    if (float.TryParse(raw, System.Globalization.NumberStyles.Float,
+                            System.Globalization.CultureInfo.InvariantCulture, out var val))
+                    {
+                        specialStats[entry.LabelCap] = val;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"EquipmentManager: SpecialDisplayStats failed for {thing.LabelCapNoCount}: {ex.Message}");
+            }
+
+            return _statWeights.Where(sw => sw.StatDef != null).Sum(sw =>
+            {
+                if (!specialStats.TryGetValue(sw.StatDef.LabelCap, out var specialVal)) { return 0f; }
+                var deviation = specialVal - sw.StatDef.defaultBaseValue;
+                return EquipmentManager.NormalizeStatValue(sw.StatDef, deviation) * sw.Weight;
+            });
         }
 
         private void Initialize()
@@ -281,6 +352,7 @@ namespace EquipmentManager
         public static void InvalidateCache()
         {
             _allRelevantThings = null;
+            _specialStatsCache.Clear();
         }
     }
 }

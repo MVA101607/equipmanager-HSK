@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using EquipmentManager.CustomWidgets;
+using RimWorld;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using EquipmentManager.CustomWidgets;
-using RimWorld;
 using UnityEngine;
 using Verse;
 using Strings = EquipmentManager.Resources.Strings.WeaponRules;
@@ -76,63 +77,61 @@ namespace EquipmentManager.Windows
             var stringBuilder = new StringBuilder();
             _ = stringBuilder.AppendLine(def.LabelCap);
 
-            // Создаем виртуальный экземпляр предмета (с материалом по умолчанию), чтобы у него отработали все расчеты инфокарты
-            var thing = def.MadeFromStuff
-                ? ThingMaker.MakeThing(def, GenStuff.DefaultStuffFor(def))
-                : ThingMaker.MakeThing(def);
+            var statWeights = rule.GetStatWeights().Where(sw => sw.StatDef != null).ToList();
+            if (!statWeights.Any()) { return stringBuilder.ToString(); }
 
-            // МЕТОД 1: Прямое чтение строк инфокарты (SpecialDisplayStats)
+            var time = RimworldTime.GetMapTime(Find.CurrentMap);
+            var cache = EquipmentManager.GetToolDefCache(def, time);
+            var workTypeDefs = WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder.ToList();
+
             _ = stringBuilder.AppendLine();
-            _ = stringBuilder.AppendLine("--- Строки из инфокарты (SpecialDisplayStats) ---");
-            try
+            foreach (var sw in statWeights)
             {
-                var specialStats = thing.SpecialDisplayStats();
-                if (specialStats != null)
-                {
-                    foreach (var entry in specialStats)
-                    {
-                        if (entry != null && !entry.ValueString.NullOrEmpty())
-                        {
-                            _ = stringBuilder.AppendLine($"- {entry.LabelCap}: {entry.ValueString}");
-                        }
-                    }
-                }
+                var value = cache.GetStatValue(sw.StatDef, workTypeDefs);
+                _ = stringBuilder.AppendLine($"- {sw.StatDef.LabelCap} = {value:N2}  (weight: {sw.Weight:N1})");
             }
-            catch (System.Exception ex)
-            {
-                _ = stringBuilder.AppendLine($"[Ошибка инфокарты: {ex.Message}]");
-            }
+
+            var score = rule.GetThingDefScore(def);
+            _ = stringBuilder.AppendLine();
+            _ = stringBuilder.AppendLine($"Score: {score:N3}");
+
             return stringBuilder.ToString();
         }
 
         private string GetWorkTypeTooltip(Thing thing, WorkTypeRule rule)
         {
-            var stringBuilder = new StringBuilder();
-            _ = stringBuilder.AppendLine(thing.LabelCapNoCount);
+            var sb = new StringBuilder();
+            _ = sb.AppendLine(thing.LabelCapNoCount);
 
-            // МЕТОД 1: Прямое чтение строк инфокарты для существующего на карте предмета
-            _ = stringBuilder.AppendLine();
-            _ = stringBuilder.AppendLine("--- Строки из инфокарты (SpecialDisplayStats) ---");
+            var statWeights = rule.GetStatWeights().Where(sw => sw.StatDef != null).ToList();
+            if (!statWeights.Any()) { return sb.ToString(); }
+
+            // Читаем SpecialDisplayStats в словарь
+            var specialStats = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
             try
             {
-                var specialStats = thing.SpecialDisplayStats();
-                if (specialStats != null)
+                foreach (var entry in thing.SpecialDisplayStats() ?? Enumerable.Empty<StatDrawEntry>())
                 {
-                    foreach (var entry in specialStats)
-                    {
-                        if (entry != null && !entry.ValueString.NullOrEmpty())
-                        {
-                            _ = stringBuilder.AppendLine($"- {entry.LabelCap}: {entry.ValueString}");
-                        }
-                    }
+                    if (entry == null || entry.LabelCap.NullOrEmpty()) { continue; }
+                    var raw = entry.ValueString?.Replace("%", "").Replace("x", "").Trim();
+                    if (float.TryParse(raw, System.Globalization.NumberStyles.Float,
+                            System.Globalization.CultureInfo.InvariantCulture, out var val))
+                    { specialStats[entry.LabelCap] = val; }
                 }
             }
-            catch (System.Exception ex)
+            catch { /* игнорируем */ }
+
+            _ = sb.AppendLine();
+            foreach (var sw in statWeights)
             {
-                _ = stringBuilder.AppendLine($"[Ошибка инфокарты: {ex.Message}]");
+                _ = specialStats.TryGetValue(sw.StatDef.LabelCap, out var val);
+                _ = sb.AppendLine($"- {sw.StatDef.LabelCap} = {val:N3}  weight:{sw.Weight:N1}");
             }
 
-            return stringBuilder.ToString();
+            _ = sb.AppendLine();
+            _ = sb.AppendLine($"Score: {rule.GetThingScore(thing):N3}");
+
+            return sb.ToString();
         }
 
         private void UpdateAvailableItems_WorkTypes()
