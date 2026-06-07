@@ -187,4 +187,10 @@
 	<!-- Roles: OFF rule -->
 	<EquipmentManager.Roles.OFF>OFF — Unmanaged</EquipmentManager.Roles.OFF>
 	<EquipmentManager.Roles.OFFTooltip>This pawn is excluded from automatic equipment management. Assigned manually only.</EquipmentManager.Roles.OFFTooltip>
+	<!-- Assign mode: tooltip strings for the cycle button -->
+	<EquipmentManager.Roles.AssignModeBothTooltip>Mode: weapon + tool&#xA;Manager assigns both weapons and tools</EquipmentManager.Roles.AssignModeBothTooltip>
+	<EquipmentManager.Roles.AssignModeWeaponTooltip>Mode: weapon only&#xA;Manager assigns weapons only, ignores tools</EquipmentManager.Roles.AssignModeWeaponTooltip>
+	<EquipmentManager.Roles.AssignModeToolTooltip>Mode: tool only&#xA;Manager assigns tools only, ignores weapons</EquipmentManager.Roles.AssignModeToolTooltip>
+	<EquipmentManager.Roles.AssignModeNoActionTooltip>Mode: no action&#xA;Manager does not assign weapons or tools to this pawn</EquipmentManager.Roles.AssignModeNoActionTooltip>
+	<EquipmentManager.Roles.GlobalAssignModeHint>Click to apply this mode to all colonists</EquipmentManager.Roles.GlobalAssignModeHint>
 </LanguageData>

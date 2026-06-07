@@ -178,4 +178,10 @@
 	<!-- Роли: правило OFF -->
 	<EquipmentManager.Roles.OFF>ОТКЛ — Без управления</EquipmentManager.Roles.OFF>
 	<EquipmentManager.Roles.OFFTooltip>Пешка исключена из автоматического управления снаряжением. Назначается только вручную.</EquipmentManager.Roles.OFFTooltip>
+	<!-- Режим автоназначения: tooltip-ы кнопки цикличного выбора -->
+	<EquipmentManager.Roles.AssignModeBothTooltip>Режим: оружие + инструмент&#xA;Менеджер назначает и оружие, и инструменты</EquipmentManager.Roles.AssignModeBothTooltip>
+	<EquipmentManager.Roles.AssignModeWeaponTooltip>Режим: только оружие&#xA;Менеджер назначает только оружие, инструменты не трогает</EquipmentManager.Roles.AssignModeWeaponTooltip>
+	<EquipmentManager.Roles.AssignModeToolTooltip>Режим: только инструмент&#xA;Менеджер назначает только инструменты, оружие не трогает</EquipmentManager.Roles.AssignModeToolTooltip>
+	<EquipmentManager.Roles.AssignModeNoActionTooltip>Режим: ничего не делать&#xA;Менеджер не назначает ни оружие, ни инструменты этой пешке</EquipmentManager.Roles.AssignModeNoActionTooltip>
+	<EquipmentManager.Roles.GlobalAssignModeHint>Нажмите, чтобы установить этот режим всем колонистам</EquipmentManager.Roles.GlobalAssignModeHint>
 </LanguageData>

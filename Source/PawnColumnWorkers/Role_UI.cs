@@ -16,6 +16,44 @@ namespace EquipmentManager.PawnColumnWorkers
         private static EquipmentManagerGameComponent EquipmentManager =>
             Current.Game.GetComponent<EquipmentManagerGameComponent>();
 
+        // ── Вспомогательные методы для цикличной кнопки режима ──────────────
+
+        private static Texture2D GetModeTexture(AssignMode mode)
+        {
+            return mode switch
+            {
+                AssignMode.Weapon   => Resources.Textures.AssignWeapon,
+                AssignMode.Tool     => Resources.Textures.AssignTool,
+                AssignMode.NoAction => Resources.Textures.AssignNoAction,
+                _                   => Resources.Textures.AssignBoth
+            };
+        }
+
+        private static string GetModeTooltip(AssignMode mode)
+        {
+            return mode switch
+            {
+                AssignMode.Weapon   => Resources.Strings.Roles.AssignModeWeaponTooltip,
+                AssignMode.Tool     => Resources.Strings.Roles.AssignModeToolTooltip,
+                AssignMode.NoAction => Resources.Strings.Roles.AssignModeNoActionTooltip,
+                _                   => Resources.Strings.Roles.AssignModeBothTooltip
+            };
+        }
+
+        private static AssignMode NextMode(AssignMode mode)
+        {
+            return mode switch
+            {
+                AssignMode.Both     => AssignMode.Weapon,
+                AssignMode.Weapon   => AssignMode.Tool,
+                AssignMode.Tool     => AssignMode.NoAction,
+                AssignMode.NoAction => AssignMode.Both,
+                _                   => AssignMode.Both
+            };
+        }
+
+        // ────────────────────────────────────────────────────────────────────
+
         private static IEnumerable<Widgets.DropdownMenuElement<EquipmentManager.Role>> Button_GenerateMenu(Pawn pawn)
         {
             var roles = EquipmentManager.GetRoles().ToList();
@@ -44,9 +82,11 @@ namespace EquipmentManager.PawnColumnWorkers
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
-            var editButtonSize = (rect.height - 4) / 2;
+            var iconButtonSize = (rect.height - 4) / 2;
+
+            // Основная кнопка выбора роли — занимает всю ширину минус иконка справа
             var loadoutButtonRect = new Rect(rect.x, rect.y + 2,
-                rect.width - editButtonSize - 4, rect.height - 4);
+                rect.width - iconButtonSize - 4, rect.height - 4);
 
             if (pawn.IsQuestLodger())
             {
@@ -57,26 +97,19 @@ namespace EquipmentManager.PawnColumnWorkers
             else
             {
                 var pawnRole = EquipmentManager.GetPawnRole(pawn);
-                var role = EquipmentManager.GetRole(pawnRole?.RoleId);
-                var label = role != null ? role.Label : Resources.Strings.Roles.Default.NoRole;
+                var role     = EquipmentManager.GetRole(pawnRole?.RoleId);
+                var label    = role != null ? role.Label : Resources.Strings.Roles.Default.NoRole;
                 if (pawnRole?.Automatic ?? false) { label = $"* {label}"; }
                 Widgets.Dropdown(loadoutButtonRect, pawn, p => EquipmentManager.GetRole(pawn),
                     Button_GenerateMenu, label,
                     dragLabel: label.Truncate(loadoutButtonRect.width), paintable: true);
-            }
 
-            var editButtonRect = new Rect(rect.xMax - editButtonSize, rect.y + 2f,
-                editButtonSize, editButtonSize);
-            var forceUpdateButtonRect = new Rect(rect.xMax - editButtonSize,
-                rect.y + 2f + editButtonSize, editButtonSize, editButtonSize);
-
-            if (!pawn.IsQuestLodger())
-            {
-                TooltipHandler.TipRegion(editButtonRect, "AssignTabEdit".Translate());
-                if (Widgets.ButtonImage(editButtonRect, Resources.Textures.Edit))
-                {
-                    Find.WindowStack.Add(new ManageRolesDialog(EquipmentManager.GetRole(pawn)));
-                }
+                // ── Верхний маленький квадрат: кнопка «Обновить» (Refresh) ──
+                var forceUpdateButtonRect = new Rect(
+                    rect.xMax - iconButtonSize,
+                    rect.y + 2f,
+                    iconButtonSize,
+                    iconButtonSize);
 
                 TooltipHandler.TipRegion(forceUpdateButtonRect,
                     "EquipmentManager.ForceUpdatePawn.Tooltip".Translate());
@@ -84,6 +117,29 @@ namespace EquipmentManager.PawnColumnWorkers
                 {
                     var mapComp = pawn.Map?.GetComponent<EquipmentManagerMapComponent>();
                     mapComp?.ForceUpdateForPawn(pawn);
+                }
+
+                // ── Нижний маленький квадрат: цикличная кнопка режима ────────
+                var modeButtonRect = new Rect(
+                    rect.xMax - iconButtonSize,
+                    rect.y + 2f + iconButtonSize,
+                    iconButtonSize,
+                    iconButtonSize);
+
+                var currentMode = pawnRole?.Mode ?? AssignMode.Both;
+                TooltipHandler.TipRegion(modeButtonRect, GetModeTooltip(currentMode));
+                if (Widgets.ButtonImage(modeButtonRect, GetModeTexture(currentMode)))
+                {
+                    if (pawnRole == null)
+                    {
+                        // Создаём запись для пешки, если её ещё нет
+                        EquipmentManager.SetPawnRole(pawn, role, false);
+                        pawnRole = EquipmentManager.GetPawnRole(pawn);
+                    }
+                    if (pawnRole != null)
+                    {
+                        pawnRole.Mode = NextMode(pawnRole.Mode);
+                    }
                 }
             }
         }
@@ -93,24 +149,22 @@ namespace EquipmentManager.PawnColumnWorkers
             base.DoHeader(rect, table);
             MouseoverSounds.DoRegion(rect);
 
-            const float buttonHeight = 32f;
+            const float buttonHeight   = 32f;
             const float iconButtonSize = 16f;
-            const float iconButtonGap = 2f;
+            const float iconButtonGap  = 2f;
 
             var headerButtonY = rect.y + (rect.height - 65f);
 
             // «Manage Roles» — сужаем ширину, чтобы справа поместилась иконка
             var manageButtonWidth = Mathf.Min(rect.width, 360f) - iconButtonSize - iconButtonGap;
-            var manageButtonRect = new Rect(rect.x, headerButtonY, manageButtonWidth, buttonHeight);
+            var manageButtonRect  = new Rect(rect.x, headerButtonY, manageButtonWidth, buttonHeight);
 
-            //if (Widgets.ButtonText(manageButtonRect, Resources.Strings.Roles.ManageRoles))
             if (Widgets.ButtonText(manageButtonRect, "Equip. manager"))
             {
                 Find.WindowStack.Add(new ManageRolesDialog(null));
             }
 
             // ── Кнопка глобального переназначения ──────────────────────────────
-            // Маленький квадрат с иконкой Refresh, вплотную правее «Manage Roles»
             var globalReassignRect = new Rect(
                 manageButtonRect.xMax + iconButtonGap,
                 headerButtonY + ((buttonHeight - iconButtonSize) / 2f),

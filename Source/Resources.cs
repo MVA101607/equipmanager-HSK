@@ -134,6 +134,18 @@ namespace EquipmentManager
                     return $"EquipmentManager.Roles.PrimaryWeaponTypes.{weaponType}".Translate();
                 }
 
+                internal static readonly string AssignModeBothTooltip =
+                    $"EquipmentManager.Roles.{nameof(AssignModeBothTooltip)}".Translate();
+
+                internal static readonly string AssignModeWeaponTooltip =
+                    $"EquipmentManager.Roles.{nameof(AssignModeWeaponTooltip)}".Translate();
+
+                internal static readonly string AssignModeToolTooltip =
+                    $"EquipmentManager.Roles.{nameof(AssignModeToolTooltip)}".Translate();
+
+                internal static readonly string AssignModeNoActionTooltip =
+                    $"EquipmentManager.Roles.{nameof(AssignModeNoActionTooltip)}".Translate();
+
                 internal static class Default
                 {
                     internal static readonly string Assault =
@@ -370,6 +382,12 @@ namespace EquipmentManager
             internal static readonly Texture2D Delete = ContentFinder<Texture2D>.Get("equipment-manager-delete");
             internal static readonly Texture2D PassionMajor = ContentFinder<Texture2D>.Get("UI/Icons/PassionMajor");
             internal static readonly Texture2D PassionMinor = ContentFinder<Texture2D>.Get("UI/Icons/PassionMinor");
+
+            // Иконки режима автоназначения
+            internal static readonly Texture2D AssignBoth     = ContentFinder<Texture2D>.Get("EM_both");
+            internal static readonly Texture2D AssignWeapon   = ContentFinder<Texture2D>.Get("EM_weapon");
+            internal static readonly Texture2D AssignTool     = ContentFinder<Texture2D>.Get("EM_tool");
+            internal static readonly Texture2D AssignNoAction = ContentFinder<Texture2D>.Get("EM_no_action");
         }
     }
 }
