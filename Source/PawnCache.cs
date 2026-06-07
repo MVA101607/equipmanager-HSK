@@ -113,7 +113,7 @@ namespace EquipmentManager
                 ((time.Year - _updateTime.Year) * 60 * 24) +
                 ((time.Day  - _updateTime.Day)  * 24) +
                 (time.Hour  - _updateTime.Hour);
-            ShouldUpdateEquipment = capable && hoursPassed > 6f;
+            ShouldUpdateEquipment = capable && hoursPassed > 1f;
             if (!ShouldUpdateEquipment) { return; }
             _updateTime.Year = time.Year;
             _updateTime.Day  = time.Day;

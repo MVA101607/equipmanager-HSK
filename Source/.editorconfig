@@ -2,7 +2,10 @@
 
 # IDE0010: Add missing cases
 dotnet_diagnostic.ide0010.severity = suggestion
+dotnet_diagnostic.ide0011.severity = suggestion
 dotnet_diagnostic.ide0270.severity = suggestion
+dotnet_diagnostic.ide0007.severity = suggestion
+dotnet_diagnostic.IDE0060.severity = suggestion
 # IDE0046: Преобразовать в условное выражение
 dotnet_diagnostic.IDE0046.severity = suggestion
 # Удалить ненужные круглые скобки

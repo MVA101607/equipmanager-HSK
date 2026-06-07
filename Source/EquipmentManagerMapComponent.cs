@@ -6,6 +6,7 @@ using System.Linq;
 using Verse;
 using Verse.AI;
 using Verse.AI.Group;
+using static RimWorld.PsychicRitualRoleDef;
 
 namespace EquipmentManager
 {
@@ -15,7 +16,8 @@ namespace EquipmentManager
         private readonly RimworldTime _updateTime = new(-1, -1, -1);
         private HashSet<Pawn>       _allPawns   = new();
         private HashSet<PawnCache>  _pawnCache  = new();
-        private int                 _pawnProcessingIndex;
+        private int _weaponProcessingIndex;
+        //private int _toolProcessingIndex;
 
         public EquipmentManagerMapComponent(Map map) : base(map) { }
 
@@ -440,6 +442,43 @@ namespace EquipmentManager
         }
 
         // ─────────────────────────────────────────────────────────────────────
+        // Вызывается из Harmony-патча перед выдачей задания пешке.
+        // Проверяет, есть ли у пешки инструмент для данного WorkType.
+        // Если нет — ставит EnqueuePickupJob и возвращает true
+        //   (сигнал патчу: прервать текущий JobGiver, пешка идёт за инструментом).
+        // Если инструмент уже есть — возвращает false (продолжить обычный поток).
+        // ─────────────────────────────────────────────────────────────────────
+        public bool EnsureToolForWorkType(Pawn pawn, WorkTypeDef workType)
+        {
+            if (pawn == null || workType == null) return false;
+
+            var workTypeRule = EquipmentManager
+                .GetWorkTypeRules()
+                .FirstOrDefault(r => r.WorkTypeDefName == workType.defName);
+
+            EquipmentManager.LogMessage(
+                    $"[EM] EnsureToolForWorkType {pawn.LabelShortCap}: {workType.defName}");
+
+            if (workTypeRule == null) return false; // для этой работы правило не задано
+
+            // Проверяем: несёт ли пешка уже инструмент с ненулевым score по правилу
+            var carried = (pawn.equipment?.AllEquipmentListForReading ?? Enumerable.Empty<Thing>())
+                .Concat(pawn.inventory?.innerContainer ?? Enumerable.Empty<Thing>())
+                .Any(t => t.def.IsWeapon && workTypeRule.GetThingScore(t) > 0f);
+
+            if (carried) return false; // инструмент уже есть
+
+            // Инструмента нет — запускаем назначение через существующий метод
+            var pawnCache = _pawnCache.FirstOrDefault(pc => pc.Pawn == pawn);
+            if (pawnCache == null) return false;
+
+            AssignToolsForWorkTypes(pawnCache, new List<WorkTypeDef> { workType });
+
+            // Если в очередь появилось новое задание — сигнализируем патчу прервать JobGiver
+            return pawn.jobs?.jobQueue != null && pawn.jobs.jobQueue.Count > 0;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
         // Инструменты — OneForEveryWorkType / OneForEveryAssignedWorkType
         // ─────────────────────────────────────────────────────────────────────
         private void AssignToolsForWorkTypes(PawnCache pawn, 
@@ -514,7 +553,8 @@ namespace EquipmentManager
                 $" day={_updateTime.Day} hour={_updateTime.Hour:N1} ==================");
 
             UpdatePawnCache();
-            ProcessPawnQueue();
+            ProcessWeaponQueue();
+            ProcessToolQueue();
             RemoveUnassignedWeapons();
 
         }
@@ -598,12 +638,6 @@ namespace EquipmentManager
                 pc.Update(_updateTime);
             }
 
-        //    EquipmentManager.LogMessage("[EM] Pawns: " +
-          //      string.Join("; ", _pawnCache.Select(pc =>
-            //        $"{pc.Pawn.LabelShortCap}" +
-              //      $"({pc.AssignedRole?.Label ?? "None"}" +
-                //    $",{(pc.AutoRole ? "auto" : "manual")})" +
-                  //  $"[{(pc.ShouldUpdateEquipment ? "upd" : "skip")}]")));
         }
 
 
@@ -666,12 +700,12 @@ namespace EquipmentManager
                     break;
             }
 
-            // Инструменты
+            // Инструменты (вынесли в отдельную очередь)
 
-            AssignToolsForWorkTypes(pawn,
+           /* AssignToolsForWorkTypes(pawn,
                 WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
                     .Where(wt => wt.visible && pawn.Pawn.workSettings.WorkIsActive(wt))
-                    .ToList());
+                    .ToList());*/
                 
             
 
@@ -699,7 +733,7 @@ namespace EquipmentManager
         //   2. Найти лучшее оружие на карте с учётом RetentionBonus для
         //      текущего носимого оружия.
         // ─────────────────────────────────────────────────────────────────────
-        private void ProcessPawnQueue()
+        private void ProcessWeaponQueue()
         {
             var allCandidates = _pawnCache
                 .OrderBy(pc => pc.Pawn.thingIDNumber)
@@ -707,15 +741,15 @@ namespace EquipmentManager
 
             if (allCandidates.Count == 0) { return; }
 
-            _pawnProcessingIndex %= allCandidates.Count;
-            var pawn = allCandidates[_pawnProcessingIndex];
-            _pawnProcessingIndex++;
+            _weaponProcessingIndex %= allCandidates.Count;
+            var pawn = allCandidates[_weaponProcessingIndex];
+            _weaponProcessingIndex++;
 
             // Пропускаем призванных (в бою) пешек
             if (pawn.Pawn.Drafted)
             {
                 EquipmentManager.LogMessage(
-                    $"[EM] Queue tick: skipping {pawn.Pawn.LabelShortCap} — drafted");
+                    $"[EM] WeaponQueue tick: skipping {pawn.Pawn.LabelShortCap} — drafted");
                 return;
             }
 
@@ -723,12 +757,12 @@ namespace EquipmentManager
             if (IsCaravanFormingOnMap(pawn.Pawn.Map))
             {
                 EquipmentManager.LogMessage(
-                    $"[EM] Queue tick: skipping {pawn.Pawn.LabelShortCap} — caravan forming");
+                    $"[EM] WeaponQueue tick: skipping {pawn.Pawn.LabelShortCap} — caravan forming");
                 return;
             }
 
             EquipmentManager.LogMessage(
-                $"[EM] Queue tick: processing {pawn.Pawn.LabelShortCap}" +
+                $"[EM] WeaponQueue tick: processing {pawn.Pawn.LabelShortCap}" +
                 $" (auto={pawn.AutoRole}, capable={pawn.ShouldUpdateEquipment})");
 
             if (pawn.AutoRole)
@@ -763,7 +797,33 @@ namespace EquipmentManager
             _ = ProcessPawnEquipment(pawn);
         }
 
-                // ─────────────────────────────────────────────────────────────────────
+        private void ProcessToolQueue()
+        {
+            // Берём все пешки, которые активны и не задрафчены
+            var candidates = _pawnCache
+                .Where(pc => !pc.Pawn.Drafted)
+                .OrderBy(pc => pc.Pawn.thingIDNumber)
+                .ToList();
+
+            if (candidates.Count == 0) { return; }
+
+            int _toolProcessingIndex = (_weaponProcessingIndex + (candidates.Count / 2)) % candidates.Count;
+            var pawn = candidates[_toolProcessingIndex];
+
+            // Не требуем ShouldUpdateEquipment и AssignedRole — инструменты независимы
+            var workTypes = WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
+                .Where(wt => wt.visible && pawn.Pawn.workSettings.WorkIsActive(wt))
+                .ToList();
+
+            if (workTypes.Count == 0) { return; }
+
+            EquipmentManager.LogMessage(
+                $"[EM] ToolQueue tick: processing tools for {pawn.Pawn.LabelShortCap}");
+
+            AssignToolsForWorkTypes(pawn, workTypes);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
         // Принудительное обновление всех пешек (отладка / DebugActions)
         // ─────────────────────────────────────────────────────────────────────
         public void ForceUpdate()

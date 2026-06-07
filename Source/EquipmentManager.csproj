@@ -112,6 +112,7 @@
     <Compile Include="EquipmentManagerMod.cs" />
     <Compile Include="ItemCache.cs" />
     <Compile Include="ItemRule.cs" />
+    <Compile Include="Patches\JobGiverToolPatch.cs" />
     <Compile Include="Patches\ThingSpawnPatch.cs" />
     <Compile Include="Role.cs" />
     <Compile Include="PassionLimit.cs" />
