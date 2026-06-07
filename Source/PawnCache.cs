@@ -11,6 +11,7 @@ namespace EquipmentManager
         private readonly RimworldTime _updateTime = new(-1, -1, -1);
         public readonly Dictionary<Thing, int>    AssignedAmmo    = new();
         public readonly Dictionary<Thing, string> AssignedWeapons = new();
+        public readonly Dictionary<Thing, string> AssignedTools   = new(); // инструменты отдельно от оружия
         public Role AssignedRole;
         public bool AutoRole;
         public bool ShouldUpdateEquipment;
@@ -86,10 +87,6 @@ namespace EquipmentManager
         {
             PurgeExpiredReservations();
 
-            // Пешка считается «в бою» если на карте есть активные враги
-            // (GenHostility) либо её lord ведёт боевое задание.
-            // В таком состоянии ежечасное обновление снаряжения пропускается:
-            // пешка не должна бросать укрытие ради смены оружия.
             var isInCombat =
                 (Pawn.Map != null &&
                  GenHostility.AnyHostileActiveThreatToPlayer(

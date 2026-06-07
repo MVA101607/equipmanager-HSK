@@ -17,7 +17,7 @@ namespace EquipmentManager
         private HashSet<Pawn>       _allPawns   = new();
         private HashSet<PawnCache>  _pawnCache  = new();
         private int _weaponProcessingIndex;
-        //private int _toolProcessingIndex;
+        private int _toolProcessingIndex;
 
         public EquipmentManagerMapComponent(Map map) : base(map) { }
 
@@ -457,31 +457,42 @@ namespace EquipmentManager
                 .FirstOrDefault(r => r.WorkTypeDefName == workType.defName);
 
             EquipmentManager.LogMessage(
-                    $"[EM] EnsureToolForWorkType {pawn.LabelShortCap}: {workType.defName}");
+                $"[EM] EnsureToolForWorkType {pawn.LabelShortCap}: {workType.defName}");
 
-            if (workTypeRule == null) return false; // для этой работы правило не задано
+            if (workTypeRule == null) return false;
 
-            // Проверяем: несёт ли пешка уже инструмент с ненулевым score по правилу
-            var carried = (pawn.equipment?.AllEquipmentListForReading ?? Enumerable.Empty<Thing>())
+            // Проверяем реальный инвентарь через кэшированный список подходящих инструментов
+            var suitableTools = WorkTypeToolCache.GetSortedOnMap(workTypeRule, map).ToHashSet();
+
+            bool alreadyCarried =
+                (pawn.equipment?.AllEquipmentListForReading ?? Enumerable.Empty<Thing>())
                 .Concat(pawn.inventory?.innerContainer ?? Enumerable.Empty<Thing>())
-                .Any(t => t.def.IsWeapon && workTypeRule.GetThingScore(t) > 0f);
+                .Any(t => suitableTools.Contains(t));
 
-            if (carried) return false; // инструмент уже есть
+            if (alreadyCarried) return false;
 
-            // Инструмента нет — запускаем назначение через существующий метод
+            // Уже есть pickup-задание на подходящий инструмент — не дублируем
+            if (pawn.jobs?.jobQueue != null &&
+                pawn.jobs.jobQueue.Any(qj =>
+                    qj.job?.def == JobDefOf.TakeInventory &&
+                    qj.job.targetA.Thing != null &&
+                    suitableTools.Contains(qj.job.targetA.Thing)))
+                return true;
+
             var pawnCache = _pawnCache.FirstOrDefault(pc => pc.Pawn == pawn);
             if (pawnCache == null) return false;
 
             AssignToolsForWorkTypes(pawnCache, new List<WorkTypeDef> { workType });
 
-            // Если в очередь появилось новое задание — сигнализируем патчу прервать JobGiver
             return pawn.jobs?.jobQueue != null && pawn.jobs.jobQueue.Count > 0;
         }
 
         // ─────────────────────────────────────────────────────────────────────
         // Инструменты — OneForEveryWorkType / OneForEveryAssignedWorkType
+        // Пишет в AssignedTools (отдельно от AssignedWeapons).
+        // Записывает инструмент только если он реально достижим или уже у пешки.
         // ─────────────────────────────────────────────────────────────────────
-        private void AssignToolsForWorkTypes(PawnCache pawn, 
+        private void AssignToolsForWorkTypes(PawnCache pawn,
             List<WorkTypeDef> workTypes)
         {
             foreach (var workType in workTypes)
@@ -490,28 +501,47 @@ namespace EquipmentManager
                     .FirstOrDefault(r => r.WorkTypeDefName == workType.defName);
                 if (workTypeRule == null) { continue; }
 
-                // Берём готовый отсортированный кэш — первый подходящий = лучший
+                // Берём готовый отсортированный кэш — первый подходящий = лучший.
+                // Исключаем инструменты, уже назначенные другим пешкам (AssignedTools).
                 var best = WorkTypeToolCache.GetSortedOnMap(workTypeRule, map)
-                    .Where(t => !_pawnCache.Any(pc => pc != pawn && pc.AssignedWeapons.ContainsKey(t)))
+                    .Where(t => !_pawnCache.Any(pc => pc != pawn && pc.AssignedTools.ContainsKey(t)))
                     .Where(t => EquipmentUtility.CanEquip(t, pawn.Pawn))
                     .Where(t => pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap == null ||
                                 pawn.Pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap[t.Position])
                     .Where(t => !pawn.Pawn.story.traits.HasTrait(TraitDefOf.Brawler) || !t.def.IsRangedWeapon)
-                    .FirstOrDefault(t => pawn.AssignedWeapons.Keys.All(a => a.def != t.def));
+                    .FirstOrDefault(t => pawn.AssignedTools.Keys.All(a => a.def != t.def));
 
                 if (best == null) { continue; }
-                if (pawn.AssignedWeapons.Keys.Any(t => t.def == best.def)) { continue; }
 
-                pawn.AssignedWeapons.Add(best, $"tool_{workType.defName}");
+                // Инструмент уже физически у пешки?
+                bool alreadyCarried =
+                    pawn.Pawn.equipment?.AllEquipmentListForReading.Contains(best) == true ||
+                    pawn.Pawn.inventory?.innerContainer.Contains(best) == true;
+
+                if (!alreadyCarried)
+                {
+                    // Проверяем достижимость ДО записи в AssignedTools —
+                    // чтобы не загрязнять словарь недоступными инструментами.
+                    var allowedArea = pawn.Pawn.playerSettings?.EffectiveAreaRestrictionInPawnCurrentMap;
+                    if (allowedArea != null && !allowedArea[best.Position]) { continue; }
+                    if (!pawn.Pawn.CanReach(best, PathEndMode.Touch, pawn.Pawn.NormalMaxDanger())) { continue; }
+                    if (!pawn.Pawn.CanReserve(best)) { continue; }
+                }
+
+                // Инструмент доступен — записываем и выдаём задание
+                pawn.AssignedTools[best] = workType.defName;
                 AddToolSlot(pawn, best.def);
-                EnqueuePickupJob(pawn.Pawn, best);
 
-                // Интерактивное сообщение вверху-слева
-                var msg = "EquipmentManager.ToolAssigned".Translate(
-                    pawn.Pawn.LabelShortCap,
-                    best.LabelCapNoCount,
-                    workType.labelShort ?? workType.label); // «Колонист X: назначен инструмент Y для работы Z»
-                Messages.Message(msg, pawn.Pawn, MessageTypeDefOf.SilentInput, historical: false);
+                if (!alreadyCarried)
+                {
+                    EnqueuePickupJob(pawn.Pawn, best);
+                    var msg = "EquipmentManager.ToolAssigned".Translate(
+                        pawn.Pawn.LabelShortCap,
+                        best.LabelCapNoCount,
+                        workType.labelShort ?? workType.label);
+                    Messages.Message(msg, pawn.Pawn, MessageTypeDefOf.SilentInput, historical: false);
+                }
+
                 break;
             }
         }
@@ -598,7 +628,8 @@ namespace EquipmentManager
                 pc.AssignedRole = EquipmentManager.GetRole(pawnRole?.RoleId);
             }
 
-            // Очищаем снаряжение пешкам без роли или не требующим обновления.
+            // Очищаем оружие и патроны пешкам без роли или не требующим обновления.
+            // AssignedTools не трогаем — они управляются ProcessToolQueue независимо.
             foreach (var pc in _pawnCache.Where(
                 pc => pc.AssignedRole == null || !pc.ShouldUpdateEquipment))
             {
@@ -654,6 +685,7 @@ namespace EquipmentManager
         {
             if (!pawn.ShouldUpdateEquipment || pawn.AssignedRole == null) { return false; }
 
+            // Сбрасываем только оружие и патроны; AssignedTools живёт независимо
             pawn.AssignedWeapons.Clear();
             pawn.AssignedAmmo.Clear();
             pawn.PurgeExpiredReservations();
@@ -788,7 +820,7 @@ namespace EquipmentManager
                         $" {previousRole?.Label ?? "None"} → {newRole?.Label ?? "None"}");
                     pawn.AssignedRole = newRole;
                     EquipmentManager.SetPawnRole(pawn.Pawn, newRole, automatic: true);
-                    // Сбрасываем снаряжение только этой пешке
+                    // Сбрасываем только оружие и патроны; AssignedTools живёт независимо
                     pawn.AssignedWeapons.Clear();
                     pawn.AssignedAmmo.Clear();
                 }
@@ -799,7 +831,6 @@ namespace EquipmentManager
 
         private void ProcessToolQueue()
         {
-            // Берём все пешки, которые активны и не задрафчены
             var candidates = _pawnCache
                 .Where(pc => !pc.Pawn.Drafted)
                 .OrderBy(pc => pc.Pawn.thingIDNumber)
@@ -807,10 +838,21 @@ namespace EquipmentManager
 
             if (candidates.Count == 0) { return; }
 
-            int _toolProcessingIndex = (_weaponProcessingIndex + (candidates.Count / 2)) % candidates.Count;
+            _toolProcessingIndex %= candidates.Count;
             var pawn = candidates[_toolProcessingIndex];
+            _toolProcessingIndex++;
 
-            // Не требуем ShouldUpdateEquipment и AssignedRole — инструменты независимы
+            if (IsCaravanFormingOnMap(pawn.Pawn.Map)) { return; }
+
+            // Очищаем устаревшие записи: инструменты, которые пешка уже не несёт
+            // и которые пора переназначить заново.
+            var stale = pawn.AssignedTools.Keys
+                .Where(t => !pawn.Pawn.equipment?.AllEquipmentListForReading.Contains(t) == true &&
+                            !pawn.Pawn.inventory?.innerContainer.Contains(t) == true)
+                .ToList();
+            foreach (var t in stale) { _ = pawn.AssignedTools.Remove(t); }
+
+            // Не требуем ShouldUpdateEquipment и AssignedRole — инструменты независимы от роли
             var workTypes = WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
                 .Where(wt => wt.visible && pawn.Pawn.workSettings.WorkIsActive(wt))
                 .ToList();
