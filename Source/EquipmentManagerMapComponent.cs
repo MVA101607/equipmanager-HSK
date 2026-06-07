@@ -452,6 +452,13 @@ namespace EquipmentManager
         {
             if (pawn == null || workType == null) return false;
 
+            // Пропускаем если режим пешки не включает инструменты
+            var toolPawnMode = EquipmentManager.GetPawnRole(pawn)?.Mode ?? AssignMode.Both;
+            if (toolPawnMode is AssignMode.Weapon or AssignMode.NoAction) return false;
+            
+            // Если игрок вручную назначил задание (Shift+клик) — не прерываем его
+            if (pawn.jobs?.curJob != null && pawn.jobs.curJob.playerForced) return false;
+
             var workTypeRule = EquipmentManager
                 .GetWorkTypeRules()
                 .FirstOrDefault(r => r.WorkTypeDefName == workType.defName);
