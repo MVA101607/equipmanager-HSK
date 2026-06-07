@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
@@ -9,47 +7,42 @@ using Verse.AI;
 namespace EquipmentManager.Patches
 {
     /// <summary>
-    /// Перед тем как JobGiver_Work выдаёт задание, убеждаемся что у пешки
-    /// есть нужный инструмент. Если нет — ставим pickup-задание в очередь
-    /// и возвращаем ThinkResult.NoJob (пешка сначала идёт за инструментом).
+    /// Используем Postfix: позволяем игре найти конкретную цель для работы,
+    /// вытаскиваем из неё WorkTypeDef и проверяем инструмент.
+    /// Если инструмента нет — отменяем работу, пешка идет экипироваться.
     /// </summary>
     [HarmonyPatch(typeof(JobGiver_Work), nameof(JobGiver_Work.TryIssueJobPackage))]
     [UsedImplicitly]
     internal static class JobGiverToolPatch
     {
         [UsedImplicitly]
-        public static bool Prefix(Pawn pawn, JobIssueParams jobParams,
-                                  ref ThinkResult __result)
+        public static void Postfix(Pawn pawn, JobIssueParams jobParams, ref ThinkResult __result)
         {
-            if (pawn?.Map == null || !pawn.Map.IsPlayerHome)  return true;
-            if (pawn.Faction != Faction.OfPlayer)             return true;
-            if (!pawn.DevelopmentalStage.Adult())             return true;
-            if (pawn.workSettings == null)                    return true;
+            // Если игра не нашла работу (пешка просто гуляет/отдыхает), нам проверять нечего
+            if (!__result.IsValid || __result.Job == null) return;
+
+            if (pawn?.Map == null || !pawn.Map.IsPlayerHome) return;
+            if (pawn.Faction != Faction.OfPlayer) return;
+            if (!pawn.DevelopmentalStage.Adult()) return;
+
+            // Вытаскиваем WorkGiverDef из конкретного назначенного задания
+            var workGiver = __result.Job.workGiverDef;
+            if (workGiver == null) return;
+
+            // Получаем точный тип работы (Mining, PlantCutting, Construction и т.д.)
+            var workType = workGiver.workType;
+            if (workType == null) return;
 
             var mapComp = pawn.Map.GetComponent<EquipmentManagerMapComponent>();
-            if (mapComp == null) return true;
+            if (mapComp == null) return;
 
-            var workType = GetCurrentWorkType(pawn);
-            if (workType == null) return true;
-
+            // Проверяем, есть ли нужный инструмент именно для текущей задачи
             var needsPickup = mapComp.EnsureToolForWorkType(pawn, workType);
             if (needsPickup)
             {
+                // Отменяем текущую работу. Пешка сначала пойдет за инструментом
                 __result = ThinkResult.NoJob;
-                return false;
             }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Возвращает WorkTypeDef с наивысшим приоритетом среди активных у пешки.
-        /// Это соответствует тому, что выберет JobGiver_Work в своём внутреннем цикле.
-        /// </summary>
-        private static WorkTypeDef GetCurrentWorkType(Pawn pawn)
-        {
-            return WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
-                .FirstOrDefault(wt => wt.visible && pawn.workSettings.WorkIsActive(wt));
         }
     }
 }
