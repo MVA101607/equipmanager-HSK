@@ -9,7 +9,8 @@ namespace EquipmentManager
 {
     internal class Role : IExposable
     {
-        // OFF (Id=-1): пешка исключена из обработки модом (Automatic=false)
+        // SystemIdOff оставлен только для миграции старых сейвов.
+        // Роль OFF больше не используется — функцию выполняет AssignMode.NoAction.
         public const int SystemIdOff = -1;
 
         public static bool IsSystemId(int id)
@@ -25,19 +26,10 @@ namespace EquipmentManager
         }
 
         /// <summary>
-        /// Системные роли: всегда присутствуют в любой игре, не зависят от сейва или профиля.
+        /// Системные роли. OFF удалён — его функцию выполняет AssignMode.NoAction.
+        /// Массив оставлен пустым для обратной совместимости кода.
         /// </summary>
-        /// <summary>OFF (Id=-1): пешки с этой ролью полностью игнорируются модом.</summary>
-        public static IEnumerable<Role> SystemRoles => new[]
-        {
-            new Role(SystemIdOff)
-            {
-                Label                = Resources.Strings.Roles.Default.Off,
-                Priority             = 0f,
-                IsDisabled           = true,
-                DropUnassignedWeapons = false
-            }
-        };
+        public static IEnumerable<Role> SystemRoles => Array.Empty<Role>();
 
         public static IEnumerable<Role> DefaultRoles =>
             SystemRoles.Concat(DefaultProfile.Roles);

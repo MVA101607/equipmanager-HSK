@@ -785,6 +785,15 @@ namespace EquipmentManager
                 return;
             }
 
+            // Пропускаем если режим пешки не включает оружие
+            var pawnMode = EquipmentManager.GetPawnRole(pawn.Pawn)?.Mode ?? AssignMode.Both;
+            if (pawnMode is AssignMode.Tool or AssignMode.NoAction)
+            {
+                EquipmentManager.LogMessage(
+                    $"[EM] WeaponQueue tick: skipping {pawn.Pawn.LabelShortCap} — mode={pawnMode}");
+                return;
+            }
+
             EquipmentManager.LogMessage(
                 $"[EM] WeaponQueue tick: processing {pawn.Pawn.LabelShortCap}" +
                 $" (auto={pawn.AutoRole}, capable={pawn.ShouldUpdateEquipment})");
@@ -835,6 +844,15 @@ namespace EquipmentManager
             var pawn = candidates[_toolProcessingIndex];
 
             if (IsCaravanFormingOnMap(pawn.Pawn.Map)) { return; }
+
+            // Пропускаем если режим пешки не включает инструменты
+            var toolPawnMode = EquipmentManager.GetPawnRole(pawn.Pawn)?.Mode ?? AssignMode.Both;
+            if (toolPawnMode is AssignMode.Weapon or AssignMode.NoAction)
+            {
+                EquipmentManager.LogMessage(
+                    $"[EM] ToolQueue tick: skipping {pawn.Pawn.LabelShortCap} — mode={toolPawnMode}");
+                return;
+            }
 
             // Очищаем устаревшие записи: инструменты, которые пешка уже не несёт
             var stale = pawn.AssignedTools.Keys
@@ -941,9 +959,20 @@ namespace EquipmentManager
             }
 
             pc.ShouldUpdateEquipment = true;
+            var forceMode = EquipmentManager.GetPawnRole(pawn)?.Mode ?? AssignMode.Both;
             if (pc.AssignedRole != null)
             {
-                _ = ProcessPawnEquipment(pc);
+                if (forceMode is AssignMode.Both or AssignMode.Weapon)
+                {
+                    _ = ProcessPawnEquipment(pc);
+                }
+                if (forceMode is AssignMode.Both or AssignMode.Tool)
+                {
+                    var workTypes = WorkTypeDefsUtility.WorkTypeDefsInPriorityOrder
+                        .Where(wt => wt.visible && pawn.workSettings.WorkIsActive(wt))
+                        .ToList();
+                    if (workTypes.Count > 0) { AssignToolsForWorkTypes(pc, workTypes); }
+                }
             }
             else
             {

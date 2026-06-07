@@ -127,16 +127,20 @@ namespace EquipmentManager
         public IEnumerable<Role> GetRoles()
         {
             _roles ??= new List<Role>(Role.DefaultRoles);
-            // Системные роли всегда первыми — независимо от сейва
-            return Role.SystemRoles.Concat(_roles);
+            // Системных ролей больше нет (OFF заменён на AssignMode.NoAction)
+            return _roles;
         }
 
         // ── Вспомогательные методы для системных ролей ──────────────────────
 
-        /// <summary>Назначить пешке роль "OFF" — мод перестаёт её обрабатывать.</summary>
+        /// <summary>
+        /// Устарело: роль OFF удалена. Теперь используйте AssignMode.NoAction.
+        /// Метод оставлен для обратной совместимости — устанавливает режим NoAction.
+        /// </summary>
         public void SetPawnRoleOff(Pawn pawn)
         {
-            SetPawnRole(pawn, GetRole(Role.SystemIdOff), automatic: false);
+            var pr = GetPawnRole(pawn);
+            if (pr != null) { pr.Mode = AssignMode.NoAction; }
         }
 
 
@@ -148,21 +152,25 @@ namespace EquipmentManager
             return pr.Automatic && pr.RoleId == null;
         }
 
-        /// <summary>Истина, если пешка выключена из обработки (роль OFF).</summary>
+        /// <summary>Истина, если пешка выключена из обработки (Mode == NoAction).</summary>
         public bool IsPawnRoleOff(Pawn pawn)
         {
             var pr = GetPawnRole(pawn);
-            return pr != null && !pr.Automatic && pr.RoleId == Role.SystemIdOff;
+            return pr != null && pr.Mode == AssignMode.NoAction;
         }
 
         private void EnsureSystemRoles()
         {
             if (_roles == null) { return; }
+            // Удаляем устаревшие системные роли (OFF и др.) из сохранённого списка
             _ = _roles.RemoveAll(r => Role.IsSystemId(r.Id));
             if (_pawnRoles == null) { return; }
+            // Миграция старых сейвов: RoleId==-1 (OFF) → RoleId=null + Mode=NoAction
             foreach (var pr in _pawnRoles.Where(pr => pr.RoleId == Role.SystemIdOff))
             {
+                pr.RoleId    = null;
                 pr.Automatic = false;
+                pr.Mode      = AssignMode.NoAction;
             }
         }
 

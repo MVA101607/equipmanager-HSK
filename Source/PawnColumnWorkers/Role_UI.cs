@@ -82,11 +82,14 @@ namespace EquipmentManager.PawnColumnWorkers
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
-            var iconButtonSize = (rect.height - 4) / 2;
+            // Две кнопки в одну строку справа; каждая — квадрат со стороной (height-4)
+            var btnSize = 16f;
+            const float btnGap = 2f;
+            var twoButtonsWidth = btnSize * 2 + btnGap;
 
-            // Основная кнопка выбора роли — занимает всю ширину минус иконка справа
+            // Кнопка роли занимает оставшуюся ширину
             var loadoutButtonRect = new Rect(rect.x, rect.y + 2,
-                rect.width - iconButtonSize - 4, rect.height - 4);
+                rect.width - twoButtonsWidth - btnGap, rect.height - 4);
 
             if (pawn.IsQuestLodger())
             {
@@ -104,12 +107,12 @@ namespace EquipmentManager.PawnColumnWorkers
                     Button_GenerateMenu, label,
                     dragLabel: label.Truncate(loadoutButtonRect.width), paintable: true);
 
-                // ── Верхний маленький квадрат: кнопка «Обновить» (Refresh) ──
+                // ── Левая кнопка ряда: «Обновить» (Refresh) ──────────────────
                 var forceUpdateButtonRect = new Rect(
-                    rect.xMax - iconButtonSize,
+                    rect.xMax - twoButtonsWidth,
                     rect.y + 2f,
-                    iconButtonSize,
-                    iconButtonSize);
+                    btnSize,
+                    btnSize);
 
                 TooltipHandler.TipRegion(forceUpdateButtonRect,
                     "EquipmentManager.ForceUpdatePawn.Tooltip".Translate());
@@ -119,12 +122,12 @@ namespace EquipmentManager.PawnColumnWorkers
                     mapComp?.ForceUpdateForPawn(pawn);
                 }
 
-                // ── Нижний маленький квадрат: цикличная кнопка режима ────────
+                // ── Правая кнопка ряда: цикличный выбор режима ───────────────
                 var modeButtonRect = new Rect(
-                    rect.xMax - iconButtonSize,
-                    rect.y + 2f + iconButtonSize,
-                    iconButtonSize,
-                    iconButtonSize);
+                    rect.xMax - btnSize,
+                    rect.y + 2f,
+                    btnSize,
+                    btnSize);
 
                 var currentMode = pawnRole?.Mode ?? AssignMode.Both;
                 TooltipHandler.TipRegion(modeButtonRect, GetModeTooltip(currentMode));
@@ -155,8 +158,13 @@ namespace EquipmentManager.PawnColumnWorkers
 
             var headerButtonY = rect.y + (rect.height - 65f);
 
-            // «Manage Roles» — сужаем ширину, чтобы справа поместилась иконка
-            var manageButtonWidth = Mathf.Min(rect.width, 360f) - iconButtonSize - iconButtonGap;
+            // Две иконки справа (Refresh + глобальный режим), как в ячейках строк
+            var twoIconsWidth  = iconButtonSize * 2 + iconButtonGap;
+            var iconBaseX      = rect.x + Mathf.Min(rect.width, 360f) - twoIconsWidth;
+            var iconY          = headerButtonY + (buttonHeight - iconButtonSize) / 2f;
+
+            // «Manage Roles» — сужаем, чтобы уместить два значка справа
+            var manageButtonWidth = iconBaseX - rect.x - iconButtonGap;
             var manageButtonRect  = new Rect(rect.x, headerButtonY, manageButtonWidth, buttonHeight);
 
             if (Widgets.ButtonText(manageButtonRect, "Equip. manager"))
@@ -164,12 +172,8 @@ namespace EquipmentManager.PawnColumnWorkers
                 Find.WindowStack.Add(new ManageRolesDialog(null));
             }
 
-            // ── Кнопка глобального переназначения ──────────────────────────────
-            var globalReassignRect = new Rect(
-                manageButtonRect.xMax + iconButtonGap,
-                headerButtonY + ((buttonHeight - iconButtonSize) / 2f),
-                iconButtonSize,
-                iconButtonSize);
+            // ── Левая иконка: кнопка глобального переназначения ────────────────
+            var globalReassignRect = new Rect(iconBaseX, iconY, iconButtonSize, iconButtonSize);
 
             TooltipHandler.TipRegion(globalReassignRect,
                 "EquipmentManager.GlobalReassign.Tooltip".Translate());
@@ -182,7 +186,60 @@ namespace EquipmentManager.PawnColumnWorkers
                     GlobalReassigner.GlobalReassignAll(map);
                 }
             }
+
+            // ── Правая иконка: глобальный цикличный выбор режима ───────────────
+            var globalModeRect = new Rect(iconBaseX + iconButtonSize + iconButtonGap, iconY,
+                iconButtonSize, iconButtonSize);
+
+            var globalMode = GetGlobalMode();
+            TooltipHandler.TipRegion(globalModeRect,
+                GetModeTooltip(globalMode) + 
+                "EquipmentManager.Roles.GlobalAssignModeHint".Translate());
+
+            if (Widgets.ButtonImage(globalModeRect, GetModeTexture(globalMode)))
+            {
+                var nextMode = NextMode(globalMode);
+                SetAllPawnsMode(nextMode);
+            }
             // ───────────────────────────────────────────────────────────────────
+        }
+
+        /// <summary>
+        /// Возвращает режим, общий для всех колонистов карты.
+        /// Если режимы различаются — возвращает Both.
+        /// </summary>
+        private static AssignMode GetGlobalMode()
+        {
+            var map = Find.CurrentMap;
+            if (map == null) { return AssignMode.Both; }
+            var pawns = map.mapPawns.FreeColonistsSpawned.ToList();
+            if (!pawns.Any()) { return AssignMode.Both; }
+            var first = EquipmentManager.GetPawnRole(pawns[0])?.Mode ?? AssignMode.Both;
+            return pawns.All(p => (EquipmentManager.GetPawnRole(p)?.Mode ?? AssignMode.Both) == first)
+                ? first
+                : AssignMode.Both;
+        }
+
+        /// <summary>
+        /// Устанавливает режим всем пешкам, у которых уже есть PawnRole.
+        /// Пешкам без записи создаём запись с текущей ролью.
+        /// </summary>
+        private static void SetAllPawnsMode(AssignMode mode)
+        {
+            var map = Find.CurrentMap;
+            if (map == null) { return; }
+
+            foreach (var pawn in map.mapPawns.FreeColonistsSpawned)
+            {
+                var pawnRole = EquipmentManager.GetPawnRole(pawn);
+                if (pawnRole == null)
+                {
+                    var role = EquipmentManager.GetRole(pawn);
+                    EquipmentManager.SetPawnRole(pawn, role, false);
+                    pawnRole = EquipmentManager.GetPawnRole(pawn);
+                }
+                if (pawnRole != null) { pawnRole.Mode = mode; }
+            }
         }
 
         public override int GetMinHeaderHeight(PawnTable table)
