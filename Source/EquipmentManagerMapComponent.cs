@@ -468,6 +468,17 @@ namespace EquipmentManager
 
             if (workTypeRule == null) return false;
 
+            // FIX: если Loadout уже содержит tool-слот для этого типа работы —
+            // CE сам обеспечит наличие инструмента, дополнительных заданий не нужно.
+            var ensureManagedSlots = EquipmentManager.GetPawnRole(pawn)?.ManagedPersonalLoadoutSlots;
+            if (ensureManagedSlots != null &&
+                ensureManagedSlots.Any(k => k.StartsWith(CEExtendedLoadoutHelper.PrefixTool) &&
+                    WorkTypeToolCache.GetGloballyAvailable(workTypeRule)
+                        .Any(def => k == $"{CEExtendedLoadoutHelper.PrefixTool}{def.defName}")))
+            {
+                return false;
+            }
+
             // Проверяем реальный инвентарь через кэшированный список подходящих инструментов
             var suitableTools = WorkTypeToolCache.GetSortedOnMap(workTypeRule, map).ToHashSet();
 
@@ -509,6 +520,22 @@ namespace EquipmentManager
                     .FirstOrDefault(r => r.WorkTypeDefName == workType.defName);
                 if (workTypeRule == null) { continue; }
 
+                // FIX: ManagedPersonalLoadoutSlots сохраняется в сейве (PawnRole.ExposeData).
+                // Если слот tool:<defName> уже есть — Loadout настроен, CE сам следит
+                // за тем чтобы пешка несла нужный инструмент. Ничего делать не нужно.
+                var pawnRoleForTool = EquipmentManager.GetPawnRole(pawn.Pawn);
+                var managedSlots    = pawnRoleForTool?.ManagedPersonalLoadoutSlots;
+                if (managedSlots != null &&
+                    managedSlots.Any(k => k.StartsWith(CEExtendedLoadoutHelper.PrefixTool) &&
+                        WorkTypeToolCache.GetGloballyAvailable(workTypeRule)
+                            .Any(def => k == $"{CEExtendedLoadoutHelper.PrefixTool}{def.defName}")))
+                {
+                    EquipmentManager.LogMessage(
+                        $"[EM] AssignToolsForWorkTypes: {pawn.Pawn.LabelShortCap}" +
+                        $" already has tool slot for {workType.defName} — skipping");
+                    continue;
+                }
+
                 // Берём готовый отсортированный кэш — первый подходящий = лучший.
                 // Исключаем инструменты, уже назначенные другим пешкам (AssignedTools).
                 var best = WorkTypeToolCache.GetSortedOnMap(workTypeRule, map)
@@ -525,16 +552,6 @@ namespace EquipmentManager
                 bool alreadyCarried =
                     pawn.Pawn.equipment?.AllEquipmentListForReading.Contains(best) == true ||
                     pawn.Pawn.inventory?.innerContainer.Contains(best) == true;
-
-            /*    if (!alreadyCarried)
-                {
-                    // Проверяем достижимость ДО записи в AssignedTools —
-                    // чтобы не загрязнять словарь недоступными инструментами.
-                    var allowedArea = pawn.Pawn.playerSettings?.EffectiveAreaRestrictionInPawnCurrentMap;
-                    if (allowedArea != null && !allowedArea[best.Position]) { continue; }
-                    if (!pawn.Pawn.CanReach(best, PathEndMode.Touch, pawn.Pawn.NormalMaxDanger())) { continue; }
-                    if (!pawn.Pawn.CanReserve(best)) { continue; }
-                }*/
 
                 // Инструмент доступен — записываем и выдаём задание
                 pawn.AssignedTools[best] = workType.defName;
@@ -862,9 +879,12 @@ namespace EquipmentManager
             }
 
             // Очищаем устаревшие записи: инструменты, которые пешка уже не несёт
+            // FIX: был баг с приоритетом операторов — !x?.Contains() == true
+            // вычислялось как (!nullable) == true, что давало false при null.
+            // Правильная форма: x?.Contains() != true (т.е. false или null).
             var stale = pawn.AssignedTools.Keys
-                .Where(t => !pawn.Pawn.equipment?.AllEquipmentListForReading.Contains(t) == true &&
-                            !pawn.Pawn.inventory?.innerContainer.Contains(t) == true)
+                .Where(t => pawn.Pawn.equipment?.AllEquipmentListForReading.Contains(t) != true &&
+                            pawn.Pawn.inventory?.innerContainer.Contains(t) != true)
                 .ToList();
             foreach (var t in stale) { _ = pawn.AssignedTools.Remove(t); }
 
