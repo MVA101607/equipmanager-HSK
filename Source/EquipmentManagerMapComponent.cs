@@ -442,6 +442,142 @@ namespace EquipmentManager
         }
 
         // ─────────────────────────────────────────────────────────────────────
+        // Убираем из PersonalLoadout (и ManagedPersonalLoadoutSlots) избыточные
+        // tool-слоты, чьи WorkType уже закрыты другим инструментом с более
+        // высоким score.
+        //
+        // Алгоритм:
+        //   1. Собираем все tool-ключи из ManagedPersonalLoadoutSlots.
+        //   2. Для каждого WorkTypeRule считаем, какие tool-слоты его закрывают
+        //      (def входит в GetGloballyAvailable) и с каким score.
+        //   3. Если несколько слотов закрывают один WorkType — оставляем только
+        //      лучший (наивысший score для данной пешки или defaultBaseValue если
+        //      конкретного экземпляра на карте нет), остальные убираем.
+        //   4. Дополнительно: если один инструмент закрывает ВСЕ WorkType'ы
+        //      другого инструмента — второй избыточен.
+        // ─────────────────────────────────────────────────────────────────────
+        private void PruneRedundantToolSlots(Pawn pawn)
+        {
+            var pawnRole = EquipmentManager.GetPawnRole(pawn);
+            if (pawnRole?.ManagedPersonalLoadoutSlots == null) { return; }
+
+            var managedSlots = pawnRole.ManagedPersonalLoadoutSlots;
+
+            // Только tool-ключи вида "tool:<defName>"
+            var toolKeys = managedSlots
+                .Where(k => k.StartsWith(CEExtendedLoadoutHelper.PrefixTool))
+                .ToList();
+            if (toolKeys.Count <= 1) { return; }
+
+            // Разворачиваем ключи в ThingDef
+            var toolDefs = toolKeys
+                .Select(k => DefDatabase<ThingDef>.GetNamedSilentFail(
+                    k.Substring(CEExtendedLoadoutHelper.PrefixTool.Length)))
+                .Where(d => d != null)
+                .Distinct()
+                .ToList();
+            if (toolDefs.Count <= 1) { return; }
+
+            var allWorkTypeRules = EquipmentManager.GetWorkTypeRules().ToList();
+
+            // Карта: WorkTypeRule → список (ThingDef, score)
+            // score = лучший экземпляр на карте или дефолтный если нет физического экземпляра
+            var coverageMap = new Dictionary<WorkTypeRule, List<(ThingDef def, float score)>>();
+            foreach (var rule in allWorkTypeRules)
+            {
+                var globalDefs = new HashSet<ThingDef>(WorkTypeToolCache.GetGloballyAvailable(rule));
+                var matching = toolDefs.Where(d => globalDefs.Contains(d)).ToList();
+                if (matching.Count == 0) { continue; }
+
+                var entries = new List<(ThingDef def, float score)>();
+                foreach (var def in matching)
+                {
+                    // Ищем лучший физический экземпляр у пешки или на карте
+                    var carried = (pawn.equipment?.AllEquipmentListForReading
+                                       ?? Enumerable.Empty<Thing>())
+                        .Concat(pawn.inventory?.innerContainer ?? Enumerable.Empty<Thing>())
+                        .Where(t => t.def == def)
+                        .FirstOrDefault();
+                    var score = carried != null
+                        ? rule.GetThingScore(carried)
+                        : WorkTypeToolCache.GetSortedOnMap(rule, map)
+                              .Where(t => t.def == def)
+                              .Select(t => rule.GetThingScore(t))
+                              .DefaultIfEmpty(0f)
+                              .Max();
+                    entries.Add((def, score));
+                }
+                coverageMap[rule] = entries;
+            }
+
+            // Набираем "закрытые потребности": для каждого WorkTypeRule оставляем
+            // только инструмент с максимальным score — он является "победителем" этого типа.
+            // Инструмент, который не является победителем ни в одном WorkTypeRule — лишний.
+            var winners = new HashSet<ThingDef>();
+            foreach (var kvp in coverageMap)
+            {
+                if (kvp.Value.Count == 0) { continue; }
+                var best = kvp.Value.OrderByDescending(e => e.score).First().def;
+                _ = winners.Add(best);
+            }
+
+            // Дополнительно: если у пешки есть инструмент A, который покрывает
+            // все WorkType'ы инструмента B (и A != B) — B избыточен.
+            // Находим "доминируемые" defs.
+            var dominated = new HashSet<ThingDef>();
+            foreach (var candidate in toolDefs)
+            {
+                if (!winners.Contains(candidate)) { continue; } // уже не-победитель
+                // Все WorkType'ы, которые покрывает candidate
+                var candidateTypes = coverageMap
+                    .Where(kvp => kvp.Value.Any(e => e.def == candidate))
+                    .Select(kvp => kvp.Key)
+                    .ToHashSet();
+                if (candidateTypes.Count == 0) { continue; }
+
+                foreach (var other in toolDefs.Where(d => d != candidate && !dominated.Contains(d)))
+                {
+                    var otherTypes = coverageMap
+                        .Where(kvp => kvp.Value.Any(e => e.def == other))
+                        .Select(kvp => kvp.Key)
+                        .ToHashSet();
+                    // candidate доминирует other: все потребности other закрывает candidate
+                    // И candidate лучше чем other в каждом из этих WorkType'ов
+                    if (otherTypes.Count > 0 && otherTypes.IsSubsetOf(candidateTypes))
+                    {
+                        bool candidateWinsAll = otherTypes.All(rule =>
+                        {
+                            var entries = coverageMap[rule];
+                            var cScore = entries.FirstOrDefault(e => e.def == candidate).score;
+                            var oScore = entries.FirstOrDefault(e => e.def == other).score;
+                            return cScore >= oScore;
+                        });
+                        if (candidateWinsAll) { _ = dominated.Add(other); }
+                    }
+                }
+            }
+
+            // Удаляем доминируемые и не-победители из Loadout и managedSlots
+            var toRemove = toolDefs
+                .Where(d => !winners.Contains(d) || dominated.Contains(d))
+                .ToList();
+
+            if (toRemove.Count == 0) { return; }
+
+            foreach (var def in toRemove)
+            {
+                var key = $"{CEExtendedLoadoutHelper.PrefixTool}{def.defName}";
+                _ = managedSlots.Remove(key);
+                EquipmentManager.LogMessage(
+                    $"[EM] PruneRedundantToolSlots: {pawn.LabelShortCap}" +
+                    $" removing redundant tool slot '{def.defName}'");
+            }
+
+            // Синхронизируем PersonalLoadout: убираем слоты удалённых defs
+            CEExtendedLoadoutHelper.RemoveToolSlotsByDefs(pawn, toRemove, managedSlots);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
         // Вызывается из Harmony-патча перед выдачей задания пешке.
         // Проверяет, есть ли у пешки инструмент для данного WorkType.
         // Если нет — ставит EnqueuePickupJob и возвращает true
@@ -510,8 +646,7 @@ namespace EquipmentManager
         // Пишет в AssignedTools (отдельно от AssignedWeapons).
         // Записывает инструмент только если он реально достижим или уже у пешки.
         // ─────────────────────────────────────────────────────────────────────
-        private void AssignToolsForWorkTypes(PawnCache pawn,
-            List<WorkTypeDef> workTypes)
+        private void AssignToolsForWorkTypes(PawnCache pawn, List<WorkTypeDef> workTypes)
         {
             var already_got_job_to_take = false;
             foreach (var workType in workTypes)
@@ -879,9 +1014,6 @@ namespace EquipmentManager
             }
 
             // Очищаем устаревшие записи: инструменты, которые пешка уже не несёт
-            // FIX: был баг с приоритетом операторов — !x?.Contains() == true
-            // вычислялось как (!nullable) == true, что давало false при null.
-            // Правильная форма: x?.Contains() != true (т.е. false или null).
             var stale = pawn.AssignedTools.Keys
                 .Where(t => pawn.Pawn.equipment?.AllEquipmentListForReading.Contains(t) != true &&
                             pawn.Pawn.inventory?.innerContainer.Contains(t) != true)
@@ -898,8 +1030,55 @@ namespace EquipmentManager
             EquipmentManager.LogMessage(
                 $"[EM] ToolQueue tick: processing tools for {pawn.Pawn.LabelShortCap}");
 
-            // Затем сразу же переназначаем инструменты на основе активных работ
+            // ── Шаг 1: удаляем tool-слоты профессий, которые пешка больше не выполняет.
+            // Например, если сняли Farming — серп надо убрать из Loadout.
+            var pawnRoleForPrune = EquipmentManager.GetPawnRole(pawn.Pawn);
+            var managedSlotsForPrune = pawnRoleForPrune?.ManagedPersonalLoadoutSlots;
+            if (managedSlotsForPrune != null && managedSlotsForPrune.Count > 0)
+            {
+                // Все ThingDef'ы, которые покрывают хотя бы одну активную профессию
+                var activeToolDefs = new HashSet<ThingDef>();
+                foreach (var wt in workTypes)
+                {
+                    var rule = EquipmentManager.GetWorkTypeRules()
+                        .FirstOrDefault(r => r.WorkTypeDefName == wt.defName);
+                    if (rule == null) { continue; }
+                    foreach (var def in WorkTypeToolCache.GetGloballyAvailable(rule))
+                    {
+                        _ = activeToolDefs.Add(def);
+                    }
+                }
+
+                // Managed tool-слоты, чей def не покрывает ни одну активную профессию
+                var obsoleteDefs = managedSlotsForPrune
+                    .Where(k => k.StartsWith(CEExtendedLoadoutHelper.PrefixTool))
+                    .Select(k => DefDatabase<ThingDef>.GetNamedSilentFail(
+                        k.Substring(CEExtendedLoadoutHelper.PrefixTool.Length)))
+                    .Where(d => d != null && !activeToolDefs.Contains(d))
+                    .ToList();
+
+                if (obsoleteDefs.Count > 0)
+                {
+                    foreach (var d in obsoleteDefs)
+                    {
+                        EquipmentManager.LogMessage(
+                            $"[EM] ToolQueue: {pawn.Pawn.LabelShortCap}" +
+                            $" removing obsolete tool slot '{d.defName}'" +
+                            $" (work type no longer assigned)");
+                    }
+                    CEExtendedLoadoutHelper.RemoveToolSlotsByDefs(
+                        pawn.Pawn, obsoleteDefs, managedSlotsForPrune);
+                }
+            }
+
+            // ── Шаг 3: назначаем инструменты для активных профессий
             AssignToolsForWorkTypes(pawn, workTypes);
+
+            // ── Шаг 2: убираем избыточные дублирующие инструменты
+            // (мотыга+серп, нож+кинжал, мультитул-дубли).
+            PruneRedundantToolSlots(pawn.Pawn);
+
+            
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -1008,6 +1187,7 @@ namespace EquipmentManager
             }
 
             RemoveUnassignedWeapons();
+            PruneRedundantToolSlots(pawn);
         }
     }
 }

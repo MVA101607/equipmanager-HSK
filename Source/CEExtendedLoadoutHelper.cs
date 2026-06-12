@@ -269,6 +269,38 @@ namespace EquipmentManager
             }
         }
 
+        // Удалить из PersonalLoadout только слоты конкретных ThingDef'ов
+        // и их ключи из managedSlotKeys. Используется в PruneRedundantToolSlots.
+        public static void RemoveToolSlotsByDefs(
+            [NotNull] Pawn pawn,
+            [NotNull] IEnumerable<ThingDef> defs,
+            [NotNull] HashSet<string> managedSlotKeys)
+        {
+            try
+            {
+                var personalLoadout = GetPersonalLoadout(pawn);
+                if (personalLoadout == null) { return; }
+
+                var defSet = new HashSet<ThingDef>(defs);
+                var toRemove = personalLoadout.OwnSlots
+                    .Where(s => s?.thingDef != null && defSet.Contains(s.thingDef))
+                    .ToList();
+                foreach (var s in toRemove)
+                {
+                    personalLoadout.RemoveSlot(s);
+                    _ = managedSlotKeys.Remove($"{PrefixTool}{s.thingDef.defName}");
+                }
+
+                if (toRemove.Count > 0) { NotifyAll(pawn); }
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[EM] RemoveToolSlotsByDefs failed for " +
+                    pawn.LabelShortCap + ": " + ex.Message,
+                    pawn.thingIDNumber ^ 0xAB17);
+            }
+        }
+
         // Удалить все tool-слоты из PersonalLoadout и их ключи из набора.
         // Вызывается в начале ProcessPawnEquipment перед новым циклом назначения.
         public static void RemoveToolSlotsFromPersonalLoadout(
